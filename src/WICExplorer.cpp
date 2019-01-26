@@ -6,7 +6,9 @@
 //
 // Copyright (c) Microsoft Corporation. All rights reserved.
 //----------------------------------------------------------------------------------------
-#include "precomp.hpp"
+#include "pch.h"
+
+#include "MainFrame.h"
 
 CAppModule _Module;
 CSimpleMap<HRESULT, LPCWSTR> g_wicErrorCodes;

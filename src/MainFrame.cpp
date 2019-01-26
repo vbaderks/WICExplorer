@@ -6,7 +6,12 @@
 //
 // Copyright (c) Microsoft Corporation. All rights reserved.
 //----------------------------------------------------------------------------------------
-#include "precomp.hpp"
+#include "pch.h"
+
+#include "MainFrame.h"
+#include "EncoderSelectionDlg.h"
+#include "AboutDlg.h"
+#include "PropVariant.h"
 
 LRESULT CMainFrame::OnCreate(UINT, WPARAM, LPARAM, BOOL&)
 {
@@ -381,7 +386,7 @@ HRESULT CMainFrame::Load(const LPCWSTR *argv, int argc)
     if(attempted > 1)
     {
         WCHAR buffer[60];
-        swprintf_s(buffer, 60, L"Successfully opened %d out of %d image files", opened, attempted);
+        swprintf_s(buffer, 60, L"Successfully opened %lu out of %lu image files", opened, attempted);
 
         if(m_suppressMessageBox == FALSE)
         {
@@ -571,7 +576,7 @@ LRESULT CMainFrame::OnFileOpenDir(WORD /*code*/, WORD /*item*/, HWND hSender, BO
     UpdateTreeView(true);
 
     WCHAR buffer[60];
-    swprintf_s(buffer, 60, L"Successfully opened %d out of %d image files", opened, attempted);
+    swprintf_s(buffer, 60, L"Successfully opened %lu out of %lu image files", opened, attempted);
 
     if(m_suppressMessageBox == FALSE)
     {

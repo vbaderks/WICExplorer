@@ -6,8 +6,11 @@
 //
 // Copyright (c) Microsoft Corporation. All rights reserved.
 //----------------------------------------------------------------------------------------
-#include "precomp.hpp"
+#include "pch.h"
 
+#include "PropVariant.h"
+
+#include <algorithm>
 
 template<class T> static void WriteValue(const T & /*val*/, CString &out)
 {
@@ -19,87 +22,87 @@ template<class T> static LPCWSTR GetTypeName()
     return L"<UnknownType>";
 }
 
-template<> static void WriteValue<CHAR>(const CHAR &val, CString &out)
+template<> void WriteValue<CHAR>(const CHAR &val, CString &out)
 {
     out.Format(L"%d", (int)val);
 }
 
-template<> static LPCWSTR GetTypeName<CHAR>()
+template<> LPCWSTR GetTypeName<CHAR>()
 {
     return L"CHAR";
 }
 
-template<> static void WriteValue<UCHAR>(const UCHAR &val, CString &out)
+template<> void WriteValue<UCHAR>(const UCHAR &val, CString &out)
 {
     out.Format(L"%u", (unsigned)val);
 }
 
-template<> static LPCWSTR GetTypeName<UCHAR>()
+template<> LPCWSTR GetTypeName<UCHAR>()
 {
     return L"UCHAR";
 }
 
-template<> static void WriteValue<SHORT>(const SHORT &val, CString &out)
+template<> void WriteValue<SHORT>(const SHORT &val, CString &out)
 {
     out.Format(L"%d", (int)val);
 }
 
-template<> static LPCWSTR GetTypeName<SHORT>()
+template<> LPCWSTR GetTypeName<SHORT>()
 {
     return L"SHORT";
 }
 
-template<> static void WriteValue<USHORT>(const USHORT &val, CString &out)
+template<> void WriteValue<USHORT>(const USHORT &val, CString &out)
 {
     out.Format(L"%u", (unsigned)val);
 }
 
-template<> static LPCWSTR GetTypeName<USHORT>()
+template<> LPCWSTR GetTypeName<USHORT>()
 {
     return L"USHORT";
 }
 
-template<> static void WriteValue<LONG>(const LONG &val, CString &out)
+template<> void WriteValue<LONG>(const LONG &val, CString &out)
 {
     out.Format(L"%d", (int)val);
 }
 
-template<> static LPCWSTR GetTypeName<LONG>()
+template<> LPCWSTR GetTypeName<LONG>()
 {
     return L"LONG";
 }
 
-template<> static void WriteValue<ULONG>(const ULONG &val, CString &out)
+template<> void WriteValue<ULONG>(const ULONG &val, CString &out)
 {
     out.Format(L"%u", (unsigned)val);
 }
 
-template<> static LPCWSTR GetTypeName<ULONG>()
+template<> LPCWSTR GetTypeName<ULONG>()
 {
     return L"ULONG";
 }
 
-template<> static void WriteValue<INT>(const INT &val, CString &out)
+template<> void WriteValue<INT>(const INT &val, CString &out)
 {
     out.Format(L"%d", (int)val);
 }
 
-template<> static LPCWSTR GetTypeName<INT>()
+template<> LPCWSTR GetTypeName<INT>()
 {
     return L"INT";
 }
 
-template<> static void WriteValue<UINT>(const UINT &val, CString &out)
+template<> void WriteValue<UINT>(const UINT &val, CString &out)
 {
     out.Format(L"%u", (unsigned)val);
 }
 
-template<> static LPCWSTR GetTypeName<UINT>()
+template<> LPCWSTR GetTypeName<UINT>()
 {
     return L"UINT";
 }
 
-template<> static void WriteValue<LARGE_INTEGER>(const LARGE_INTEGER &val, CString &out)
+template<> void WriteValue<LARGE_INTEGER>(const LARGE_INTEGER &val, CString &out)
 {
     // "the numerator in low part and denominator in the high part"
     if (0 != val.HighPart)
@@ -114,12 +117,12 @@ template<> static void WriteValue<LARGE_INTEGER>(const LARGE_INTEGER &val, CStri
     }
 }
 
-template<> static LPCWSTR GetTypeName<LARGE_INTEGER>()
+template<> LPCWSTR GetTypeName<LARGE_INTEGER>()
 {
     return L"LARGE_INTEGER";
 }
 
-template<> static void WriteValue<ULARGE_INTEGER>(const ULARGE_INTEGER &val, CString &out)
+template<> void WriteValue<ULARGE_INTEGER>(const ULARGE_INTEGER &val, CString &out)
 {
     // "the numerator in low part and denominator in the high part"
     if (0 != val.HighPart)
@@ -134,64 +137,64 @@ template<> static void WriteValue<ULARGE_INTEGER>(const ULARGE_INTEGER &val, CSt
     }
 }
 
-template<> static LPCWSTR GetTypeName<ULARGE_INTEGER>()
+template<> LPCWSTR GetTypeName<ULARGE_INTEGER>()
 {
     return L"ULARGE_INTEGER";
 }
 
-template<> static void WriteValue<FLOAT>(const FLOAT &val, CString &out)
+template<> void WriteValue<FLOAT>(const FLOAT &val, CString &out)
 {
     WCHAR str[64];
     StringCchPrintfW(str, 64, L"%g", val);
     out = str;
 }
 
-template<> static LPCWSTR GetTypeName<FLOAT>()
+template<> LPCWSTR GetTypeName<FLOAT>()
 {
     return L"FLOAT";
 }
 
-template<> static void WriteValue<DOUBLE>(const DOUBLE &val, CString &out)
+template<> void WriteValue<DOUBLE>(const DOUBLE &val, CString &out)
 {
     WCHAR str[64];
     StringCchPrintfW(str, 64, L"%g", val);
     out = str;
 }
 
-template<> static LPCWSTR GetTypeName<DOUBLE>()
+template<> LPCWSTR GetTypeName<DOUBLE>()
 {
     return L"DOUBLE";
 }
 
-template<> static void WriteValue<CY>(const CY &val, CString &out)
+template<> void WriteValue<CY>(const CY &val, CString &out)
 {
     out.Format(L"%g", (double)val.int64 / 10000.0);
 }
 
-template<> static LPCWSTR GetTypeName<CY>()
+template<> LPCWSTR GetTypeName<CY>()
 {
     return L"CY";
 }
 
-template<> static void WriteValue<CLSID>(const CLSID &val, CString &out)
+template<> void WriteValue<CLSID>(const CLSID &val, CString &out)
 {
     WCHAR str[64];
     StringFromGUID2(val, str, 64);
     out = str;
 }
 
-template<> static LPCWSTR GetTypeName<CLSID>()
+template<> LPCWSTR GetTypeName<CLSID>()
 {
     return L"CLSID";
 }
 
-template<> static void WriteValue<BLOB>(const BLOB &val, CString &out)
+template<> void WriteValue<BLOB>(const BLOB &val, CString &out)
 {
-    const UINT MAX_BYTES = 10;
+    const ULONG MAX_BYTES = 10;
     CString b;
 
     out.Format(L"%u bytes = { ", val.cbSize);
-    for (UINT i = 0; i < min(MAX_BYTES, val.cbSize); i++)
+    for (UINT i = 0; i < std::min(MAX_BYTES, val.cbSize); i++)
     {                
         b.Format(L"0x%.2X ", val.pBlobData[i]);
         out += b;
@@ -205,42 +208,42 @@ template<> static void WriteValue<BLOB>(const BLOB &val, CString &out)
     out += L"}";
 }
 
-template<> static LPCWSTR GetTypeName<BLOB>()
+template<> LPCWSTR GetTypeName<BLOB>()
 {
     return L"BLOB";
 }
 
-template<> static void WriteValue<LPSTR>(const LPSTR &val, CString &out)
+template<> void WriteValue<LPSTR>(const LPSTR &val, CString &out)
 {
     out = L"\"" + CString(val) + L"\"";
 }
 
-template<> static LPCWSTR GetTypeName<LPSTR>()
+template<> LPCWSTR GetTypeName<LPSTR>()
 {
     return L"LPSTR";
 }
 
-template<> static void WriteValue<LPWSTR>(const LPWSTR &val, CString &out)
+template<> void WriteValue<LPWSTR>(const LPWSTR &val, CString &out)
 {
     out = L"\"" + CString(val) + L"\"";
 }
 
-template<> static LPCWSTR GetTypeName<LPWSTR>()
+template<> LPCWSTR GetTypeName<LPWSTR>()
 {
     return L"LPWSTR";
 }
 
-template<> static void WriteValue<IUnknown>(const IUnknown &val, CString &out)
+template<> void WriteValue<IUnknown>(const IUnknown &val, CString &out)
 {
     out.Format(L"IUnknown * = %p", &val);
 }
 
-template<> static LPCWSTR GetTypeName<IUnknown>()
+template<> LPCWSTR GetTypeName<IUnknown>()
 {
     return L"IUnknown*";
 }
 
-template<typename T> static void WriteValues(ULONG count, T *vals, VARTYPE type, unsigned options, CString &out)
+template<typename T> void WriteValues(ULONG count, T *vals, VARTYPE type, unsigned options, CString &out)
 {
     const ULONG MAX_VALUES = 10;
     CString b;
@@ -255,7 +258,7 @@ template<typename T> static void WriteValues(ULONG count, T *vals, VARTYPE type,
         out = L"{ ";
     }
     
-    ULONG num = min(MAX_VALUES, count);
+    ULONG num = std::min(MAX_VALUES, count);
     for (ULONG i = 0; i < num; i++)
     {
         WriteValue(vals[i], b);

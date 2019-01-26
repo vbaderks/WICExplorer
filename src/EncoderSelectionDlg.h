@@ -8,6 +8,8 @@
 //----------------------------------------------------------------------------------------
 #pragma once
 
+#include "resource.h"
+
 class CEncoderSelectionDlg : public CDialogImpl<CEncoderSelectionDlg>
 {
 public:

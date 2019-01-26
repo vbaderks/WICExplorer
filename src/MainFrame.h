@@ -9,6 +9,7 @@
 #pragma once
 
 #include "Element.h"
+#include "resource.h"
 
 class CMainFrame : public CFrameWindowImpl<CMainFrame>
 {

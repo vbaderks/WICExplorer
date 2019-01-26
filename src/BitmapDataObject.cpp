@@ -6,8 +6,9 @@
 //
 // Copyright (c) Microsoft Corporation. All rights reserved.
 //----------------------------------------------------------------------------------------
-#include "precomp.hpp"
+#include "pch.h"
 
+#include "BitmapDataObject.h"
 
 HRESULT CBitmapDataObject::InsertDib(HWND /*hWnd*/, IRichEditOle *pRichEditOle, HGLOBAL hGlobal)
 {
@@ -106,7 +107,7 @@ CBitmapDataObject::~CBitmapDataObject()
     ::ReleaseStgMedium(&m_stgmed);
 }
 
-HRESULT STDMETHODCALLTYPE CBitmapDataObject::QueryInterface(REFIID iid, void **ppvObject)
+HRESULT STDMETHODCALLTYPE CBitmapDataObject::QueryInterface(REFIID iid, void **ppvObject) noexcept
 {
     HRESULT result = E_INVALIDARG;
 
@@ -134,13 +135,13 @@ HRESULT STDMETHODCALLTYPE CBitmapDataObject::QueryInterface(REFIID iid, void **p
     return result;
 }
 
-ULONG STDMETHODCALLTYPE CBitmapDataObject::AddRef()
+ULONG STDMETHODCALLTYPE CBitmapDataObject::AddRef() noexcept
 {
     m_numReferences++;
     return m_numReferences;
 }
 
-ULONG STDMETHODCALLTYPE CBitmapDataObject::Release()
+ULONG STDMETHODCALLTYPE CBitmapDataObject::Release() noexcept
 {
     ULONG result = 0;
 
@@ -157,7 +158,7 @@ ULONG STDMETHODCALLTYPE CBitmapDataObject::Release()
     return result;
 }
 
-HRESULT STDMETHODCALLTYPE CBitmapDataObject::GetData(FORMATETC * /*pformatetcIn*/, STGMEDIUM *pmedium)
+HRESULT STDMETHODCALLTYPE CBitmapDataObject::GetData(FORMATETC * /*pformatetcIn*/, STGMEDIUM *pmedium) noexcept
 {
     pmedium->tymed = TYMED_HGLOBAL;
     pmedium->hGlobal = ::OleDuplicateData(m_stgmed.hGlobal, CF_DIB, GMEM_MOVEABLE | GMEM_SHARE);
@@ -166,12 +167,12 @@ HRESULT STDMETHODCALLTYPE CBitmapDataObject::GetData(FORMATETC * /*pformatetcIn*
     return S_OK;
 }
 
-HRESULT STDMETHODCALLTYPE CBitmapDataObject::GetDataHere(FORMATETC * /*pformatetc*/, STGMEDIUM * /*pmedium*/)
+HRESULT STDMETHODCALLTYPE CBitmapDataObject::GetDataHere(FORMATETC * /*pformatetc*/, STGMEDIUM * /*pmedium*/) noexcept
 {
     return E_NOTIMPL;
 }
 
-HRESULT STDMETHODCALLTYPE CBitmapDataObject::QueryGetData(FORMATETC *pformatetc )
+HRESULT STDMETHODCALLTYPE CBitmapDataObject::QueryGetData(FORMATETC *pformatetc ) noexcept
 {
     HRESULT result = DV_E_FORMATETC;
     if (pformatetc)
@@ -184,12 +185,12 @@ HRESULT STDMETHODCALLTYPE CBitmapDataObject::QueryGetData(FORMATETC *pformatetc 
     return result;
 }
 
-HRESULT STDMETHODCALLTYPE CBitmapDataObject::GetCanonicalFormatEtc(FORMATETC * /*pformatectIn*/, FORMATETC* /*pformatetcOut*/)
+HRESULT STDMETHODCALLTYPE CBitmapDataObject::GetCanonicalFormatEtc(FORMATETC * /*pformatectIn*/, FORMATETC* /*pformatetcOut*/) noexcept
 {
     return E_NOTIMPL;
 }
 
-HRESULT STDMETHODCALLTYPE CBitmapDataObject::SetData(FORMATETC *pformatetc, STGMEDIUM *pmedium, BOOL /*fRelease*/)
+HRESULT STDMETHODCALLTYPE CBitmapDataObject::SetData(FORMATETC *pformatetc, STGMEDIUM *pmedium, BOOL /*fRelease*/) noexcept
 {
     m_format = *pformatetc;
     m_stgmed = *pmedium;
@@ -197,23 +198,23 @@ HRESULT STDMETHODCALLTYPE CBitmapDataObject::SetData(FORMATETC *pformatetc, STGM
     return S_OK;
 }
 
-HRESULT STDMETHODCALLTYPE CBitmapDataObject::EnumFormatEtc(DWORD /*dwDirection*/, IEnumFORMATETC **ppenumFormatEtc)
+HRESULT STDMETHODCALLTYPE CBitmapDataObject::EnumFormatEtc(DWORD /*dwDirection*/, IEnumFORMATETC **ppenumFormatEtc) noexcept
 {
     *ppenumFormatEtc = nullptr;
     return E_NOTIMPL;
 }
 
-HRESULT STDMETHODCALLTYPE CBitmapDataObject::DAdvise(FORMATETC * /*pformatetc*/, DWORD /*advf*/, IAdviseSink * /*pAdvSink*/, DWORD * /*pdwConnection*/)
+HRESULT STDMETHODCALLTYPE CBitmapDataObject::DAdvise(FORMATETC * /*pformatetc*/, DWORD /*advf*/, IAdviseSink * /*pAdvSink*/, DWORD * /*pdwConnection*/) noexcept
 {
     return OLE_E_ADVISENOTSUPPORTED;
 }
 
-HRESULT STDMETHODCALLTYPE CBitmapDataObject::DUnadvise(DWORD /*dwConnection*/)
+HRESULT STDMETHODCALLTYPE CBitmapDataObject::DUnadvise(DWORD /*dwConnection*/) noexcept
 {
     return OLE_E_ADVISENOTSUPPORTED;
 }
 
-HRESULT STDMETHODCALLTYPE CBitmapDataObject::EnumDAdvise(IEnumSTATDATA **ppenumAdvise)
+HRESULT STDMETHODCALLTYPE CBitmapDataObject::EnumDAdvise(IEnumSTATDATA **ppenumAdvise) noexcept
 {
     *ppenumAdvise = nullptr;
     return OLE_E_ADVISENOTSUPPORTED;

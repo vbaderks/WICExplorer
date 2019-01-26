@@ -1,0 +1,13 @@
+# GIT ignore file
+
+obj/
+bin/
+Win32/
+x64/
+.vscode/
+.vs/
+build/
+[Dd]ebug/
+[Rr]elease/
+
+*.user

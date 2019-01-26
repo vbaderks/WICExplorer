@@ -20,29 +20,38 @@
 #include <wincodecsdk.h>
 #include <icm.h>
 
+#pragma warning(push)
+#pragma warning(disable: 4471) // enum forward without type
 #import "msxml2.tlb" named_guids
+#pragma warning(pop)
 
 #define STRSAFE_NO_DEPRECATE 1
 #include <strsafe.h>
 
+#pragma warning(push)
+#pragma warning(disable: 4986) // exception specs
 #include <atlbase.h>
 #include <atlstr.h>
 #include <atlwin.h>
+#pragma warning(pop)
 
 // ***** The Windows Template Library (WTL) is required for this project *****
 // ***** and must be downloaded separately. See instructions in readme.md. *****
 #define _WTL_NO_CSTRING
 
-#include "wtl90\atlapp.h"
+#pragma warning(push)
+#pragma warning(disable: 4127) // conditional expression is constant
+#include <wtl/include/atlapp.h>
 
 extern CAppModule _Module;
 
-#include "wtl90\atlframe.h"
-#include "wtl90\atlctrls.h"
-#include "wtl90\atldlgs.h"
-#include "wtl90\atlmisc.h"
-#include "wtl90\atlsplit.h"
-#include "wtl90\atlctrlx.h"
+#include <wtl/include/atlframe.h>
+#include <wtl/include/atlctrls.h>
+#include <wtl/include/atldlgs.h>
+#include <wtl/include/atlmisc.h>
+#include <wtl/include/atlsplit.h>
+#include <wtl/include/atlctrlx.h>
+#pragma warning(pop)
 
 #define MP(i) typedef _com_ptr_t<_com_IIID<i, &IID_##i> > i##Ptr;
 #include "Interfaces.h"
@@ -62,17 +71,3 @@ extern CSimpleMap<HRESULT, LPCWSTR> g_wicErrorCodes;
     } else { out = L""; } } while(0);
 
 void GetHresultString(HRESULT hr, CString &out);
-
-#include "resource.h"
-
-#include "AboutDlg.h"
-#include "BitmapDataObject.h"
-#include "CodeGenerator.h"
-#include "Element.h"
-#include "EncoderSelectionDlg.h"
-#include "ImageTransencoder.h"
-#include "MainFrame.h"
-#include "MetadataTranslator.h"
-#include "OutputDevice.h"
-#include "PropVariant.h"
-#include "Stopwatch.h"

@@ -8,6 +8,8 @@
 //----------------------------------------------------------------------------------------
 #pragma once
 
+#include "CodeGenerator.h"
+
 class CImageTransencoder
 {
 public:

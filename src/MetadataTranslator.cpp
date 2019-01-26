@@ -6,7 +6,9 @@
 //
 // Copyright (c) Microsoft Corporation. All rights reserved.
 //----------------------------------------------------------------------------------------
-#include "precomp.hpp"
+#include "pch.h"
+
+#include "MetadataTranslator.h"
 
 CMetadataTranslator::Key::Key(LPWSTR guidStr, LPCWSTR idStr)
 {
@@ -124,8 +126,8 @@ HRESULT CMetadataTranslator::LoadFormat(MSXML2::IXMLDOMNodePtr formatNode)
 
             if ((NULL != entryIdNode) && (NULL != entryValueNode))
             {
-                _bstr_t idStr = entryIdNode->nodeValue;
-                _bstr_t valueStr = entryValueNode->nodeValue;
+                _bstr_t idStr{ entryIdNode->nodeValue };
+                _bstr_t valueStr{ entryValueNode->nodeValue };
 
                 // Finally, we can add this entry
                 m_dictionary.Add(Key(formatGuidStr, idStr), CString((LPCWSTR)valueStr));

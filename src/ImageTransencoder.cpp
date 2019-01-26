@@ -6,8 +6,9 @@
 //
 // Copyright (c) Microsoft Corporation. All rights reserved.
 //----------------------------------------------------------------------------------------
-#include "precomp.hpp"
+#include "pch.h"
 
+#include "ImageTransencoder.h"
 
 CImageTransencoder::CImageTransencoder()
 : m_codeGen(NULL)

@@ -6,7 +6,10 @@
 //
 // Copyright (c) Microsoft Corporation. All rights reserved.
 //----------------------------------------------------------------------------------------
-#include "precomp.hpp"
+#include "pch.h"
+
+#include "OutputDevice.h"
+#include "BitmapDataObject.h"
 
 static const CString NormalFontName = L"Verdana";
 static const CString VerbatimFontName = L"Lucida Console";

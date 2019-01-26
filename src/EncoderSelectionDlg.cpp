@@ -6,8 +6,9 @@
 //
 // Copyright (c) Microsoft Corporation. All rights reserved.
 //----------------------------------------------------------------------------------------
-#include "precomp.hpp"
+#include "pch.h"
 
+#include "EncoderSelectionDlg.h"
 
 CEncoderSelectionDlg::CEncoderSelectionDlg()
 : m_containerSel(-1), m_formatSel(-1)

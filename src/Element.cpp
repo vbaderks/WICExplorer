@@ -6,8 +6,13 @@
 //
 // Copyright (c) Microsoft Corporation. All rights reserved.
 //----------------------------------------------------------------------------------------
-#include "precomp.hpp"
+#include "pch.h"
 
+#include "Element.h"
+#include "Stopwatch.h"
+#include "PropVariant.h"
+#include "MetadataTranslator.h"
+#include "resource.h"
 
 class CProgressiveBitmapSource : public IWICBitmapSource
 {
@@ -125,8 +130,8 @@ IWICImagingFactoryPtr g_imagingFactory;
 
 CInfoElement::CInfoElement(LPCWSTR name)
     : m_parent(NULL)
-    , m_nextSibling(NULL)
     , m_prevSibling(NULL)
+    , m_nextSibling(NULL)
     , m_firstChild(NULL)
 {
     m_name = name;
@@ -279,7 +284,7 @@ HRESULT CBitmapDecoderElement::Load(ICodeGenerator &codeGen)
 
     Unload();
     codeGen.BeginVariableScope(L"IWICBitmapDecoder*", L"decoder", L"NULL");
-    codeGen.CallFunction(L"imagingFactory->CreateDecoderFromFilename(\"%s\", NULL, GENERIC_READ, WICDecodeMetadataCacheOnDemand, &decoder)", m_filename);
+    codeGen.CallFunction(L"imagingFactory->CreateDecoderFromFilename(\"%s\", NULL, GENERIC_READ, WICDecodeMetadataCacheOnDemand, &decoder)", m_filename.GetString());
     IFC(g_imagingFactory->CreateDecoderFromFilename(m_filename, NULL, GENERIC_READ, WICDecodeMetadataCacheOnDemand, &m_decoder));
 
     // For each of the frames, create an element
@@ -766,21 +771,21 @@ void CBitmapDecoderElement::FillContextMenu(HMENU context)
     if(m_loaded)
     {
         itemInfo.wID = ID_FILE_SAVE;
-        itemInfo.dwTypeData = L"Save As Image...";
+        itemInfo.dwTypeData = const_cast<LPWSTR>(L"Save As Image...");
         InsertMenuItem(context, GetMenuItemCount(context), TRUE, &itemInfo);
 
         itemInfo.wID = ID_FILE_UNLOAD;
-        itemInfo.dwTypeData = L"Unload";
+        itemInfo.dwTypeData = const_cast<LPWSTR>(L"Unload");
     }
     else
     {
         itemInfo.wID = ID_FILE_LOAD;
-        itemInfo.dwTypeData = L"Load";
+        itemInfo.dwTypeData = const_cast<LPWSTR>(L"Load");
     }
     InsertMenuItem(context, GetMenuItemCount(context), TRUE, &itemInfo);
 
     itemInfo.wID = ID_FILE_CLOSE;
-    itemInfo.dwTypeData = L"Close";
+    itemInfo.dwTypeData = const_cast<LPWSTR>(L"Close");
     InsertMenuItem(context, GetMenuItemCount(context), TRUE, &itemInfo);
 }
 
@@ -939,7 +944,7 @@ void CBitmapSourceElement::FillContextMenu(HMENU context)
     itemInfo.fType = MFT_STRING;
     itemInfo.fState = MFS_ENABLED;
     itemInfo.wID = ID_FILE_SAVE;
-    itemInfo.dwTypeData = L"Save As Image...";
+    itemInfo.dwTypeData = const_cast<LPWSTR>(L"Save As Image...");
     InsertMenuItem(context, GetMenuItemCount(context), TRUE, &itemInfo);
 }
 
@@ -1245,7 +1250,7 @@ HRESULT CBitmapSourceElement::CreateDibFromBitmapSource(IWICBitmapSourcePtr sour
         return E_OUTOFMEMORY;
         }
 
-        BYTE *dibPixels = dibBytes + sizeof(BITMAPINFOHEADER);
+        BYTE *dibPixels2 = dibBytes + sizeof(BITMAPINFOHEADER);
 
         BYTE *dibAlphaBytes = static_cast<BYTE*>(GlobalLock(*phAlpha));
 
@@ -1258,30 +1263,30 @@ HRESULT CBitmapSourceElement::CreateDibFromBitmapSource(IWICBitmapSourcePtr sour
         }
 
         BYTE *dibAlphaPixels = dibAlphaBytes + sizeof(BITMAPINFOHEADER);
-        BITMAPINFOHEADER *bmih = reinterpret_cast<BITMAPINFOHEADER*>(dibAlphaBytes);
+        BITMAPINFOHEADER *bmih2 = reinterpret_cast<BITMAPINFOHEADER*>(dibAlphaBytes);
 
         // Set the header
-        ZeroMemory(bmih, sizeof(BITMAPINFOHEADER));
-        bmih->biSize = sizeof(BITMAPINFOHEADER);
-        bmih->biPlanes = 1;
-        bmih->biBitCount = 32;
-        bmih->biCompression = BI_RGB;
-        bmih->biWidth = width;
-        bmih->biHeight = height;
-        bmih->biSizeImage = stride*height;
+        ZeroMemory(bmih2, sizeof(BITMAPINFOHEADER));
+        bmih2->biSize = sizeof(BITMAPINFOHEADER);
+        bmih2->biPlanes = 1;
+        bmih2->biBitCount = 32;
+        bmih2->biCompression = BI_RGB;
+        bmih2->biWidth = width;
+        bmih2->biHeight = height;
+        bmih2->biSizeImage = stride*height;
 
         // Fill the dibpixels with alpha values:
         for (unsigned y = 0; y < height; y++)
         {
             for (unsigned x = 0; x < width; x++)
             {
-                dibAlphaPixels[x*4+0] = dibPixels[x*4+3];
-                dibAlphaPixels[x*4+1] = dibPixels[x*4+3];
-                dibAlphaPixels[x*4+2] = dibPixels[x*4+3];
-                dibAlphaPixels[x*4+3] = dibPixels[x*4+3];
+                dibAlphaPixels[x*4+0] = dibPixels2[x*4+3];
+                dibAlphaPixels[x*4+1] = dibPixels2[x*4+3];
+                dibAlphaPixels[x*4+2] = dibPixels2[x*4+3];
+                dibAlphaPixels[x*4+3] = dibPixels2[x*4+3];
             }
             dibAlphaPixels += stride;
-            dibPixels += stride;
+            dibPixels2 += stride;
         }
         GlobalUnlock (*phAlpha);
         if (FAILED(result))
@@ -1317,7 +1322,7 @@ void CBitmapFrameDecodeElement::FillContextMenu(HMENU context)
     itemInfo.fState = MFS_ENABLED;
 
     itemInfo.wID = ID_FIND_METADATA;
-    itemInfo.dwTypeData = L"Find metadata by Query Language";
+    itemInfo.dwTypeData = const_cast<LPWSTR>(L"Find metadata by Query Language");
     InsertMenuItem(context, GetMenuItemCount(context), TRUE, &itemInfo);
 }
 
