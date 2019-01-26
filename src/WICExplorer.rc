@@ -34,7 +34,7 @@ END
 
 2 TEXTINCLUDE 
 BEGIN
-    "#include ""atlres.h""\r\n"
+    "#include ""wtl/include/atlres.h""\r\n"
     "\0"
 END
 

@@ -1,4 +1,4 @@
-//----------------------------------------------------------------------------------------
+﻿//----------------------------------------------------------------------------------------
 // THIS CODE AND INFORMATION IS PROVIDED "AS-IS" WITHOUT WARRANTY OF
 // ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 // THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
@@ -30,6 +30,7 @@
 
 #pragma warning(push)
 #pragma warning(disable: 4986) // exception specs
+#pragma warning(disable: 4755) // conversin rules, inline
 #include <atlbase.h>
 #include <atlstr.h>
 #include <atlwin.h>
