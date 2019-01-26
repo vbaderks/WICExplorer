@@ -1,22 +1,12 @@
-WIC Explorer sample
-===================
+# WIC Explorer sample
 
 WIC Explorer is a tool that uses the Windows Imaging Component API to enumerate and list all of the elements within an image file, including metadata, frames, and thumbnails. It is useful for exploring the contents of images, as well as understanding how the WIC API is interpreting a specific file.
 
-IMPORTANT: Windows Template Library files are not included
-----------------------------------------------------------
+## Modifications
 
-WIC Explorer requires the Windows Template Library version 9.0, which must be downloaded separately.
+This Microsoft sample application has been modified to compile with Visual Studio 2019 and WTL 10 (included as git submodule).
 
-1. Download the Windows Template Library version 9.0 from [Sourceforge](http://sourceforge.net/projects/wtl/files/WTL%209.0/WTL%209.0.4140%20Final/WTL90_4140_Final.zip/download).
-2. Unzip the package into a temporary directory.
-3. Copy all of the files from the "Include" directory to the "wtl90" directory in this sample.
-4. Open the solution in Visual Studio as normal.
-
-For more information about WTL, see [its project website](http://wtl.sourceforge.net/).
-
-How to use
-----------
+## How to use
 
 ### Loading images
 
