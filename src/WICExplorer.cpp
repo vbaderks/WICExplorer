@@ -1,4 +1,4 @@
-//----------------------------------------------------------------------------------------
+﻿//----------------------------------------------------------------------------------------
 // THIS CODE AND INFORMATION IS PROVIDED "AS-IS" WITHOUT WARRANTY OF
 // ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 // THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
@@ -28,7 +28,7 @@ void GetHresultString(HRESULT hr, CString &out)
         WCHAR msg[MAX_MsgLength];
         DWORD len = 0;
 
-        msg[0] = TEXT('\0');   
+        msg[0] = TEXT('\0');
 
         if (FACILITY_WINDOWS == HRESULT_FACILITY(hr))
         {
@@ -95,7 +95,7 @@ static void PopulateWicErrorCodes()
     g_wicErrorCodes.Add(WINCODEC_ERR_STREAMREAD, L"WINCODEC_ERR_STREAMREAD");
     g_wicErrorCodes.Add(WINCODEC_ERR_STREAMNOTAVAILABLE, L"WINCODEC_ERR_STREAMNOTAVAILABLE");
     g_wicErrorCodes.Add(WINCODEC_ERR_UNSUPPORTEDPIXELFORMAT, L"WINCODEC_ERR_UNSUPPORTEDPIXELFORMAT");
-    g_wicErrorCodes.Add(WINCODEC_ERR_UNSUPPORTEDOPERATION, L"WINCODEC_ERR_UNSUPPORTEDOPERATION");    
+    g_wicErrorCodes.Add(WINCODEC_ERR_UNSUPPORTEDOPERATION, L"WINCODEC_ERR_UNSUPPORTEDOPERATION");
     g_wicErrorCodes.Add(WINCODEC_ERR_INVALIDREGISTRATION, L"WINCODEC_ERR_INVALIDREGISTRATION");
     g_wicErrorCodes.Add(WINCODEC_ERR_COMPONENTINITIALIZEFAILURE, L"WINCODEC_ERR_COMPONENTINITIALIZEFAILURE");
     g_wicErrorCodes.Add(WINCODEC_ERR_INSUFFICIENTBUFFER, L"WINCODEC_ERR_INSUFFICIENTBUFFER");
@@ -150,13 +150,14 @@ static int Run(LPWSTR lpCmdLine, int nCmdShow)
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR lpCmdLine, int nCmdShow)
 {
+    _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+
     int result = 0;
-    HRESULT hr = S_OK;
 
     PopulateWicErrorCodes();
-    
+
     // Initialize COM
-    hr = ::CoInitialize(NULL);
+    HRESULT hr = ::CoInitialize(NULL);
     ATLASSERT(SUCCEEDED(hr));
     if (FAILED(hr))
     {
@@ -166,7 +167,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR lpC
     // Initialize the Common Controls
     INITCOMMONCONTROLSEX iccx;
     iccx.dwSize = sizeof(iccx);
-    iccx.dwICC = ICC_COOL_CLASSES | ICC_BAR_CLASSES | ICC_WIN95_CLASSES; 
+    iccx.dwICC = ICC_COOL_CLASSES | ICC_BAR_CLASSES | ICC_WIN95_CLASSES;
     BOOL initCCRes = ::InitCommonControlsEx(&iccx);
     ATLASSERT(initCCRes);
     if (!initCCRes)
@@ -212,7 +213,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR lpC
         CElementManager::ClearAllElements();
         ::FreeLibrary(hInstRich);
         ::CoUninitialize();
-    }    
+    }
 
     return SUCCEEDED(hr) ? 0 : result;
 }
