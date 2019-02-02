@@ -1,4 +1,4 @@
-//----------------------------------------------------------------------------------------
+﻿//----------------------------------------------------------------------------------------
 // THIS CODE AND INFORMATION IS PROVIDED "AS-IS" WITHOUT WARRANTY OF
 // ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 // THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
@@ -14,7 +14,7 @@ public:
     CStopwatch()
     {
         QueryPerformanceFrequency(&m_frequency);
-        m_startTime.QuadPart = 0;        
+        m_startTime.QuadPart = 0;
     }
 
     void Start()
@@ -22,7 +22,7 @@ public:
         QueryPerformanceCounter(&m_startTime);
     }
 
-    DWORD GetTimeMS()
+    DWORD GetTimeMS() const
     {
         LARGE_INTEGER now;
         QueryPerformanceCounter(&now);

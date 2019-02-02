@@ -1,4 +1,4 @@
-//----------------------------------------------------------------------------------------
+﻿//----------------------------------------------------------------------------------------
 // THIS CODE AND INFORMATION IS PROVIDED "AS-IS" WITHOUT WARRANTY OF
 // ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 // THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
@@ -11,9 +11,7 @@
 class IOutputDevice
 {
 public:
-    virtual ~IOutputDevice()
-    {
-    }
+    virtual ~IOutputDevice() = default;
 
     virtual void SetBackgroundColor(COLORREF color) = 0;
     virtual COLORREF SetTextColor(COLORREF color) = 0;
@@ -32,27 +30,27 @@ public:
     virtual void EndSection() = 0;
 };
 
-class CRichEditDevice : public IOutputDevice
+class CRichEditDevice final : public IOutputDevice
 {
 public:
-    CRichEditDevice(CRichEditCtrl &richEditCtrl);
+    explicit CRichEditDevice(CRichEditCtrl &richEditCtrl);
     ~CRichEditDevice();
 
-    void SetBackgroundColor(COLORREF color);
-    COLORREF SetTextColor(COLORREF color);
-    void SetHighlightColor(COLORREF color);
+    void SetBackgroundColor(COLORREF color) override;
+    COLORREF SetTextColor(COLORREF color) override;
+    void SetHighlightColor(COLORREF color) override;
 
-    void SetFontName(LPCWSTR name);
-    int SetFontSize(int pointSize);
+    void SetFontName(LPCWSTR name) override;
+    int SetFontSize(int pointSize) override;
 
-    void BeginSection(LPCWSTR name);
-    void AddText(LPCWSTR name);
-    void AddVerbatimText(LPCWSTR text);
-    void AddDib(HGLOBAL hGlobal);
-    void BeginKeyValues(LPCWSTR name);
-    void AddKeyValue(LPCWSTR key, LPCWSTR value);
-    void EndKeyValues();
-    void EndSection();
+    void BeginSection(LPCWSTR name) override;
+    void AddText(LPCWSTR name) override;
+    void AddVerbatimText(LPCWSTR text) override;
+    void AddDib(HGLOBAL hGlobal) override;
+    void BeginKeyValues(LPCWSTR name) override;
+    void AddKeyValue(LPCWSTR key, LPCWSTR value) override;
+    void EndKeyValues() override;
+    void EndSection() override;
 
 private:
     enum { TEXT_SIZE = 10 };

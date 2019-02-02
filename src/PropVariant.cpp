@@ -1,4 +1,4 @@
-//----------------------------------------------------------------------------------------
+﻿//----------------------------------------------------------------------------------------
 // THIS CODE AND INFORMATION IS PROVIDED "AS-IS" WITHOUT WARRANTY OF
 // ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 // THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
@@ -34,7 +34,7 @@ template<> LPCWSTR GetTypeName<CHAR>()
 
 template<> void WriteValue<UCHAR>(const UCHAR &val, CString &out)
 {
-    out.Format(L"%u", (unsigned)val);
+    out.Format(L"%u", static_cast<unsigned>(val));
 }
 
 template<> LPCWSTR GetTypeName<UCHAR>()
@@ -44,7 +44,7 @@ template<> LPCWSTR GetTypeName<UCHAR>()
 
 template<> void WriteValue<SHORT>(const SHORT &val, CString &out)
 {
-    out.Format(L"%d", (int)val);
+    out.Format(L"%d", static_cast<int>(val));
 }
 
 template<> LPCWSTR GetTypeName<SHORT>()
@@ -54,7 +54,7 @@ template<> LPCWSTR GetTypeName<SHORT>()
 
 template<> void WriteValue<USHORT>(const USHORT &val, CString &out)
 {
-    out.Format(L"%u", (unsigned)val);
+    out.Format(L"%u", static_cast<unsigned>(val));
 }
 
 template<> LPCWSTR GetTypeName<USHORT>()
@@ -64,7 +64,7 @@ template<> LPCWSTR GetTypeName<USHORT>()
 
 template<> void WriteValue<LONG>(const LONG &val, CString &out)
 {
-    out.Format(L"%d", (int)val);
+    out.Format(L"%d", static_cast<int>(val));
 }
 
 template<> LPCWSTR GetTypeName<LONG>()
@@ -74,7 +74,7 @@ template<> LPCWSTR GetTypeName<LONG>()
 
 template<> void WriteValue<ULONG>(const ULONG &val, CString &out)
 {
-    out.Format(L"%u", (unsigned)val);
+    out.Format(L"%u", static_cast<unsigned>(val));
 }
 
 template<> LPCWSTR GetTypeName<ULONG>()
@@ -84,7 +84,7 @@ template<> LPCWSTR GetTypeName<ULONG>()
 
 template<> void WriteValue<INT>(const INT &val, CString &out)
 {
-    out.Format(L"%d", (int)val);
+    out.Format(L"%d", static_cast<int>(val));
 }
 
 template<> LPCWSTR GetTypeName<INT>()
@@ -94,7 +94,7 @@ template<> LPCWSTR GetTypeName<INT>()
 
 template<> void WriteValue<UINT>(const UINT &val, CString &out)
 {
-    out.Format(L"%u", (unsigned)val);
+    out.Format(L"%u", static_cast<unsigned>(val));
 }
 
 template<> LPCWSTR GetTypeName<UINT>()
@@ -108,7 +108,7 @@ template<> void WriteValue<LARGE_INTEGER>(const LARGE_INTEGER &val, CString &out
     if (0 != val.HighPart)
     {
         WCHAR str[64];
-        StringCchPrintfW(str, 64, L"%d / %d (%g)", val.LowPart, val.HighPart, (double)val.LowPart / (double)val.HighPart);
+        StringCchPrintfW(str, 64, L"%d / %d (%g)", val.LowPart, val.HighPart, static_cast<double>(val.LowPart) / static_cast<double>(val.HighPart));
         out = str;
     }
     else
@@ -195,7 +195,7 @@ template<> void WriteValue<BLOB>(const BLOB &val, CString &out)
 
     out.Format(L"%u bytes = { ", val.cbSize);
     for (UINT i = 0; i < std::min(MAX_BYTES, val.cbSize); i++)
-    {                
+    {
         b.Format(L"0x%.2X ", val.pBlobData[i]);
         out += b;
     }
@@ -257,7 +257,7 @@ template<typename T> void WriteValues(ULONG count, T *vals, VARTYPE type, unsign
     {
         out = L"{ ";
     }
-    
+
     ULONG num = std::min(MAX_VALUES, count);
     for (ULONG i = 0; i < num; i++)
     {
@@ -564,28 +564,28 @@ HRESULT PropVariantToString(PROPVARIANT *pv, unsigned options, CString &out)
             out = (0 == pv->boolVal) ? L"False" : L"True";
             break;
         case VT_ERROR:
-            out.Format(L"<Error: %u>", (unsigned)pv->scode);
+            out.Format(L"<Error: %u>", static_cast<unsigned>(pv->scode));
             break;
         case VT_CY:
             WriteValue(pv->cyVal, out);
             break;
         case VT_DATE:
-            // date A 64-bit floating point number representing the number of days (not seconds) since December 31, 1899. For example, January 1, 1900, is 2.0, January 2, 1900, is 3.0, and so on). This is stored in the same representation as VT_R8. 
+            // date A 64-bit floating point number representing the number of days (not seconds) since December 31, 1899. For example, January 1, 1900, is 2.0, January 2, 1900, is 3.0, and so on). This is stored in the same representation as VT_R8.
             break;
         case VT_FILETIME:
-            // filetime 64-bit FILETIME structure as defined by Win32. It is recommended that all times be stored in Universal Coordinate Time (UTC). 
+            // filetime 64-bit FILETIME structure as defined by Win32. It is recommended that all times be stored in Universal Coordinate Time (UTC).
             break;
         case VT_CLSID:
             WriteValue(*pv->puuid, out);
             break;
         case VT_CF:
-            // pclipdata Pointer to a CLIPDATA structure, described above. 
+            // pclipdata Pointer to a CLIPDATA structure, described above.
             break;
         case VT_BSTR:
             WriteValue(pv->bstrVal, out);
             break;
         case VT_BSTR_BLOB:
-            // bstrblobVal For system use only. 
+            // bstrblobVal For system use only.
             break;
         case VT_BLOB:
             WriteValue(pv->blob, out);
@@ -600,37 +600,37 @@ HRESULT PropVariantToString(PROPVARIANT *pv, unsigned options, CString &out)
             WriteValue(*pv->punkVal, out);
             break;
         case VT_DISPATCH:
-            // pdispVal New 
+            // pdispVal New
             break;
         case VT_STREAM:
-            // pStream Pointer to an IStream interface, representing a stream which is a sibling to the "Contents" stream. 
+            // pStream Pointer to an IStream interface, representing a stream which is a sibling to the "Contents" stream.
             break;
         case VT_STREAMED_OBJECT:
-            // pStream As in VT_STREAM, but indicates that the stream contains a serialized object, which is a CLSID followed by initialization data for the class. The stream is a sibling to the "Contents" stream that contains the property set. 
+            // pStream As in VT_STREAM, but indicates that the stream contains a serialized object, which is a CLSID followed by initialization data for the class. The stream is a sibling to the "Contents" stream that contains the property set.
             break;
         case VT_STORAGE:
-            // pStorage Pointer to an IStorage interface, representing a storage object that is a sibling to the "Contents" stream. 
+            // pStorage Pointer to an IStorage interface, representing a storage object that is a sibling to the "Contents" stream.
             break;
         case VT_STORED_OBJECT:
-            // pStorage As in VT_STORAGE, but indicates that the designated IStorage contains a loadable object. 
+            // pStorage As in VT_STORAGE, but indicates that the designated IStorage contains a loadable object.
             break;
         case VT_VERSIONED_STREAM:
-            // pVersionedStream A stream with a GUID version. 
+            // pVersionedStream A stream with a GUID version.
             break;
         case VT_DECIMAL:
-            // decVal A DECIMAL structure. 
+            // decVal A DECIMAL structure.
             break;
         case VT_VECTOR:
-            // ca* If the type indicator is combined with VT_VECTOR by using an OR operator, the value is one of the counted array values. This creates a DWORD count of elements, followed by a pointer to the specified repetitions of the value. 
+            // ca* If the type indicator is combined with VT_VECTOR by using an OR operator, the value is one of the counted array values. This creates a DWORD count of elements, followed by a pointer to the specified repetitions of the value.
             break;
         case VT_ARRAY:
-            // Parray If the type indicator is combined with VT_ARRAY by an OR operator, the value is a pointer to a SAFEARRAY. VT_ARRAY can use the OR with the following data types: VT_I1, VT_UI1, VT_I2, VT_UI2, VT_I4, VT_UI4, VT_INT, VT_UINT, VT_R4, VT_R8, VT_BOOL, VT_DECIMAL, VT_ERROR, VT_CY, VT_DATE, VT_BSTR, VT_DISPATCH, VT_UNKNOWN, and VT_VARIANT. VT_ARRAY cannot use OR with VT_VECTOR. 
+            // Parray If the type indicator is combined with VT_ARRAY by an OR operator, the value is a pointer to a SAFEARRAY. VT_ARRAY can use the OR with the following data types: VT_I1, VT_UI1, VT_I2, VT_UI2, VT_I4, VT_UI4, VT_INT, VT_UINT, VT_R4, VT_R8, VT_BOOL, VT_DECIMAL, VT_ERROR, VT_CY, VT_DATE, VT_BSTR, VT_DISPATCH, VT_UNKNOWN, and VT_VARIANT. VT_ARRAY cannot use OR with VT_VECTOR.
             break;
         case VT_BYREF:
-            // p* If the type indicator is combined with VT_BYREF by an OR operator, the value is a reference. Reference types are interpreted as a reference to data, similar to the reference type in C++ (for example, "int&"). 
+            // p* If the type indicator is combined with VT_BYREF by an OR operator, the value is a reference. Reference types are interpreted as a reference to data, similar to the reference type in C++ (for example, "int&").
             break;
         case VT_VARIANT:
-            // capropvar A DWORD type indicator followed by the corresponding value. VT_VARIANT can be used only with VT_VECTOR or VT_BYREF. 
+            // capropvar A DWORD type indicator followed by the corresponding value. VT_VARIANT can be used only with VT_VECTOR or VT_BYREF.
             break;
         }
 

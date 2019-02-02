@@ -1,4 +1,4 @@
-//----------------------------------------------------------------------------------------
+﻿//----------------------------------------------------------------------------------------
 // THIS CODE AND INFORMATION IS PROVIDED "AS-IS" WITHOUT WARRANTY OF
 // ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 // THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
@@ -11,14 +11,14 @@
 #include "Element.h"
 #include "resource.h"
 
-class CMainFrame : public CFrameWindowImpl<CMainFrame>
+class CMainFrame final : public CFrameWindowImpl<CMainFrame>
 {
 public:
     DECLARE_FRAME_WND_CLASS(NULL, IDR_MAINFRAME)
 
     BEGIN_MSG_MAP(CMainFrame)
         MESSAGE_HANDLER(WM_CREATE, OnCreate)
-        
+
         COMMAND_ID_HANDLER(ID_PANE_CLOSE, OnPaneClose)
         COMMAND_ID_HANDLER(ID_FILE_OPEN, OnFileOpen)
         COMMAND_ID_HANDLER(ID_FILE_OPEN_DIR, OnFileOpenDir)
@@ -31,18 +31,18 @@ public:
         COMMAND_ID_HANDLER(ID_FILE_UNLOAD, OnContextClick)
         COMMAND_ID_HANDLER(ID_FILE_CLOSE, OnContextClick)
         COMMAND_ID_HANDLER(ID_FIND_METADATA, OnContextClick)
-        
+
         NOTIFY_CODE_HANDLER(TVN_SELCHANGED, OnTreeViewSelChanged)
         NOTIFY_CODE_HANDLER(NM_RCLICK, OnNMRClick)
-        
+
         CHAIN_MSG_MAP(CFrameWindowImpl<CMainFrame>)
     END_MSG_MAP()
 
     HRESULT Load(const LPCWSTR *filenames, int count);
 
 private:
-    InfoElementViewContext m_viewcontext;
-        
+    InfoElementViewContext m_viewcontext{};
+
     HWND CreateClient();
     int GetElementTreeImage(CInfoElement *elem);
     // Opens a single file
@@ -61,7 +61,8 @@ private:
     bool ElementCanBeSavedAsImage(CInfoElement &element);
     HRESULT SaveElementAsImage(CInfoElement &element);
     void DrawElement(CInfoElement &element);
-    
+    HRESULT QueryMetadata(CInfoElement* elem);
+
     LRESULT OnCreate(UINT, WPARAM, LPARAM, BOOL&);
     LRESULT OnNMRClick(int , LPNMHDR pnmh, BOOL&);
     LRESULT OnTreeViewSelChanged(WPARAM wParam, LPNMHDR lpNmHdr, BOOL &bHandled);
@@ -85,7 +86,5 @@ private:
     CRichEditCtrl m_infoEdit;
     CRichEditCtrl m_viewEdit;
 
-    BOOL m_suppressMessageBox;
-private:
-    HRESULT QueryMetadata(CInfoElement *elem);
+    BOOL m_suppressMessageBox{};
 };

@@ -1,4 +1,4 @@
-//----------------------------------------------------------------------------------------
+﻿//----------------------------------------------------------------------------------------
 // THIS CODE AND INFORMATION IS PROVIDED "AS-IS" WITHOUT WARRANTY OF
 // ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 // THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
@@ -11,7 +11,7 @@
 #include "ImageTransencoder.h"
 
 CImageTransencoder::CImageTransencoder()
-: m_codeGen(NULL)
+: m_codeGen(nullptr)
 , m_encoding(false)
 , m_numPalettedFrames(0)
 {
@@ -25,7 +25,7 @@ CImageTransencoder::~CImageTransencoder()
 
 void CImageTransencoder::Clear()
 {
-    m_codeGen           = NULL;
+    m_codeGen           = nullptr;
     m_stream            = NULL;
     m_encoder           = NULL;
     m_encoding          = false;
@@ -287,7 +287,7 @@ HRESULT CImageTransencoder::CreateFrameEncode(IWICBitmapSourcePtr bitmapSource, 
     IWICBitmapFrameDecodePtr frame = bitmapSource;
     UINT colorContextCount = 0;
     if ( frame != NULL &&
-        SUCCEEDED(frame->GetColorContexts(0, 0, &colorContextCount)) &&
+        SUCCEEDED(frame->GetColorContexts(0, nullptr, &colorContextCount)) &&
         colorContextCount > 0)
     {
         IWICColorContext **contexts = new IWICColorContext*[colorContextCount];
@@ -299,11 +299,11 @@ HRESULT CImageTransencoder::CreateFrameEncode(IWICBitmapSourcePtr bitmapSource, 
 
         if(FAILED(frameEncode->SetColorContexts(colorContextCount, contexts)))
         {
-            ::MessageBox(0, L"Unable to copy color contexts", L"Warning", MB_OK);
+            ::MessageBox(nullptr, L"Unable to copy color contexts", L"Warning", MB_OK);
         }
         for(UINT i = 0; i < colorContextCount; i++)
         {
-            if(contexts[i] != NULL)
+            if(contexts[i] != nullptr)
             {
                 contexts[i]->Release();
             }

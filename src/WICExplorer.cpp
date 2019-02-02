@@ -36,8 +36,8 @@ void GetHresultString(HRESULT hr, CString &out)
         }
 
         // Try to have windows give a nice message, otherwise just format the HRESULT into a string.
-        len = FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS, NULL,
-            hr, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), msg, MAX_MsgLength, NULL);
+        len = FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS, nullptr,
+            hr, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), msg, MAX_MsgLength, nullptr);
         if (len != 0)
         {
             // remove the trailing newline
@@ -118,7 +118,7 @@ static int Run(LPWSTR lpCmdLine, int nCmdShow)
     CMainFrame mainWnd;
 
     // Create the main window
-    if (NULL == mainWnd.CreateEx(NULL))
+    if (nullptr == mainWnd.CreateEx(nullptr))
     {
         ATLTRACE(L"Main window creation failed");
         return 0;
@@ -157,7 +157,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR lpC
     PopulateWicErrorCodes();
 
     // Initialize COM
-    HRESULT hr = ::CoInitialize(NULL);
+    HRESULT hr = ::CoInitialize(nullptr);
     ATLASSERT(SUCCEEDED(hr));
     if (FAILED(hr))
     {
@@ -177,7 +177,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR lpC
     }
 
     // Initialize WindowsCodecs
-    hr = CoCreateInstance(CLSID_WICImagingFactory, NULL, CLSCTX_INPROC_SERVER, IID_IWICImagingFactory, (LPVOID*) &g_imagingFactory);
+    hr = CoCreateInstance(CLSID_WICImagingFactory, nullptr, CLSCTX_INPROC_SERVER, IID_IWICImagingFactory, (LPVOID*) &g_imagingFactory);
     ATLASSERT(SUCCEEDED(hr));
     if (FAILED(hr))
     {
@@ -186,7 +186,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR lpC
         GetHresultString(hr, err);
 
         msg.Format(L"Unable to create ImagingFactory. The error is: %s.", (LPCTSTR)err);
-        ::MessageBoxW(NULL, msg, L"Error Creating ImagingFactory", MB_ICONERROR);
+        ::MessageBoxW(nullptr, msg, L"Error Creating ImagingFactory", MB_ICONERROR);
     }
 
     // Initialize the RichEdit library
@@ -194,11 +194,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR lpC
     ATLASSERT(NULL != hInstRich);
 
     // Start running
-    if (SUCCEEDED(hr) && (NULL != hInstRich))
+    if (SUCCEEDED(hr) && (nullptr != hInstRich))
     {
-        ::DefWindowProc(NULL, 0, 0, 0L);
+        ::DefWindowProc(nullptr, 0, 0, 0L);
 
-        hr = _Module.Init(NULL, hInstance);
+        hr = _Module.Init(nullptr, hInstance);
         ATLASSERT(SUCCEEDED(hr));
 
         result = Run(lpCmdLine, nCmdShow);
@@ -206,7 +206,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR lpC
         _Module.Term();
 
         // Release the factory
-        IWICImagingFactory* imagingFactory = NULL;
+        IWICImagingFactory* imagingFactory = nullptr;
         imagingFactory = g_imagingFactory.Detach();
         imagingFactory->Release();
 

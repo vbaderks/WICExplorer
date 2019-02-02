@@ -1,4 +1,4 @@
-//----------------------------------------------------------------------------------------
+﻿//----------------------------------------------------------------------------------------
 // THIS CODE AND INFORMATION IS PROVIDED "AS-IS" WITHOUT WARRANTY OF
 // ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 // THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
@@ -26,7 +26,7 @@ HRESULT CMetadataTranslator::ReadPropVariantInteger(PROPVARIANT *pv, int &out)
     HRESULT result = E_INVALIDARG;
 
     ATLASSERT(NULL != pv);
-    if (NULL != pv)
+    if (nullptr != pv)
     {
         switch (pv->vt)
         {

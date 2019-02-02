@@ -1,4 +1,4 @@
-//----------------------------------------------------------------------------------------
+﻿//----------------------------------------------------------------------------------------
 // THIS CODE AND INFORMATION IS PROVIDED "AS-IS" WITHOUT WARRANTY OF
 // ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 // THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
@@ -6,6 +6,9 @@
 //
 // Copyright (c) Microsoft Corporation. All rights reserved.
 //----------------------------------------------------------------------------------------
+#pragma once
+
+#define MP(i) typedef _com_ptr_t<_com_IIID<i, &IID_##i> > i##Ptr;
 
 MP(IWICBitmapScaler)
 MP(IWICBitmapSource)
@@ -36,3 +39,5 @@ MP(IWICComponentFactory)
 MP(IWICMetadataQueryWriter)
 MP(IWICMetadataQueryReader)
 MP(IWICProgressiveLevelControl);
+
+#undef MP

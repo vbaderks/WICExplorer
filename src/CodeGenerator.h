@@ -1,4 +1,4 @@
-//----------------------------------------------------------------------------------------
+﻿//----------------------------------------------------------------------------------------
 // THIS CODE AND INFORMATION IS PROVIDED "AS-IS" WITHOUT WARRANTY OF
 // ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 // THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
@@ -7,8 +7,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 //----------------------------------------------------------------------------------------
 #pragma once
-
-#include "OutputDevice.h"
 
 class ICodeGenerator
 {
@@ -21,12 +19,12 @@ public:
     virtual void EndVariableScope() = 0;
     virtual void CallFunction(LPCWSTR func, ...) = 0;
 
-    virtual LPCWSTR GetLastVariableName() = 0;    
+    virtual LPCWSTR GetLastVariableName() = 0;
 
     virtual void GenerateCode(CString &out) = 0;
 };
 
-class CSimpleCodeGenerator : public ICodeGenerator
+class CSimpleCodeGenerator final : public ICodeGenerator
 {
 private:
     enum { INDENT_SPACES = 4 };
@@ -38,11 +36,8 @@ public:
         BeginVariable(L"IWICImagingFactory*", L"imagingFactory", L"NULL");
         CallFunction(L"CoCreateInstance(CLSID_WICImagingFactory, NULL, CLSCTX_INPROC_SERVER, IID_IWICImagingFactory, (LPVOID*) &imagingFactory)");
     }
-    ~CSimpleCodeGenerator()
-    {
-    }
 
-    void BeginVariableScope(LPCWSTR varType, LPCWSTR varBaseName, LPCWSTR varInitValue)
+    void BeginVariableScope(LPCWSTR varType, LPCWSTR varBaseName, LPCWSTR varInitValue) override
     {
         AddLine(L"{");
 
@@ -51,7 +46,7 @@ public:
         BeginVariable(varType, varBaseName, varInitValue);
     }
 
-    void EndVariableScope()
+    void EndVariableScope() override
     {
         if (m_indent >= INDENT_SPACES)
         {
@@ -61,7 +56,7 @@ public:
         }
     }
 
-    void CallFunction(LPCWSTR func, ...)
+    void CallFunction(LPCWSTR func, ...) override
     {
         const size_t maxCallLength = 1024;
         WCHAR call[maxCallLength];
@@ -70,7 +65,7 @@ public:
         va_start(args, func);
 
         StringCchVPrintf(call, maxCallLength, func, args);
-    
+
         va_end(args);
 
         StringCchCatW(call, maxCallLength, L";");
@@ -78,12 +73,12 @@ public:
         AddLine(call);
     }
 
-    LPCWSTR GetLastVariableName()
+    LPCWSTR GetLastVariableName() override
     {
         return m_lastVarName;
     }
 
-    void GenerateCode(CString &out)
+    void GenerateCode(CString &out) override
     {
         out = L"";
         for (int l = 0; l < m_lines.GetSize(); l++)
@@ -98,7 +93,7 @@ private:
     {
         CString decl;
         decl.Format(L"%s %s = %s;", varType, varBaseName, varInitValue);
-        
+
         AddLine(decl);
 
         m_lastVarName = varBaseName;

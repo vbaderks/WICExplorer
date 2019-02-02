@@ -1,4 +1,4 @@
-//----------------------------------------------------------------------------------------
+﻿//----------------------------------------------------------------------------------------
 // THIS CODE AND INFORMATION IS PROVIDED "AS-IS" WITHOUT WARRANTY OF
 // ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 // THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
@@ -15,10 +15,10 @@
 
 LRESULT CMainFrame::OnCreate(UINT, WPARAM, LPARAM, BOOL&)
 {
-    HWND hWndToolBar = CreateSimpleToolBarCtrl(m_hWnd, IDR_MAINFRAME, FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE | TBSTYLE_TRANSPARENT | TBSTYLE_LIST | TBSTYLE_FLAT | CCS_NORESIZE | CCS_TOP);    
+    HWND hWndToolBar = CreateSimpleToolBarCtrl(m_hWnd, IDR_MAINFRAME, FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE | TBSTYLE_TRANSPARENT | TBSTYLE_LIST | TBSTYLE_FLAT | CCS_NORESIZE | CCS_TOP);
 
     CreateSimpleReBar((ATL_SIMPLE_REBAR_NOBORDER_STYLE | CCS_TOP | RBS_DBLCLKTOGGLE) & ~RBS_AUTOSIZE);
-    AddSimpleReBarBand(hWndToolBar, NULL, TRUE);
+    AddSimpleReBarBand(hWndToolBar, nullptr, TRUE);
 
     CreateSimpleStatusBar();
 
@@ -32,12 +32,10 @@ LRESULT CMainFrame::OnCreate(UINT, WPARAM, LPARAM, BOOL&)
 
 HWND CMainFrame::CreateClient()
 {
-    HWND hWnd = NULL;
-
     CRect clientRect;
     GetClientRect(&clientRect);
 
-    hWnd = m_mainSplit.Create(m_hWnd, clientRect, NULL, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
+    HWND hWnd = m_mainSplit.Create(m_hWnd, clientRect, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
     ATLASSERT(NULL != hWnd);
 
     m_mainSplit.m_cxyMin = 35;                           // Minimum sizes
@@ -47,7 +45,7 @@ HWND CMainFrame::CreateClient()
     CRect leftRect;
     GetClientRect(&leftRect);
 
-    hWnd = m_infoSplit.Create(m_mainSplit.m_hWnd, leftRect, NULL, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
+    hWnd = m_infoSplit.Create(m_mainSplit.m_hWnd, leftRect, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
     ATLASSERT(NULL != hWnd);
 
     m_infoSplit.m_cxyMin = 35;                                 // Minimum sizes
@@ -65,21 +63,21 @@ HWND CMainFrame::CreateClient()
 
     m_mainTreeImages.CreateFromImage(IDB_MAINTREE, 16, 0, RGB(255, 255, 255), IMAGE_BITMAP, LR_LOADTRANSPARENT | LR_CREATEDIBSECTION);
 
-    hWnd = m_mainTree.Create(m_infoSplit.m_hWnd, rcDefault, NULL, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | TVS_HASBUTTONS | TVS_TRACKSELECT | TVS_HASLINES | TVS_LINESATROOT | TVS_SHOWSELALWAYS, WS_EX_CLIENTEDGE);
+    hWnd = m_mainTree.Create(m_infoSplit.m_hWnd, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | TVS_HASBUTTONS | TVS_TRACKSELECT | TVS_HASLINES | TVS_LINESATROOT | TVS_SHOWSELALWAYS, WS_EX_CLIENTEDGE);
     ATLASSERT(NULL != hWnd);
 
     m_mainTree.SetImageList(m_mainTreeImages, TVSIL_NORMAL);
 
     m_infoSplit.SetSplitterPane(0, m_mainTree);
 
-    hWnd = m_infoEdit.Create(m_infoSplit.m_hWnd, rcDefault, NULL, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY, WS_EX_CLIENTEDGE);
+    hWnd = m_infoEdit.Create(m_infoSplit.m_hWnd, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY, WS_EX_CLIENTEDGE);
     ATLASSERT(NULL != hWnd);
 
     m_infoEdit.SendMessage(EM_SETBKGNDCOLOR, 0, GetSysColor(COLOR_INFOBK));
-    
+
     m_infoSplit.SetSplitterPane(1, m_infoEdit);
 
-    hWnd = m_viewEdit.Create(m_viewPane.m_hWnd, rcDefault, NULL, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VSCROLL | WS_HSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY , WS_EX_CLIENTEDGE);
+    hWnd = m_viewEdit.Create(m_viewPane.m_hWnd, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VSCROLL | WS_HSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY , WS_EX_CLIENTEDGE);
     ATLASSERT(NULL != hWnd);
 
     m_viewEdit.SendMessage(EM_SETBKGNDCOLOR, 0, GetSysColor(COLOR_INFOBK));
@@ -95,8 +93,8 @@ HWND CMainFrame::CreateClient()
 
 LRESULT CMainFrame::OnPaneClose(WORD, WORD, HWND hWndCtl, BOOL&)
 {
-    // hide the container whose Close button was clicked. Use 
-    // DestroyWindow(hWndCtl) instead if you want to totally 
+    // hide the container whose Close button was clicked. Use
+    // DestroyWindow(hWndCtl) instead if you want to totally
     // remove the container instead of just hiding it
     ::ShowWindow(hWndCtl, SW_HIDE);
 
@@ -146,14 +144,14 @@ HTREEITEM CMainFrame::FindTreeItem(HTREEITEM start, CInfoElement *element)
 {
     if(!start)
     {
-        return 0;
+        return nullptr;
     }
     if(GetElementFromTreeItem(start) == element)
     {
         return start;
     }
     HTREEITEM result;
-    if((result = FindTreeItem(m_mainTree.GetChildItem(start), element)) != 0)
+    if((result = FindTreeItem(m_mainTree.GetChildItem(start), element)) != nullptr)
     {
         return result;
     }
@@ -187,10 +185,10 @@ HTREEITEM CMainFrame::BuildTree(CInfoElement *elem, HTREEITEM hParent)
     if (elem)
     {
         int image = GetElementTreeImage(elem);
-        UINT state = (NULL == hParent) ? TVIS_BOLD : 0;
+        UINT state = (nullptr == hParent) ? TVIS_BOLD : 0;
 
         HTREEITEM hItem = m_mainTree.InsertItem(TVIF_TEXT | TVIF_STATE | TVIF_IMAGE | TVIF_SELECTEDIMAGE,
-            elem->Name(), image, image, state, state, 0, hParent, NULL);
+            elem->Name(), image, image, state, state, 0, hParent, nullptr);
 
         // Set a pointer to the element in the tree
         m_mainTree.SetItemData(hItem, reinterpret_cast<DWORD_PTR>(elem));
@@ -213,7 +211,7 @@ HTREEITEM CMainFrame::BuildTree(CInfoElement *elem, HTREEITEM hParent)
         return hItem;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 void CMainFrame::UpdateTreeView(bool selectLastRoot)
@@ -222,12 +220,12 @@ void CMainFrame::UpdateTreeView(bool selectLastRoot)
     m_mainTree.DeleteAllItems();
 
     CInfoElement *root = CElementManager::GetRootElement();
-    HTREEITEM rootItem = NULL;
+    HTREEITEM rootItem = nullptr;
     if(root->FirstChild())
     {
         // BuildTree traverses by the first child and next sibling.
         // Therefore, all of the elements will be added except for root.
-        rootItem = BuildTree(root->FirstChild(), NULL);
+        rootItem = BuildTree(root->FirstChild(), nullptr);
     }
 
     if (selectLastRoot)
@@ -241,7 +239,7 @@ HRESULT CMainFrame::OpenFile(LPCWSTR filename, bool &updateElements)
 {
     updateElements = false;
 
-    CInfoElement *newRoot = NULL;
+    CInfoElement *newRoot = nullptr;
     ICodeGenerator *codeGen = new CSimpleCodeGenerator();
 
     HRESULT result = CElementManager::OpenFile(filename, *codeGen, newRoot);
@@ -265,7 +263,7 @@ HRESULT CMainFrame::OpenFile(LPCWSTR filename, bool &updateElements)
             msg.Format(L"Unable to load the file \"%s\". The error is: %s.\n\n", filename, (LPCWSTR)err);
         }
 
-        if (NULL != newRoot)
+        if (nullptr != newRoot)
         {
             updateElements = true;
             msg.Format(L"Unable to completely load the file \"%s\". The error is: %s. Some parts of the file may still be viewed.\n\n", filename, (LPCWSTR)err);
@@ -308,7 +306,7 @@ HRESULT CMainFrame::OpenWildcard(LPCWSTR search, DWORD &attempted, DWORD &opened
 
     size_t directorySize = 0;
 
-    if(lastSlash != NULL)
+    if(lastSlash != nullptr)
     {
         // The +1 is to include the slash.
         directorySize = (lastSlash + 1) - search;
@@ -436,13 +434,13 @@ CString GetFullPath(CString directory, CString file)
 
 LRESULT CMainFrame::OnFileOpen(WORD, WORD, HWND hParentWnd, BOOL&)
 {
-    CFileDialog fileDlg(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_FILEMUSTEXIST | OFN_ALLOWMULTISELECT,
+    CFileDialog fileDlg(TRUE, nullptr, nullptr, OFN_HIDEREADONLY | OFN_FILEMUSTEXIST | OFN_ALLOWMULTISELECT,
         L"All Files (*.*)\0*.*\0\0", hParentWnd);
 
     // Create a large buffer to hold the result of the filenames.
     const int BUFFER_SIZE = 16 * 1024;
     WCHAR *filenameBuffer = new WCHAR[BUFFER_SIZE];
-    if (NULL != filenameBuffer)
+    if (nullptr != filenameBuffer)
     {
         filenameBuffer[0] = L'\0';
         fileDlg.m_ofn.lpstrFile = filenameBuffer;
@@ -559,7 +557,7 @@ HRESULT CMainFrame::OpenDirectory(LPCWSTR directory, DWORD &attempted, DWORD &op
 LRESULT CMainFrame::OnFileOpenDir(WORD /*code*/, WORD /*item*/, HWND hSender, BOOL& handled)
 {
     CFolderDialog fileDlg(hSender,
-        L"Select directory with *.jpg, *.png, *.gif, *.bmp, *.tif, *.ico, or *.dds", 
+        L"Select directory with *.jpg, *.png, *.gif, *.bmp, *.tif, *.ico, or *.dds",
         BIF_VALIDATE | BIF_EDITBOX);
 
     handled = 1;
@@ -598,7 +596,7 @@ void CMainFrame::DrawElement(CInfoElement &element)
     CString path = element.Name();
     CInfoElement *parent = &element;
 
-    while (NULL != parent->Parent())
+    while (nullptr != parent->Parent())
     {
         path = parent->Parent()->Name() + L"\\" + path;
         parent = parent->Parent();
@@ -641,7 +639,7 @@ LRESULT CMainFrame::OnNMRClick(int, LPNMHDR pnmh, BOOL&)
     ::GetCursorPos(&pt);
 
     POINT ptClient = pt;
-    if (NULL != pnmh->hwndFrom)
+    if (nullptr != pnmh->hwndFrom)
     {
         ::ScreenToClient(pnmh->hwndFrom, &ptClient);
     }
@@ -656,7 +654,7 @@ LRESULT CMainFrame::OnNMRClick(int, LPNMHDR pnmh, BOOL&)
         if (0 != (tvhti.flags & TVHT_ONITEMLABEL))
         {
             CInfoElement *elem = GetElementFromTreeItem(tvhti.hItem);
-            if (NULL != elem)
+            if (nullptr != elem)
             {
                 m_mainTree.SelectItem(tvhti.hItem);
                 DoElementContextMenu(::GetParent(m_mainTree.m_hWnd), *elem, pt);
@@ -675,7 +673,7 @@ HMENU CMainFrame::CreateElementContextMenu(CInfoElement &element)
     itemInfo.cbSize = sizeof(MENUITEMINFO);
     itemInfo.fMask = MIIM_FTYPE | MIIM_ID | MIIM_STATE | MIIM_STRING;
     itemInfo.fType = MFT_STRING;
-    
+
     element.FillContextMenu(result);
 
     return result;
@@ -684,12 +682,12 @@ HMENU CMainFrame::CreateElementContextMenu(CInfoElement &element)
 BOOL CMainFrame::DoElementContextMenu(HWND hWnd, CInfoElement &element, POINT point)
 {
     HMENU hMenu = CreateElementContextMenu(element);
-    if (NULL == hMenu)
+    if (nullptr == hMenu)
     {
         return FALSE;
     }
 
-    ::TrackPopupMenu(hMenu, TPM_LEFTALIGN | TPM_RIGHTBUTTON, point.x, point.y, 0, hWnd, NULL);
+    ::TrackPopupMenu(hMenu, TPM_LEFTALIGN | TPM_RIGHTBUTTON, point.x, point.y, 0, hWnd, nullptr);
     ::DestroyMenu(hMenu);
 
     return TRUE;
@@ -700,22 +698,22 @@ LRESULT CMainFrame::OnFileSave(WORD, WORD, HWND, BOOL&)
     // Get the currently selected tree node.
     HTREEITEM hItem = m_mainTree.GetSelectedItem();
 
-    if (NULL != hItem)
+    if (nullptr != hItem)
     {
         CInfoElement *elem = GetElementFromTreeItem(hItem);
-        if (NULL != elem)
+        if (nullptr != elem)
         {
             SaveElementAsImage(*elem);
         }
     }
-    
+
     return 0;
 }
 
 bool CMainFrame::ElementCanBeSavedAsImage(CInfoElement &element)
 {
-    return ((NULL != dynamic_cast<CBitmapDecoderElement*>(&element)) ||
-            (NULL != dynamic_cast<CBitmapSourceElement*>(&element)));
+    return ((nullptr != dynamic_cast<CBitmapDecoderElement*>(&element)) ||
+            (nullptr != dynamic_cast<CBitmapSourceElement*>(&element)));
 }
 
 HRESULT GetPixelFormatName(WCHAR *dest, UINT chars, WICPixelFormatGUID guid);
@@ -733,7 +731,7 @@ HRESULT CMainFrame::SaveElementAsImage(CInfoElement &element)
         if (IDOK == id)
         {
             // Now that we know what kind of encoder they want to use, let's get a filename from them
-            CFileDialog fileDlg(FALSE, NULL, NULL, OFN_HIDEREADONLY,
+            CFileDialog fileDlg(FALSE, nullptr, nullptr, OFN_HIDEREADONLY,
                 L"All Files (*.*)\0*.*\0\0", m_hWnd);
             id = fileDlg.DoModal();
 
@@ -801,7 +799,7 @@ HRESULT CMainFrame::SaveElementAsImage(CInfoElement &element)
 
         if(m_suppressMessageBox == FALSE)
         {
-            ::MessageBox(0, msg, L"Cannot Save Element", MB_OK | MB_ICONERROR);
+            ::MessageBox(nullptr, msg, L"Cannot Save Element", MB_OK | MB_ICONERROR);
         }
     }
 
@@ -829,9 +827,9 @@ HRESULT GetReaderFromQueryReader(IWICMetadataQueryReader *queryReader, IWICMetad
 {
     HRESULT result = S_OK;
 
-    // This will take the query reader and copy it into a CDummyBlockWriter. 
+    // This will take the query reader and copy it into a CDummyBlockWriter.
     // Internally, AddWriter will be called with the unabstracted metadata reader.
-    class CDummyBlockWriter : 
+    class CDummyBlockWriter :
         public IWICMetadataBlockWriter
     {
     public:
@@ -1072,7 +1070,7 @@ LRESULT CMainFrame::OnContextClick(WORD /*code*/, WORD item, HWND /*hSender*/, B
                 CString err;
                 GetHresultString(result, err);
                 msg.Format(L"Unable find metadata. The error is: %s.", (LPCWSTR)err);
-                
+
                 if(m_suppressMessageBox == FALSE)
                 {
                     CWindow::MessageBoxW(msg, L"Error Finding Metadata", MB_OK | MB_ICONWARNING);
@@ -1199,7 +1197,7 @@ HRESULT CMainFrame::QueryMetadata(CInfoElement *elem)
     IWICMetadataReaderPtr parentReader;
     CInfoElement *parentElem;
     if(FAILED(GetReaderFromQueryReader(parentQueryReader, &parentReader)))
-    {    
+    {
         parentElem = elem;
     }
     else

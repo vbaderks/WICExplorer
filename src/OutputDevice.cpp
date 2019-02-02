@@ -1,4 +1,4 @@
-//----------------------------------------------------------------------------------------
+﻿//----------------------------------------------------------------------------------------
 // THIS CODE AND INFORMATION IS PROVIDED "AS-IS" WITHOUT WARRANTY OF
 // ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 // THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
@@ -30,7 +30,7 @@ CRichEditDevice::~CRichEditDevice()
 void CRichEditDevice::SetBackgroundColor(COLORREF color)
 {
     m_richEditCtrl.SendMessage(EM_SETBKGNDCOLOR, 0, color);
-    ::InvalidateRect(m_richEditCtrl.GetParent(), 0, TRUE);
+    ::InvalidateRect(m_richEditCtrl.GetParent(), nullptr, TRUE);
 }
 
 COLORREF CRichEditDevice::SetTextColor(COLORREF color)
@@ -105,7 +105,7 @@ void CRichEditDevice::BeginSection(LPCWSTR name)
     m_sections.Add(CString(name));
 
     // Actually write the section heading
-    if ((NULL != name) && (L'\0' != *name))
+    if ((nullptr != name) && (L'\0' != *name))
     {
         AddText(L"\n");
 
@@ -138,7 +138,7 @@ void CRichEditDevice::AddDib(HGLOBAL hBitmap)
 {
     IRichEditOle *oleInterface = m_richEditCtrl.GetOleInterface();
 
-    if (NULL != oleInterface)
+    if (nullptr != oleInterface)
     {
         HRESULT res = CBitmapDataObject::InsertDib(m_richEditCtrl.m_hWnd, oleInterface, hBitmap);
 
@@ -166,7 +166,7 @@ void CRichEditDevice::AddDib(HGLOBAL hBitmap)
 void CRichEditDevice::BeginKeyValues(LPCWSTR name)
 {
     // Write the heading if one was specified
-    if ((NULL != name) && (L'\0' != *name))
+    if ((nullptr != name) && (L'\0' != *name))
     {
         COLORREF oldColor = SetTextColor(RGB(0, 0, 128));
 

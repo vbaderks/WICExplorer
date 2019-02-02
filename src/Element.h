@@ -1,4 +1,4 @@
-//----------------------------------------------------------------------------------------
+﻿//----------------------------------------------------------------------------------------
 // THIS CODE AND INFORMATION IS PROVIDED "AS-IS" WITHOUT WARRANTY OF
 // ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 // THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
@@ -19,7 +19,7 @@ struct InfoElementViewContext
 class CInfoElement
 {
 public:
-    CInfoElement(LPCWSTR name);
+    explicit CInfoElement(LPCWSTR name);
     virtual ~CInfoElement();
 
     const CString &Name()
@@ -92,17 +92,17 @@ public:
     virtual CInfoElement *FindElementByReader(IWICMetadataReader *reader)
     {
         CInfoElement *result;
-        if(FirstChild() != NULL &&
-            (result = FirstChild()->FindElementByReader(reader)) != NULL)
+        if(FirstChild() != nullptr &&
+            (result = FirstChild()->FindElementByReader(reader)) != nullptr)
         {
             return result;
         }
-        if(NextSibling() != NULL &&
-            (result = NextSibling()->FindElementByReader(reader)) != NULL)
+        if(NextSibling() != nullptr &&
+            (result = NextSibling()->FindElementByReader(reader)) != nullptr)
         {
             return result;
         }
-        return 0;
+        return nullptr;
     }
     virtual HRESULT GetQueryReader(IWICMetadataQueryReader **ppReader)
     {
@@ -237,7 +237,7 @@ public:
     void FillContextMenu(HMENU context);
 
 protected:
-    HRESULT CreateDibFromBitmapSource(IWICBitmapSourcePtr source, 
+    HRESULT CreateDibFromBitmapSource(IWICBitmapSourcePtr source,
         HGLOBAL &hGlobal, HGLOBAL* phAlpha);
     HRESULT CreateHbitmapFromBitmapSource(IWICBitmapSourcePtr source, HBITMAP &hGlobal);
 

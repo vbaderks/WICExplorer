@@ -11,14 +11,14 @@
 // Change these values to use different versions
 #define _RICHEDIT_VER    0x0300
 
-#include <windows.h>
+#include <Windows.h>
 #include <tchar.h>
 #include <shellapi.h>
 #include <comip.h>
 
 #include <wincodec.h>
 #include <wincodecsdk.h>
-#include <icm.h>
+#include <Icm.h>
 
 #pragma warning(push)
 #pragma warning(disable: 4471) // enum forward without type
@@ -42,21 +42,19 @@
 
 #pragma warning(push)
 #pragma warning(disable: 4127) // conditional expression is constant
-#include <wtl/include/atlapp.h>
+#include <wtl/Include/atlapp.h>
 
 extern CAppModule _Module;
 
-#include <wtl/include/atlframe.h>
-#include <wtl/include/atlctrls.h>
-#include <wtl/include/atldlgs.h>
-#include <wtl/include/atlmisc.h>
-#include <wtl/include/atlsplit.h>
-#include <wtl/include/atlctrlx.h>
+#include <wtl/Include/atlframe.h>
+#include <wtl/Include/atlctrls.h>
+#include <wtl/Include/atldlgs.h>
+#include <wtl/Include/atlmisc.h>
+#include <wtl/Include/atlsplit.h>
+#include <wtl/Include/atlctrlx.h>
 #pragma warning(pop)
 
-#define MP(i) typedef _com_ptr_t<_com_IIID<i, &IID_##i> > i##Ptr;
 #include "Interfaces.h"
-#undef MP
 
 extern IWICImagingFactoryPtr g_imagingFactory;
 extern CSimpleMap<HRESULT, LPCWSTR> g_wicErrorCodes;
