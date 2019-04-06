@@ -13,6 +13,10 @@
 CAppModule _Module;
 CSimpleMap<HRESULT, LPCWSTR> g_wicErrorCodes;
 
+#ifdef _UNICODE
+#pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
+#endif
+
 void GetHresultString(HRESULT hr, CString &out)
 {
     const int wicIdx = g_wicErrorCodes.FindKey(hr);
