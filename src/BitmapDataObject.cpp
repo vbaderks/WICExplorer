@@ -10,7 +10,7 @@
 
 #include "BitmapDataObject.h"
 
-HRESULT CBitmapDataObject::InsertDib(HWND /*hWnd*/, IRichEditOle *pRichEditOle, HGLOBAL hGlobal)
+HRESULT CBitmapDataObject::InsertDib(HWND /*hWnd*/, IRichEditOle *pRichEditOle, const HGLOBAL hGlobal)
 {
     HRESULT result = S_OK;
 
@@ -21,8 +21,8 @@ HRESULT CBitmapDataObject::InsertDib(HWND /*hWnd*/, IRichEditOle *pRichEditOle, 
     IOleObject* oleObject{};
 
     // Get the bitmap's DataObject
-    CBitmapDataObject *bitmapDataObject = new CBitmapDataObject;
-    bitmapDataObject->QueryInterface(IID_IDataObject, reinterpret_cast<void **>(&dataObject));
+    auto *bitmapDataObject = new CBitmapDataObject;
+    bitmapDataObject->QueryInterface(IID_PPV_ARGS(&dataObject));
     bitmapDataObject->SetDib(hGlobal);
 
     // Get the RichEdit container site
@@ -34,22 +34,22 @@ HRESULT CBitmapDataObject::InsertDib(HWND /*hWnd*/, IRichEditOle *pRichEditOle, 
     // Initialize a Storage Object
     if (SUCCEEDED(result))
     {
-        result = ::CreateILockBytesOnHGlobal(nullptr, TRUE, &lockBytes);
-        ATLASSERT(NULL != lockBytes);
+        result = CreateILockBytesOnHGlobal(nullptr, TRUE, &lockBytes);
+        ATLASSERT(lockBytes);
     }
 
     if (SUCCEEDED(result))
     {
-        result = ::StgCreateDocfileOnILockBytes(lockBytes,
+        result = StgCreateDocfileOnILockBytes(lockBytes,
             STGM_SHARE_EXCLUSIVE|STGM_CREATE|STGM_READWRITE, 0, &storage);
-        ATLASSERT(NULL != storage);
+        ATLASSERT(storage);
     }
 
     // Get the ole object which will be inserted in the richedit control
     if (SUCCEEDED(result))
     {
         result = bitmapDataObject->GetOleObject(oleClientSite, storage, oleObject);
-        ::OleSetContainedObject(oleObject, TRUE);
+        OleSetContainedObject(oleObject, TRUE);
     }
 
     // Add the object to the RichEdit
@@ -58,7 +58,7 @@ HRESULT CBitmapDataObject::InsertDib(HWND /*hWnd*/, IRichEditOle *pRichEditOle, 
         CLSID clsid;
         oleObject->GetUserClassID(&clsid);
 
-        REOBJECT reobject = { 0 };
+        REOBJECT reobject{};
         reobject.cbStruct = sizeof(REOBJECT);
 
         reobject.clsid = clsid;
@@ -97,14 +97,9 @@ HRESULT CBitmapDataObject::InsertDib(HWND /*hWnd*/, IRichEditOle *pRichEditOle, 
     return result;
 }
 
-CBitmapDataObject::CBitmapDataObject()
-: m_numReferences(0)
-{
-}
-
 CBitmapDataObject::~CBitmapDataObject()
 {
-    ::ReleaseStgMedium(&m_stgmed);
+    ReleaseStgMedium(&m_stgmed);
 }
 
 HRESULT STDMETHODCALLTYPE CBitmapDataObject::QueryInterface(REFIID iid, void **ppvObject) noexcept
@@ -115,13 +110,13 @@ HRESULT STDMETHODCALLTYPE CBitmapDataObject::QueryInterface(REFIID iid, void **p
     {
         if (IID_IUnknown == iid)
         {
-            *ppvObject = static_cast<IUnknown*>(this);
+            *ppvObject = this;
             AddRef();
             result = S_OK;
         }
         else if (IID_IDataObject == iid)
         {
-            *ppvObject = static_cast<IDataObject*>(this);
+            *ppvObject = this;
             AddRef();
             result = S_OK;
         }
@@ -161,7 +156,7 @@ ULONG STDMETHODCALLTYPE CBitmapDataObject::Release() noexcept
 HRESULT STDMETHODCALLTYPE CBitmapDataObject::GetData(FORMATETC * /*pformatetcIn*/, STGMEDIUM *pmedium) noexcept
 {
     pmedium->tymed = TYMED_HGLOBAL;
-    pmedium->hGlobal = ::OleDuplicateData(m_stgmed.hGlobal, CF_DIB, GMEM_MOVEABLE | GMEM_SHARE);
+    pmedium->hGlobal = OleDuplicateData(m_stgmed.hGlobal, CF_DIB, GMEM_MOVEABLE | GMEM_SHARE);
     pmedium->pUnkForRelease = nullptr;
 
     return S_OK;
@@ -220,18 +215,18 @@ HRESULT STDMETHODCALLTYPE CBitmapDataObject::EnumDAdvise(IEnumSTATDATA **ppenumA
     return OLE_E_ADVISENOTSUPPORTED;
 }
 
-void CBitmapDataObject::SetDib(HGLOBAL hGlobal)
+void CBitmapDataObject::SetDib(const HGLOBAL hGlobal)
 {
     ATLASSERT(hGlobal);
 
     if (hGlobal)
     {
-        STGMEDIUM stgm = { 0 };
+        STGMEDIUM stgm;
         stgm.tymed = TYMED_HGLOBAL;
         stgm.hGlobal = hGlobal;
         stgm.pUnkForRelease = nullptr;
 
-        FORMATETC fm = { 0 };
+        FORMATETC fm;
         fm.cfFormat = 0;
         fm.ptd = nullptr;
         fm.dwAspect = DVASPECT_CONTENT;
@@ -252,7 +247,7 @@ HRESULT CBitmapDataObject::GetOleObject(IOleClientSite *oleClientSite, IStorage 
 
     if (m_stgmed.hGlobal)
     {
-        result = ::OleCreateStaticFromData(this, IID_IOleObject, OLERENDER_DRAW,
+        result = OleCreateStaticFromData(this, IID_IOleObject, OLERENDER_DRAW,
             &m_format, oleClientSite, storage, reinterpret_cast<void **>(&oleObject));
 
         if (FAILED(result))

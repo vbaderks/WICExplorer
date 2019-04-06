@@ -44,7 +44,7 @@ private:
     InfoElementViewContext m_viewcontext{};
 
     HWND CreateClient();
-    int GetElementTreeImage(CInfoElement *elem);
+    static int GetElementTreeImage(CInfoElement *elem);
     // Opens a single file
     HRESULT OpenFile(LPCWSTR filename, bool &updateElements);
     // Opens files based on a wildcard expression (not recursive)
@@ -55,10 +55,10 @@ private:
     HTREEITEM BuildTree(CInfoElement *elem, HTREEITEM hParent);
     BOOL DoElementContextMenu(HWND hWnd, CInfoElement &element, POINT point);
     HMENU CreateElementContextMenu(CInfoElement &element);
-    CInfoElement *GetElementFromTreeItem(HTREEITEM hItem);
+    CInfoElement *GetElementFromTreeItem(HTREEITEM hItem) const;
     HTREEITEM GetTreeItemFromElement(CInfoElement *element);
     HTREEITEM FindTreeItem(HTREEITEM start, CInfoElement *element);
-    bool ElementCanBeSavedAsImage(CInfoElement &element);
+    static bool ElementCanBeSavedAsImage(CInfoElement &element);
     HRESULT SaveElementAsImage(CInfoElement &element);
     void DrawElement(CInfoElement &element);
     HRESULT QueryMetadata(CInfoElement* elem);

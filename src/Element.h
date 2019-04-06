@@ -49,22 +49,22 @@ public:
         return S_OK;
     }
 
-    CInfoElement *Parent() const
+    [[nodiscard]] CInfoElement *Parent() const
     {
         return m_parent;
     }
 
-    CInfoElement *NextSibling() const
+    [[nodiscard]] CInfoElement *NextSibling() const
     {
         return m_nextSibling;
     }
 
-    CInfoElement *FirstChild() const
+    [[nodiscard]] CInfoElement *FirstChild() const
     {
         return m_firstChild;
     }
 
-    BOOL IsChild(CInfoElement *element)
+    [[nodiscard]] BOOL IsChild(CInfoElement *element)
     {
         CInfoElement *child = FirstChild();
         while(child)
@@ -110,17 +110,18 @@ public:
         return E_NOTIMPL;
     }
 
-    CString m_queryKey, m_queryValue;
+    CString m_queryKey;
+    CString m_queryValue;
 
 protected:
     CString   m_name;
 
 private:
     void Unlink();
-    CInfoElement *m_parent;
-    CInfoElement *m_prevSibling;
-    CInfoElement *m_nextSibling;
-    CInfoElement *m_firstChild;
+    CInfoElement *m_parent{};
+    CInfoElement *m_prevSibling{};
+    CInfoElement *m_nextSibling{};
+    CInfoElement *m_firstChild{};
 };
 
 class CElementManager
@@ -146,7 +147,6 @@ public:
     static CString queryValue;
 
 private:
-
     static CInfoElement root;
 };
 
@@ -155,10 +155,6 @@ class CComponentInfoElement : public CInfoElement
 public:
     CComponentInfoElement(LPCWSTR name)
         : CInfoElement(name)
-    {
-    }
-
-    ~CComponentInfoElement()
     {
     }
 
@@ -171,14 +167,11 @@ public:
 class CBitmapDecoderElement : public CComponentInfoElement
 {
 public:
-    CBitmapDecoderElement(LPCWSTR filename)
+    CBitmapDecoderElement(const LPCWSTR filename)
         : CComponentInfoElement(filename)
         , m_filename(filename)
-        , m_decoder(NULL)
-        , m_creationTime(0)
-        , m_loaded(FALSE)
     {
-        int pathDelim = m_name.ReverseFind('\\');
+        const int pathDelim = m_name.ReverseFind('\\');
         if (pathDelim >= 0)
         {
             m_name = m_name.Right(m_name.GetLength() - pathDelim - 1);
@@ -189,13 +182,10 @@ public:
     HRESULT Load(ICodeGenerator &codeGen);
     // Releases the decoder and child objects but keeps the filename
     void Unload();
-    BOOL IsLoaded()
+
+    [[nodiscard]] bool IsLoaded() const
     {
         return m_loaded;
-    }
-
-    ~CBitmapDecoderElement()
-    {
     }
 
     HRESULT SaveAsImage(CImageTransencoder &trans, ICodeGenerator &codeGen);
@@ -205,14 +195,14 @@ public:
 
     void SetCreationTime(DWORD ms);
     void SetCreationCode(LPCWSTR code);
-    void FillContextMenu(HMENU context);
+    void FillContextMenu(HMENU context) override;
 
 private:
     CString              m_filename;
     IWICBitmapDecoderPtr m_decoder;
-    DWORD                m_creationTime;
+    DWORD                m_creationTime{};
     CString              m_creationCode;
-    BOOL                 m_loaded;
+    bool                 m_loaded{};
 };
 
 class CBitmapSourceElement : public CInfoElement
@@ -221,13 +211,8 @@ public:
     CBitmapSourceElement(LPCWSTR name, IWICBitmapSourcePtr source)
         : CInfoElement(name)
         , m_source(source)
-        , m_colorTransform(NULL)
     {
 
-    }
-
-    ~CBitmapSourceElement()
-    {
     }
 
     HRESULT SaveAsImage(CImageTransencoder &trans, ICodeGenerator &codeGen);
@@ -248,7 +233,7 @@ private:
 
 
 
-class CBitmapFrameDecodeElement : public CBitmapSourceElement
+class CBitmapFrameDecodeElement final : public CBitmapSourceElement
 {
 public:
     CBitmapFrameDecodeElement(UINT index, IWICBitmapFrameDecodePtr frameDecode)
@@ -259,16 +244,12 @@ public:
         m_name.Format(L"Frame #%u", index);
     }
 
-    ~CBitmapFrameDecodeElement()
-    {
-    }
+    HRESULT SaveAsImage(CImageTransencoder &trans, ICodeGenerator &codeGen) override;
+    void FillContextMenu(HMENU context) override;
 
-    HRESULT SaveAsImage(CImageTransencoder &trans, ICodeGenerator &codeGen);
-    void FillContextMenu(HMENU context);
-
-    HRESULT OutputView(IOutputDevice &output, const InfoElementViewContext& context);
-    HRESULT OutputInfo(IOutputDevice &output);
-    HRESULT GetQueryReader(IWICMetadataQueryReader **reader)
+    HRESULT OutputView(IOutputDevice &output, const InfoElementViewContext& context) override;
+    HRESULT OutputInfo(IOutputDevice &output) override;
+    HRESULT GetQueryReader(IWICMetadataQueryReader **reader) override
     {
         return m_frameDecode->GetMetadataQueryReader(reader);
     }
@@ -278,20 +259,16 @@ private:
     IWICBitmapFrameDecodePtr m_frameDecode;
 };
 
-class CMetadataReaderElement : public CComponentInfoElement
+class CMetadataReaderElement final : public CComponentInfoElement
 {
 public:
     CMetadataReaderElement(CInfoElement *parent, UINT idx, IWICMetadataReaderPtr reader);
 
-    ~CMetadataReaderElement()
+    HRESULT OutputView(IOutputDevice &output, const InfoElementViewContext& context) override;
+    HRESULT OutputInfo(IOutputDevice &output) override;
+    CInfoElement *FindElementByReader(IWICMetadataReader *reader) override
     {
-    }
-
-    HRESULT OutputView(IOutputDevice &output, const InfoElementViewContext& context);
-    HRESULT OutputInfo(IOutputDevice &output);
-    CInfoElement *FindElementByReader(IWICMetadataReader *reader)
-    {
-        if((IWICMetadataReader *)m_reader == reader)
+        if(static_cast<IWICMetadataReader *>(m_reader) == reader)
         {
             return this;
         }
@@ -300,7 +277,7 @@ public:
 
 private:
     HRESULT TranslateValueID(PROPVARIANT *pv, unsigned options, CString &out);
-    HRESULT TrimQuotesFromName(CString &out);
+    static HRESULT TrimQuotesFromName(CString &out);
     HRESULT SetNiceName(CInfoElement *parent, UINT idx);
 
     IWICMetadataReaderPtr m_reader;

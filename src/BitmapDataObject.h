@@ -13,24 +13,24 @@ class CBitmapDataObject final : IDataObject
 public:
     static HRESULT InsertDib(HWND hWnd, IRichEditOle *pRichEditOle, HGLOBAL hGlobal);
 
-    CBitmapDataObject();
+    CBitmapDataObject() = default;
     ~CBitmapDataObject();
 
     // IUnknown Interface
-    STDMETHOD(QueryInterface)(REFIID iid, void **ppvObject) override;
-    STDMETHOD_(ULONG, AddRef)() override;
-    STDMETHOD_(ULONG, Release)() override;
+    STDMETHOD(QueryInterface)(REFIID iid, void **ppvObject) noexcept override;
+    STDMETHOD_(ULONG, AddRef)() noexcept override;
+    STDMETHOD_(ULONG, Release)() noexcept override;
 
     // IDataObject Interface
-    STDMETHOD(GetData)(FORMATETC *pformatetcIn, STGMEDIUM *pmedium) override;
-    STDMETHOD(GetDataHere)(FORMATETC *pformatetc, STGMEDIUM *pmedium) override;
-    STDMETHOD(QueryGetData)(FORMATETC *pformatetc ) override;
-    STDMETHOD(GetCanonicalFormatEtc)(FORMATETC *pformatectIn, FORMATETC* pformatetcOut) override;
-    STDMETHOD(SetData)(FORMATETC *pformatetc, STGMEDIUM *pmedium, BOOL fRelease) override;
-    STDMETHOD(EnumFormatEtc)(DWORD dwDirection, IEnumFORMATETC **ppenumFormatEtc) override;
-    STDMETHOD(DAdvise)(FORMATETC *pformatetc, DWORD advf, IAdviseSink *pAdvSink, DWORD *pdwConnection) override;
-    STDMETHOD(DUnadvise)(DWORD dwConnection) override;
-    STDMETHOD(EnumDAdvise)(IEnumSTATDATA **ppenumAdvise) override;
+    STDMETHOD(GetData)(FORMATETC *pformatetcIn, STGMEDIUM *pmedium) noexcept override;
+    STDMETHOD(GetDataHere)(FORMATETC *pformatetc, STGMEDIUM *pmedium) noexcept override;
+    STDMETHOD(QueryGetData)(FORMATETC *pformatetc ) noexcept override;
+    STDMETHOD(GetCanonicalFormatEtc)(FORMATETC *pformatectIn, FORMATETC* pformatetcOut) noexcept override;
+    STDMETHOD(SetData)(FORMATETC *pformatetc, STGMEDIUM *pmedium, BOOL fRelease) noexcept override;
+    STDMETHOD(EnumFormatEtc)(DWORD dwDirection, IEnumFORMATETC **ppenumFormatEtc) noexcept override;
+    STDMETHOD(DAdvise)(FORMATETC *pformatetc, DWORD advf, IAdviseSink *pAdvSink, DWORD *pdwConnection) noexcept override;
+    STDMETHOD(DUnadvise)(DWORD dwConnection) noexcept override;
+    STDMETHOD(EnumDAdvise)(IEnumSTATDATA **ppenumAdvise) noexcept override;
 
 private:
     void SetDib(HGLOBAL hGlobal);

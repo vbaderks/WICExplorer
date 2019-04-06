@@ -89,39 +89,6 @@
     <ClInclude Include="Stopwatch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="wtl90\atlapp.h">
-      <Filter>Windows Template Library Files</Filter>
-    </ClInclude>
-    <ClInclude Include="wtl90\atlctrls.h">
-      <Filter>Windows Template Library Files</Filter>
-    </ClInclude>
-    <ClInclude Include="wtl90\atlctrlx.h">
-      <Filter>Windows Template Library Files</Filter>
-    </ClInclude>
-    <ClInclude Include="wtl90\atldlgs.h">
-      <Filter>Windows Template Library Files</Filter>
-    </ClInclude>
-    <ClInclude Include="wtl90\atlframe.h">
-      <Filter>Windows Template Library Files</Filter>
-    </ClInclude>
-    <ClInclude Include="wtl90\atlmisc.h">
-      <Filter>Windows Template Library Files</Filter>
-    </ClInclude>
-    <ClInclude Include="wtl90\atlsplit.h">
-      <Filter>Windows Template Library Files</Filter>
-    </ClInclude>
-    <ClInclude Include="wtl90\atlres.h">
-      <Filter>Windows Template Library Files</Filter>
-    </ClInclude>
-    <ClInclude Include="wtl90\atlwinx.h">
-      <Filter>Windows Template Library Files</Filter>
-    </ClInclude>
-    <ClInclude Include="wtl90\atluser.h">
-      <Filter>Windows Template Library Files</Filter>
-    </ClInclude>
-    <ClInclude Include="wtl90\atlgdi.h">
-      <Filter>Windows Template Library Files</Filter>
-    </ClInclude>
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -146,6 +113,5 @@
     <None Include="msxml2.tlb">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="Readme.md" />
   </ItemGroup>
 </Project>

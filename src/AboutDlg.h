@@ -8,6 +8,9 @@
 //----------------------------------------------------------------------------------------
 #pragma once
 
+#include "resource.h"
+#include <atlwin.h>
+
 class CAboutDlg final : public CDialogImpl<CAboutDlg>
 {
 public:
@@ -25,7 +28,7 @@ public:
         return TRUE;
     }
 
-    LRESULT OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+    LRESULT OnCloseCmd(WORD /*wNotifyCode*/, const WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
     {
         EndDialog(wID);
         return 0;

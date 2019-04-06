@@ -38,6 +38,6 @@ MP(IWICStream)
 MP(IWICComponentFactory)
 MP(IWICMetadataQueryWriter)
 MP(IWICMetadataQueryReader)
-MP(IWICProgressiveLevelControl);
+MP(IWICProgressiveLevelControl)
 
 #undef MP

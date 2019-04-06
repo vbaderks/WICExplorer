@@ -87,7 +87,13 @@
       <!-- Use by default precompiled headers with the modern name pch.h -->
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeader>Use</PrecompiledHeader>
+
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)wtl\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
+
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)wtl\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
 
   </ItemDefinitionGroup>
 

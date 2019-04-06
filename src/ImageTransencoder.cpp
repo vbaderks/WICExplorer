@@ -10,13 +10,6 @@
 
 #include "ImageTransencoder.h"
 
-CImageTransencoder::CImageTransencoder()
-: m_codeGen(nullptr)
-, m_encoding(false)
-, m_numPalettedFrames(0)
-{
-    m_format = GUID_WICPixelFormatDontCare;
-}
 
 CImageTransencoder::~CImageTransencoder()
 {
@@ -281,7 +274,7 @@ HRESULT CImageTransencoder::CreateFrameEncode(IWICBitmapSourcePtr bitmapSource, 
         }
 
         m_codeGen->EndVariableScope();
-    }    
+    }
 
     // Copy the color profile, if there is one.
     IWICBitmapFrameDecodePtr frame = bitmapSource;

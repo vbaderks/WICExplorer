@@ -15,7 +15,7 @@
 
 LRESULT CMainFrame::OnCreate(UINT, WPARAM, LPARAM, BOOL&)
 {
-    HWND hWndToolBar = CreateSimpleToolBarCtrl(m_hWnd, IDR_MAINFRAME, FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE | TBSTYLE_TRANSPARENT | TBSTYLE_LIST | TBSTYLE_FLAT | CCS_NORESIZE | CCS_TOP);
+    const HWND hWndToolBar = CreateSimpleToolBarCtrl(m_hWnd, IDR_MAINFRAME, FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE | TBSTYLE_TRANSPARENT | TBSTYLE_LIST | TBSTYLE_FLAT | CCS_NORESIZE | CCS_TOP);
 
     CreateSimpleReBar((ATL_SIMPLE_REBAR_NOBORDER_STYLE | CCS_TOP | RBS_DBLCLKTOGGLE) & ~RBS_AUTOSIZE);
     AddSimpleReBarBand(hWndToolBar, nullptr, TRUE);
@@ -100,7 +100,7 @@ LRESULT CMainFrame::OnPaneClose(WORD, WORD, HWND hWndCtl, BOOL&)
 
 
     // find the container's parent splitter
-    HWND hWnd = ::GetParent(hWndCtl);
+    const HWND hWnd = ::GetParent(hWndCtl);
     CSplitterWindow* pWnd;
 
 #pragma warning( disable : 4312 )
@@ -110,7 +110,7 @@ LRESULT CMainFrame::OnPaneClose(WORD, WORD, HWND hWndCtl, BOOL&)
     // take the container that was Closed out of the splitter.
     // Use SetSplitterPane(nPane, NULL) if you want to stay in
     // multipane mode instead of changing to single pane mode
-    int nCount = pWnd->m_nPanesCount;
+    const int nCount = pWnd->m_nPanesCount;
     for(int nPane = 0; nPane < nCount; nPane++)
     {
         if (hWndCtl == pWnd->m_hWndPane[nPane])
@@ -122,7 +122,7 @@ LRESULT CMainFrame::OnPaneClose(WORD, WORD, HWND hWndCtl, BOOL&)
 
     if(hWndCtl == m_viewPane.m_hWnd)
     {
-        HMENU menu = GetMenu();
+        const HMENU menu = GetMenu();
         // Clear the "Show View Pane" check mark in the menu
         CheckMenuItem(menu, ID_SHOW_VIEWPANE, MF_UNCHECKED | MF_BYCOMMAND);
     }
@@ -130,7 +130,7 @@ LRESULT CMainFrame::OnPaneClose(WORD, WORD, HWND hWndCtl, BOOL&)
     return 0;
 }
 
-CInfoElement *CMainFrame::GetElementFromTreeItem(HTREEITEM hItem)
+CInfoElement *CMainFrame::GetElementFromTreeItem(const HTREEITEM hItem) const
 {
     return reinterpret_cast<CInfoElement*>(m_mainTree.GetItemData(hItem));
 }
@@ -140,7 +140,7 @@ HTREEITEM CMainFrame::GetTreeItemFromElement(CInfoElement *element)
     return FindTreeItem(m_mainTree.GetRootItem(),element);
 }
 
-HTREEITEM CMainFrame::FindTreeItem(HTREEITEM start, CInfoElement *element)
+HTREEITEM CMainFrame::FindTreeItem(const HTREEITEM start, CInfoElement *element)
 {
     if(!start)
     {
@@ -164,18 +164,18 @@ int CMainFrame::GetElementTreeImage(CInfoElement *elem)
     {
         return 151;
     }
-    else if (dynamic_cast<CBitmapFrameDecodeElement*>(elem))
+
+    if (dynamic_cast<CBitmapFrameDecodeElement*>(elem))
     {
         return 160;
     }
-    else if (dynamic_cast<CMetadataReaderElement*>(elem))
+
+    if (dynamic_cast<CMetadataReaderElement*>(elem))
     {
         return 7;
     }
-    else
-    {
-        return 85;
-    }
+
+    return 85;
 }
 
 HTREEITEM CMainFrame::BuildTree(CInfoElement *elem, HTREEITEM hParent)
@@ -275,7 +275,7 @@ HRESULT CMainFrame::OpenFile(LPCWSTR filename, bool &updateElements)
 
         if(m_suppressMessageBox == FALSE)
         {
-            CWindow::MessageBoxW(msg, L"Error Opening File", MB_OK | MB_ICONWARNING);
+            MessageBoxW(msg, L"Error Opening File", MB_OK | MB_ICONWARNING);
         }
     }
 
@@ -491,7 +491,7 @@ LRESULT CMainFrame::OnFileOpen(WORD, WORD, HWND hParentWnd, BOOL&)
         }
     }
 
-    delete filenameBuffer;
+    delete[] filenameBuffer;
 
     return 0;
 }
@@ -500,7 +500,7 @@ HRESULT CMainFrame::OpenDirectory(LPCWSTR directory, DWORD &attempted, DWORD &op
 {
     HRESULT hr = S_OK;
     WIN32_FIND_DATA fdata;
-    HANDLE hf = FindFirstFile(CString(directory) + "\\*", &fdata);
+    const HANDLE hf = FindFirstFile(CString(directory) + "\\*", &fdata);
 
     if(hf == INVALID_HANDLE_VALUE)
     {
@@ -510,6 +510,7 @@ HRESULT CMainFrame::OpenDirectory(LPCWSTR directory, DWORD &attempted, DWORD &op
         }
         return 0;
     }
+
     do
     {
         CString path = CString(directory) + L"\\" + fdata.cFileName;
@@ -620,7 +621,7 @@ LRESULT CMainFrame::OnTreeViewSelChanged(WPARAM /*wParam*/, LPNMHDR lpNmHdr, BOO
 {
     bHandled = TRUE;
 
-    LPNMTREEVIEW lpNmTreeView = reinterpret_cast<LPNMTREEVIEW>(lpNmHdr);
+    const auto lpNmTreeView = reinterpret_cast<LPNMTREEVIEW>(lpNmHdr);
 
     CInfoElement *elem = GetElementFromTreeItem(lpNmTreeView->itemNew.hItem);
 
@@ -635,8 +636,8 @@ LRESULT CMainFrame::OnTreeViewSelChanged(WPARAM /*wParam*/, LPNMHDR lpNmHdr, BOO
 LRESULT CMainFrame::OnNMRClick(int, LPNMHDR pnmh, BOOL&)
 {
     // Get the location of the click point in the window
-    POINT pt = { 0 };
-    ::GetCursorPos(&pt);
+    POINT pt;
+    GetCursorPos(&pt);
 
     POINT ptClient = pt;
     if (nullptr != pnmh->hwndFrom)
@@ -647,7 +648,7 @@ LRESULT CMainFrame::OnNMRClick(int, LPNMHDR pnmh, BOOL&)
     // If it was a right-click in the tree view, then bring up the context menu.
     if (pnmh->hwndFrom == m_mainTree.m_hWnd)
     {
-        TVHITTESTINFO tvhti = { 0 };
+        TVHITTESTINFO tvhti{};
         tvhti.pt = ptClient;
         m_mainTree.HitTest(&tvhti);
 
@@ -667,9 +668,9 @@ LRESULT CMainFrame::OnNMRClick(int, LPNMHDR pnmh, BOOL&)
 
 HMENU CMainFrame::CreateElementContextMenu(CInfoElement &element)
 {
-    HMENU result = ::CreatePopupMenu();
+    const HMENU result = CreatePopupMenu();
 
-    MENUITEMINFO itemInfo = { 0 };
+    MENUITEMINFO itemInfo{};
     itemInfo.cbSize = sizeof(MENUITEMINFO);
     itemInfo.fMask = MIIM_FTYPE | MIIM_ID | MIIM_STATE | MIIM_STRING;
     itemInfo.fType = MFT_STRING;
@@ -681,14 +682,14 @@ HMENU CMainFrame::CreateElementContextMenu(CInfoElement &element)
 
 BOOL CMainFrame::DoElementContextMenu(HWND hWnd, CInfoElement &element, POINT point)
 {
-    HMENU hMenu = CreateElementContextMenu(element);
-    if (nullptr == hMenu)
+    const HMENU hMenu = CreateElementContextMenu(element);
+    if (!hMenu)
     {
         return FALSE;
     }
 
-    ::TrackPopupMenu(hMenu, TPM_LEFTALIGN | TPM_RIGHTBUTTON, point.x, point.y, 0, hWnd, nullptr);
-    ::DestroyMenu(hMenu);
+    TrackPopupMenu(hMenu, TPM_LEFTALIGN | TPM_RIGHTBUTTON, point.x, point.y, 0, hWnd, nullptr);
+    DestroyMenu(hMenu);
 
     return TRUE;
 }
@@ -696,9 +697,9 @@ BOOL CMainFrame::DoElementContextMenu(HWND hWnd, CInfoElement &element, POINT po
 LRESULT CMainFrame::OnFileSave(WORD, WORD, HWND, BOOL&)
 {
     // Get the currently selected tree node.
-    HTREEITEM hItem = m_mainTree.GetSelectedItem();
+    const HTREEITEM hItem = m_mainTree.GetSelectedItem();
 
-    if (nullptr != hItem)
+    if (hItem)
     {
         CInfoElement *elem = GetElementFromTreeItem(hItem);
         if (nullptr != elem)
@@ -750,7 +751,7 @@ HRESULT CMainFrame::SaveElementAsImage(CInfoElement &element)
 
                     CString msg;
                     msg.Format(L"Unable to encode '%s' as '%s'. The error is: %s.\n\n",
-                        (LPCWSTR)element.Name(), fileDlg.m_szFileName, (LPCWSTR)err);
+                        element.Name().GetString(), fileDlg.m_szFileName, err.GetString());
 
                     CString code;
                     codeGen->GenerateCode(code);
@@ -758,7 +759,7 @@ HRESULT CMainFrame::SaveElementAsImage(CInfoElement &element)
 
                     if(m_suppressMessageBox == FALSE)
                     {
-                        CWindow::MessageBoxW(msg, L"Error Encoding Image", MB_OK | MB_ICONERROR);
+                        MessageBoxW(msg, L"Error Encoding Image", MB_OK | MB_ICONERROR);
                     }
                 }
                 else if( dlg.GetPixelFormat() != GUID_WICPixelFormatDontCare &&
@@ -780,7 +781,7 @@ HRESULT CMainFrame::SaveElementAsImage(CInfoElement &element)
 
                     if(m_suppressMessageBox == FALSE)
                     {
-                        CWindow::MessageBoxW(msg, L"Different format picked", MB_OK);
+                        MessageBoxW(msg, L"Different format picked", MB_OK);
                     }
                 }
 
@@ -829,26 +830,19 @@ HRESULT GetReaderFromQueryReader(IWICMetadataQueryReader *queryReader, IWICMetad
 
     // This will take the query reader and copy it into a CDummyBlockWriter.
     // Internally, AddWriter will be called with the unabstracted metadata reader.
-    class CDummyBlockWriter :
+    class CDummyBlockWriter final:
         public IWICMetadataBlockWriter
     {
     public:
         IWICMetadataWriterPtr writer;
         IWICMetadataBlockReaderPtr blockReader;
-        CDummyBlockWriter()
-        {
-        }
 
-        ~CDummyBlockWriter()
-        {
-        }
-
-        ULONG STDMETHODCALLTYPE AddRef()
+        ULONG STDMETHODCALLTYPE AddRef() override
         {
             return 0;
         }
 
-        ULONG STDMETHODCALLTYPE Release()
+        ULONG STDMETHODCALLTYPE Release() override
         {
             return 0;
         }
@@ -856,11 +850,11 @@ HRESULT GetReaderFromQueryReader(IWICMetadataQueryReader *queryReader, IWICMetad
         HRESULT STDMETHODCALLTYPE QueryInterface(const IID &id, void **dest)
         {
             if(id==IID_IWICMetadataBlockWriter)
-                *dest=(IWICMetadataBlockWriter *)this;
+                *dest = this;
             else if(id==IID_IWICMetadataBlockReader)
-                *dest=(IWICMetadataBlockReader *)this;
+                *dest = this;
             else if(id==IID_IUnknown)
-                *dest=(IUnknown *)this;
+                *dest = this;
             else
                 return E_NOINTERFACE;
             return S_OK;
@@ -868,7 +862,7 @@ HRESULT GetReaderFromQueryReader(IWICMetadataQueryReader *queryReader, IWICMetad
 
         STDMETHOD(InitializeFromBlockReader)(
             IWICMetadataBlockReader *pIMDBlockReader
-            )
+            ) override
         {
             blockReader = pIMDBlockReader;
             return S_OK;
@@ -877,7 +871,7 @@ HRESULT GetReaderFromQueryReader(IWICMetadataQueryReader *queryReader, IWICMetad
         STDMETHOD(GetWriterByIndex)(
             UINT /*nIndex*/,
             IWICMetadataWriter **ppIMetadataWriter
-            )
+            ) override
         {
             *ppIMetadataWriter = nullptr;
             return CO_E_NOT_SUPPORTED;
@@ -885,7 +879,7 @@ HRESULT GetReaderFromQueryReader(IWICMetadataQueryReader *queryReader, IWICMetad
 
         STDMETHOD(AddWriter)(
             IWICMetadataWriter *pIMetadataWriter
-            )
+            ) override
         {
             if(writer)
             {
@@ -898,27 +892,27 @@ HRESULT GetReaderFromQueryReader(IWICMetadataQueryReader *queryReader, IWICMetad
         STDMETHOD(SetWriterByIndex)(
             UINT /*nIndex*/,
             IWICMetadataWriter * /*pIMetadataWriter*/
-            )
+            ) override
         {
             return CO_E_NOT_SUPPORTED;
         }
 
         STDMETHOD(RemoveWriterByIndex)(
-            UINT /*nIndex*/)
+            UINT /*nIndex*/) override
         {
             return CO_E_NOT_SUPPORTED;
         }
 
         STDMETHOD(GetContainerFormat)(
             GUID * /*pguidContainerFormat*/
-            )
+            ) override
         {
             return CO_E_NOT_SUPPORTED;
         }
 
         STDMETHOD(GetCount)(
             UINT *pcCount
-            )
+            ) override
         {
             *pcCount = 0;
             return CO_E_NOT_SUPPORTED;
@@ -927,7 +921,7 @@ HRESULT GetReaderFromQueryReader(IWICMetadataQueryReader *queryReader, IWICMetad
         STDMETHOD(GetReaderByIndex)(
             UINT /*nIndex*/,
             IWICMetadataReader **ppIMetadataReader
-            )
+            ) override
         {
             *ppIMetadataReader = nullptr;
             return CO_E_NOT_SUPPORTED;
@@ -935,7 +929,7 @@ HRESULT GetReaderFromQueryReader(IWICMetadataQueryReader *queryReader, IWICMetad
 
         STDMETHOD(GetEnumerator)(
             IEnumUnknown **ppIEnumMetadata
-            )
+            ) override
         {
             *ppIEnumMetadata = nullptr;
             return CO_E_NOT_SUPPORTED;
@@ -944,7 +938,7 @@ HRESULT GetReaderFromQueryReader(IWICMetadataQueryReader *queryReader, IWICMetad
 
     // These lower level metadata data functions will require the component factory.
     IWICComponentFactoryPtr componentFactory;
-    IFC(g_imagingFactory->QueryInterface(IID_IWICComponentFactory, (void **)&componentFactory));
+    IFC(g_imagingFactory->QueryInterface(IID_PPV_ARGS(&componentFactory)));
 
     // This takes the IWICMetadataBlockWriter and wraps it as a IWICMetadataQueryWriter.
     // This is necessary because only query writer to query writer copying is supported.
@@ -972,15 +966,14 @@ HRESULT GetReaderFromQueryReader(IWICMetadataQueryReader *queryReader, IWICMetad
         return E_FAIL;
     }
 
-    IFC(dummyWriter.writer->QueryInterface(IID_IWICMetadataReader, (void **)reader));
+    IFC(dummyWriter.writer->QueryInterface(IID_PPV_ARGS(reader)));
 
     return result;
 }
 
 LRESULT CMainFrame::OnShowViewPane(WORD /*code*/, WORD item, HWND /*hSender*/, BOOL& handled)
 {
-    MENUITEMINFO currentState;
-    memset(&currentState, 0, sizeof(currentState));
+    MENUITEMINFO currentState{};
     currentState.cbSize = sizeof(MENUITEMINFO);
     currentState.fMask = MIIM_STATE;
     HMENU menu = GetMenu();
@@ -1036,7 +1029,7 @@ LRESULT CMainFrame::OnShowAlpha(WORD /*code*/, WORD item, HWND /*hSender*/, BOOL
     return 0;
 }
 
-LRESULT CMainFrame::OnContextClick(WORD /*code*/, WORD item, HWND /*hSender*/, BOOL& handled)
+LRESULT CMainFrame::OnContextClick(WORD /*code*/, const WORD item, HWND /*hSender*/, BOOL& handled)
 {
     handled = 1;
     HTREEITEM hItem = m_mainTree.GetSelectedItem();
@@ -1047,33 +1040,33 @@ LRESULT CMainFrame::OnContextClick(WORD /*code*/, WORD item, HWND /*hSender*/, B
     case ID_FILE_LOAD:
         {
             CSimpleCodeGenerator temp;
-            ((CBitmapDecoderElement *)elem)->Load(temp);
+            static_cast<CBitmapDecoderElement *>(elem)->Load(temp);
             UpdateTreeView(0);
             DrawElement(*elem);
         }
         break;
     case ID_FILE_UNLOAD:
-        ((CBitmapDecoderElement *)elem)->Unload();
+        static_cast<CBitmapDecoderElement *>(elem)->Unload();
         UpdateTreeView(0);
         DrawElement(*elem);
         break;
     case ID_FILE_CLOSE:
-        CElementManager::GetRootElement()->RemoveChild((CBitmapDecoderElement *)elem);
+        CElementManager::GetRootElement()->RemoveChild(static_cast<CBitmapDecoderElement *>(elem));
         UpdateTreeView(0);
         break;
     case ID_FIND_METADATA:
         {
-            HRESULT result = QueryMetadata(elem);
+            const HRESULT result = QueryMetadata(elem);
             if(FAILED(result))
             {
                 CString msg;
                 CString err;
                 GetHresultString(result, err);
-                msg.Format(L"Unable find metadata. The error is: %s.", (LPCWSTR)err);
+                msg.Format(L"Unable find metadata. The error is: %s.", err.GetString());
 
                 if(m_suppressMessageBox == FALSE)
                 {
-                    CWindow::MessageBoxW(msg, L"Error Finding Metadata", MB_OK | MB_ICONWARNING);
+                    MessageBoxW(msg, L"Error Finding Metadata", MB_OK | MB_ICONWARNING);
                 }
             }
         }
@@ -1175,8 +1168,7 @@ HRESULT CMainFrame::QueryMetadata(CInfoElement *elem)
         }
         if(value.vt == VT_UNKNOWN)
         {
-            IFC(value.punkVal->QueryInterface(IID_IWICMetadataQueryReader,
-                (void **)&parentQueryReader));
+            IFC(value.punkVal->QueryInterface(IID_PPV_ARGS(&parentQueryReader)));
         }
         else
         {

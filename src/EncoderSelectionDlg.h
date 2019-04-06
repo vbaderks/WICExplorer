@@ -15,7 +15,7 @@ class CEncoderSelectionDlg final : public CDialogImpl<CEncoderSelectionDlg>
 public:
     enum { IDD = IDD_ENCODER_SELECTION };
 
-    CEncoderSelectionDlg();
+    CEncoderSelectionDlg() = default;
 
     BEGIN_MSG_MAP(CEncoderSelectionDlg)
         MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
@@ -31,9 +31,9 @@ private:
     LRESULT OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
     CSimpleArray<GUID> m_containers;
-    int m_containerSel;
+    int m_containerSel{-1};
 
     CSimpleArray<GUID> m_formats;
-    int m_formatSel;
+    int m_formatSel{-1};
 };
 

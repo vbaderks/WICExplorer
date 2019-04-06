@@ -1,4 +1,4 @@
-//----------------------------------------------------------------------------------------
+﻿//----------------------------------------------------------------------------------------
 // THIS CODE AND INFORMATION IS PROVIDED "AS-IS" WITHOUT WARRANTY OF
 // ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 // THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
@@ -9,11 +9,6 @@
 #include "pch.h"
 
 #include "EncoderSelectionDlg.h"
-
-CEncoderSelectionDlg::CEncoderSelectionDlg()
-: m_containerSel(-1), m_formatSel(-1)
-{
-}
 
 GUID CEncoderSelectionDlg::GetContainerFormat()
 {
@@ -27,8 +22,6 @@ GUID CEncoderSelectionDlg::GetPixelFormat()
 
 LRESULT CEncoderSelectionDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
-    HRESULT result = S_OK;
-
     CenterWindow(GetParent());
 
     CListViewCtrl containerList(::GetDlgItem(m_hWnd, IDC_ENCODER_LIST));
@@ -38,13 +31,13 @@ LRESULT CEncoderSelectionDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPA
     m_containers.RemoveAll();
 
     IEnumUnknownPtr e;
-    result = g_imagingFactory->CreateComponentEnumerator(WICEncoder, WICComponentEnumerateRefresh, &e);
+    HRESULT result = g_imagingFactory->CreateComponentEnumerator(WICEncoder, WICComponentEnumerateRefresh, &e);
     if (SUCCEEDED(result))
     {
         ULONG num = 0;
         IUnknownPtr unk;
 
-        while ((S_OK == e->Next(1, &unk, &num)) && (1 == num))
+        while (S_OK == e->Next(1, &unk, &num) && 1 == num)
         {
             CString friendlyName;
             IWICBitmapEncoderInfoPtr encoderInfo = unk;
@@ -53,11 +46,11 @@ LRESULT CEncoderSelectionDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPA
             READ_WIC_STRING(encoderInfo->GetFriendlyName, friendlyName);
 
             // Add the container to the ListView
-            int idx = containerList.InsertItem(0, friendlyName);
+            const int idx = containerList.InsertItem(0, friendlyName);
             containerList.SetItemData(idx, static_cast<DWORD_PTR>(m_containers.GetSize()));
 
             // Add the container to the list of containers
-            GUID containerFormat = { 0 };
+            GUID containerFormat{};
             encoderInfo->GetContainerFormat(&containerFormat);
             m_containers.Add(containerFormat);
         }
@@ -79,7 +72,7 @@ LRESULT CEncoderSelectionDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPA
         ULONG num = 0;
         IUnknownPtr unk;
 
-        while ((S_OK == e->Next(1, &unk, &num)) && (1 == num))
+        while (S_OK == e->Next(1, &unk, &num) && 1 == num)
         {
             CString friendlyName;
             IWICPixelFormatInfoPtr formatInfo = unk;
@@ -88,18 +81,18 @@ LRESULT CEncoderSelectionDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPA
             READ_WIC_STRING(formatInfo->GetFriendlyName, friendlyName);
 
             // Add the format to the ListView
-            int idx = formatList.InsertItem(0, friendlyName);
+            const int idx = formatList.InsertItem(0, friendlyName);
             formatList.SetItemData(idx, static_cast<DWORD_PTR>(m_formats.GetSize()));
 
             // Add the format to the list of containers
-            GUID pixelFormat = { 0 };
+            GUID pixelFormat{};
             formatInfo->GetFormatGUID(&pixelFormat);
             m_formats.Add(pixelFormat);
         }
     }
 
     //Add in "don't care" as the default pixel format
-    int idx = formatList.InsertItem(0, L"Don't care");
+    const int idx = formatList.InsertItem(0, L"Don't care");
     formatList.SetItemData(idx, static_cast<DWORD_PTR>(m_formats.GetSize()));
     m_formats.Add(GUID_WICPixelFormatDontCare);
 
@@ -109,12 +102,12 @@ LRESULT CEncoderSelectionDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPA
     return TRUE;
 }
 
-LRESULT CEncoderSelectionDlg::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+LRESULT CEncoderSelectionDlg::OnCloseCmd(WORD /*wNotifyCode*/, const WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
     // If selecting OK, validate that something is selected
     if (IDOK == wID)
     {
-        CListViewCtrl containerList(::GetDlgItem(m_hWnd, IDC_ENCODER_LIST));
+        const CListViewCtrl containerList(::GetDlgItem(m_hWnd, IDC_ENCODER_LIST));
         int selIdx = containerList.GetSelectedIndex();
 
         if ((selIdx < 0) || (selIdx >= m_containers.GetSize()))
@@ -126,7 +119,7 @@ LRESULT CEncoderSelectionDlg::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*
 
         m_containerSel = static_cast<int>(containerList.GetItemData(selIdx));
 
-        CListViewCtrl formatList(::GetDlgItem(m_hWnd, IDC_FORMAT_LIST));
+        const CListViewCtrl formatList(::GetDlgItem(m_hWnd, IDC_FORMAT_LIST));
         selIdx = formatList.GetSelectedIndex();
 
         if ((selIdx < 0) || (selIdx >= m_formats.GetSize()))

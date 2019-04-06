@@ -8,7 +8,7 @@
 //----------------------------------------------------------------------------------------
 #pragma once
 
-class CStopwatch
+class CStopwatch final
 {
 public:
     CStopwatch()
@@ -22,18 +22,18 @@ public:
         QueryPerformanceCounter(&m_startTime);
     }
 
-    DWORD GetTimeMS() const
+    [[nodiscard]] DWORD GetTimeMS() const
     {
         LARGE_INTEGER now;
         QueryPerformanceCounter(&now);
 
-        LONGLONG timeMS = ((now.QuadPart - m_startTime.QuadPart) * LONGLONG(1000)) / m_frequency.QuadPart;
+        const LONGLONG timeMS = (now.QuadPart - m_startTime.QuadPart) * LONGLONG(1000) / m_frequency.QuadPart;
 
         return DWORD(timeMS);
     }
 
 private:
-    LARGE_INTEGER m_frequency;
-    LARGE_INTEGER m_startTime;
+    LARGE_INTEGER m_frequency{};
+    LARGE_INTEGER m_startTime{};
 };
 

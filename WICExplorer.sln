@@ -5,6 +5,15 @@ VisualStudioVersion = 16.0.28516.95
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WICExplorer", "src\WICExplorer.vcxproj", "{68ED6FAE-290E-483A-8D90-6E59BAFBC3C9}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EFF3E912-976A-4266-B528-B581BADE34A3}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		description.html = description.html
+		Directory.Build.props = Directory.Build.props
+		license.rtf = license.rtf
+		Readme.md = Readme.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64

@@ -1,4 +1,4 @@
-//----------------------------------------------------------------------------------------
+﻿//----------------------------------------------------------------------------------------
 // THIS CODE AND INFORMATION IS PROVIDED "AS-IS" WITHOUT WARRANTY OF
 // ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 // THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
@@ -8,7 +8,7 @@
 //----------------------------------------------------------------------------------------
 #pragma once
 
-class CMetadataTranslator
+class CMetadataTranslator final
 {
 public:
     static CMetadataTranslator &Inst()
@@ -27,28 +27,26 @@ public:
         return inst;
     }
 
-    HRESULT Translate(const GUID &format, PROPVARIANT *pv, CString &out);
+    HRESULT Translate(const GUID &format, PROPVARIANT *pv, CString &out) const;
 
 private:
-    struct Key
+    struct Key final
     {
-        Key(LPWSTR guidStr, LPCWSTR idStr);
-        Key();
+        Key(LPCWSTR guidStr, LPCWSTR idStr);
+        Key() = default;
 
-        GUID m_format;
-        int m_id;
+        GUID m_format{};
+        int m_id{};
 
         bool operator == (const Key &other) const
         {
-            return (other.m_id == m_id) && (other.m_format == m_format);
+            return other.m_id == m_id && other.m_format == m_format;
         }
     };
 
-    CMetadataTranslator()
-    {
-    }
+    CMetadataTranslator() = default;
 
-    HRESULT ReadPropVariantInteger(PROPVARIANT *pv, int &out);
+    static HRESULT ReadPropVariantInteger(PROPVARIANT *pv, int &out);
     HRESULT LoadFormat(MSXML2::IXMLDOMNodePtr formatNode);
     HRESULT LoadTranslations();
 

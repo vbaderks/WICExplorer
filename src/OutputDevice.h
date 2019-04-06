@@ -45,8 +45,8 @@ public:
 
     void BeginSection(LPCWSTR name) override;
     void AddText(LPCWSTR name) override;
-    void AddVerbatimText(LPCWSTR text) override;
-    void AddDib(HGLOBAL hGlobal) override;
+    void AddVerbatimText(LPCWSTR name) override;
+    void AddDib(HGLOBAL hBitmap) override;
     void BeginKeyValues(LPCWSTR name) override;
     void AddKeyValue(LPCWSTR key, LPCWSTR value) override;
     void EndKeyValues() override;

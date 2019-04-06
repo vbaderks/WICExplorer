@@ -42,16 +42,16 @@
 
 #pragma warning(push)
 #pragma warning(disable: 4127) // conditional expression is constant
-#include <wtl/Include/atlapp.h>
+#include <atlapp.h>
 
 extern CAppModule _Module;
 
-#include <wtl/Include/atlframe.h>
-#include <wtl/Include/atlctrls.h>
-#include <wtl/Include/atldlgs.h>
-#include <wtl/Include/atlmisc.h>
-#include <wtl/Include/atlsplit.h>
-#include <wtl/Include/atlctrlx.h>
+#include <atlframe.h>
+#include <atlctrls.h>
+#include <atldlgs.h>
+#include <atlmisc.h>
+#include <atlsplit.h>
+#include <atlctrlx.h>
 #pragma warning(pop)
 
 #include "Interfaces.h"

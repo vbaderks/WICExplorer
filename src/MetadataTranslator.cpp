@@ -10,23 +10,18 @@
 
 #include "MetadataTranslator.h"
 
-CMetadataTranslator::Key::Key(LPWSTR guidStr, LPCWSTR idStr)
+CMetadataTranslator::Key::Key(LPCWSTR guidStr, const LPCWSTR idStr)
 {
     CLSIDFromString(guidStr, &m_format);
     m_id = _wtoi(idStr);
-}
-
-CMetadataTranslator::Key::Key()
-{
-    // No initialization
 }
 
 HRESULT CMetadataTranslator::ReadPropVariantInteger(PROPVARIANT *pv, int &out)
 {
     HRESULT result = E_INVALIDARG;
 
-    ATLASSERT(NULL != pv);
-    if (nullptr != pv)
+    ATLASSERT(pv);
+    if (pv)
     {
         switch (pv->vt)
         {
@@ -68,7 +63,7 @@ HRESULT CMetadataTranslator::ReadPropVariantInteger(PROPVARIANT *pv, int &out)
     return result;
 }
 
-HRESULT CMetadataTranslator::Translate(const GUID &format, PROPVARIANT *pv, CString &out)
+HRESULT CMetadataTranslator::Translate(const GUID &format, PROPVARIANT *pv, CString &out) const
 {
     HRESULT result = S_OK;
 
@@ -81,7 +76,7 @@ HRESULT CMetadataTranslator::Translate(const GUID &format, PROPVARIANT *pv, CStr
     Key k;
     k.m_format = format;
     k.m_id = id;
-    int idx = m_dictionary.FindKey(k);
+    const int idx = m_dictionary.FindKey(k);
 
     if (idx >= 0)
     {
@@ -99,11 +94,9 @@ HRESULT CMetadataTranslator::Translate(const GUID &format, PROPVARIANT *pv, CStr
 
 HRESULT CMetadataTranslator::LoadFormat(MSXML2::IXMLDOMNodePtr formatNode)
 {
-    HRESULT result = S_OK;
-
     // Get the format
     _bstr_t formatGuidStr;
-    MSXML2::IXMLDOMNodePtr formatGuidNode = formatNode->attributes->getNamedItem(TEXT("guid"));
+    const MSXML2::IXMLDOMNodePtr formatGuidNode = formatNode->attributes->getNamedItem(TEXT("guid"));
     if (NULL != formatGuidNode)
     {
         formatGuidStr = formatGuidNode->nodeValue;
@@ -130,12 +123,12 @@ HRESULT CMetadataTranslator::LoadFormat(MSXML2::IXMLDOMNodePtr formatNode)
                 _bstr_t valueStr{ entryValueNode->nodeValue };
 
                 // Finally, we can add this entry
-                m_dictionary.Add(Key(formatGuidStr, idStr), CString((LPCWSTR)valueStr));
+                m_dictionary.Add(Key(formatGuidStr, idStr), CString(static_cast<LPCWSTR>(valueStr)));
             }
         }
     }
 
-    return result;
+    return S_OK;
 }
 
 HRESULT CMetadataTranslator::LoadTranslations()
@@ -148,12 +141,12 @@ HRESULT CMetadataTranslator::LoadTranslations()
 
     // Do not allow asynchronous download
     xmlDoc->async = VARIANT_FALSE;
-      
+
     // Load the translations file
     _variant_t dictFilename(L"MetadataDictionary.xml");
     _variant_t br(true);
     br = xmlDoc->load(dictFilename);
-    if (!(bool)br)
+    if (!static_cast<bool>(br))
     {
         return E_FAIL;
     }

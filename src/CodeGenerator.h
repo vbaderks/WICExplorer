@@ -11,9 +11,7 @@
 class ICodeGenerator
 {
 public:
-    virtual ~ICodeGenerator()
-    {
-    }
+    virtual ~ICodeGenerator() = default;
 
     virtual void BeginVariableScope(LPCWSTR varType, LPCWSTR varBaseName, LPCWSTR varInitValue) = 0;
     virtual void EndVariableScope() = 0;
@@ -26,18 +24,14 @@ public:
 
 class CSimpleCodeGenerator final : public ICodeGenerator
 {
-private:
-    enum { INDENT_SPACES = 4 };
-
 public:
     CSimpleCodeGenerator()
-        : m_indent(0)
     {
         BeginVariable(L"IWICImagingFactory*", L"imagingFactory", L"NULL");
         CallFunction(L"CoCreateInstance(CLSID_WICImagingFactory, NULL, CLSCTX_INPROC_SERVER, IID_IWICImagingFactory, (LPVOID*) &imagingFactory)");
     }
 
-    void BeginVariableScope(LPCWSTR varType, LPCWSTR varBaseName, LPCWSTR varInitValue) override
+    void BeginVariableScope(const LPCWSTR varType, const LPCWSTR varBaseName, const LPCWSTR varInitValue) override
     {
         AddLine(L"{");
 
@@ -104,7 +98,9 @@ private:
         m_lines.Add(CString(L' ', m_indent) + line);
     }
 
+    enum { INDENT_SPACES = 4 };
+
     CSimpleArray<CString> m_lines;
     CString m_lastVarName;
-    int m_indent;
+    int m_indent{};
 };
