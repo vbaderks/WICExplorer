@@ -1,0 +1,16 @@
+# Set default behavior to automatically normalize line endings.
+* text=auto
+
+# Explicit define text files types.
+*.cpp text diff=cpp
+*.h text diff=cpp
+*.md text
+*.sln text
+*.props text
+*.vcxproj text
+*.filters text
+
+# Export ignore all files that are only needed for git and CI (used when downloading the repository as a zip file).
+.gitattributes text export-ignore
+.gitignore text export-ignore
+.gitmodules text export-ignore
