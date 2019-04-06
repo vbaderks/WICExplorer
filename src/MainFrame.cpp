@@ -434,7 +434,7 @@ CString GetFullPath(CString directory, CString file)
 
 LRESULT CMainFrame::OnFileOpen(WORD, WORD, HWND hParentWnd, BOOL&)
 {
-    CFileDialog fileDlg(TRUE, nullptr, nullptr, OFN_HIDEREADONLY | OFN_FILEMUSTEXIST | OFN_ALLOWMULTISELECT,
+    CSimpleFileDialog fileDlg(TRUE, nullptr, nullptr, OFN_HIDEREADONLY | OFN_FILEMUSTEXIST | OFN_ALLOWMULTISELECT,
         L"All Files (*.*)\0*.*\0\0", hParentWnd);
 
     // Create a large buffer to hold the result of the filenames.
@@ -448,14 +448,14 @@ LRESULT CMainFrame::OnFileOpen(WORD, WORD, HWND hParentWnd, BOOL&)
     }
 
     // Bring up the dialog
-    INT_PTR res = fileDlg.DoModal();
+    const INT_PTR res = fileDlg.DoModal();
 
     if (IDOK == res)
     {
         bool updateElements = false;
 
         // Get the path to the files
-        CString path = fileDlg.m_ofn.lpstrFile;
+        const CString path = fileDlg.m_ofn.lpstrFile;
 
         // If m_ofn.lpstrFileTitle is empty, then there are multiple files. Otherwise, there is
         // just one file. We need to handle both cases.
@@ -732,7 +732,7 @@ HRESULT CMainFrame::SaveElementAsImage(CInfoElement &element)
         if (IDOK == id)
         {
             // Now that we know what kind of encoder they want to use, let's get a filename from them
-            CFileDialog fileDlg(FALSE, nullptr, nullptr, OFN_HIDEREADONLY,
+            CSimpleFileDialog fileDlg(FALSE, nullptr, nullptr, OFN_HIDEREADONLY,
                 L"All Files (*.*)\0*.*\0\0", m_hWnd);
             id = fileDlg.DoModal();
 
