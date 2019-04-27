@@ -99,7 +99,7 @@ LRESULT CEncoderSelectionDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPA
     // Select the first Format in the list (don't care)
     formatList.SelectItem(idx);
 
-    return TRUE;
+    return 1;
 }
 
 LRESULT CEncoderSelectionDlg::OnCloseCmd(WORD /*wNotifyCode*/, const WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)

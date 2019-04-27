@@ -54,7 +54,7 @@ private:
     void UpdateTreeView(bool selectLastRoot);
     HTREEITEM BuildTree(CInfoElement *elem, HTREEITEM hParent);
     BOOL DoElementContextMenu(HWND hWnd, CInfoElement &element, POINT point);
-    HMENU CreateElementContextMenu(CInfoElement &element);
+    static HMENU CreateElementContextMenu(CInfoElement &element);
     CInfoElement *GetElementFromTreeItem(HTREEITEM hItem) const;
     HTREEITEM GetTreeItemFromElement(CInfoElement *element);
     HTREEITEM FindTreeItem(HTREEITEM start, CInfoElement *element);
@@ -86,5 +86,5 @@ private:
     CRichEditCtrl m_infoEdit;
     CRichEditCtrl m_viewEdit;
 
-    BOOL m_suppressMessageBox{};
+    bool m_suppressMessageBox{};
 };

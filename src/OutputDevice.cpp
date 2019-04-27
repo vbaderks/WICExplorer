@@ -23,10 +23,6 @@ CRichEditDevice::CRichEditDevice(CRichEditCtrl &richEditCtrl)
     SetTextColor(GetSysColor(COLOR_INFOTEXT));
 }
 
-CRichEditDevice::~CRichEditDevice()
-{
-}
-
 void CRichEditDevice::SetBackgroundColor(COLORREF color)
 {
     m_richEditCtrl.SendMessage(EM_SETBKGNDCOLOR, 0, color);
@@ -39,14 +35,14 @@ COLORREF CRichEditDevice::SetTextColor(COLORREF color)
     cf.cbSize = sizeof(CHARFORMAT2);
     m_richEditCtrl.GetSelectionCharFormat(cf);
     cf.dwEffects = 0;
-    
-    COLORREF result = cf.crTextColor;
+
+    const COLORREF result = cf.crTextColor;
 
     cf.wWeight = FW_NORMAL;
     cf.dwMask = CFM_COLOR | CFM_WEIGHT;
     cf.crTextColor = color;
-    
-    m_richEditCtrl.SendMessage(EM_SETCHARFORMAT, SCF_SELECTION | SCF_WORD, (LPARAM)&cf);
+
+    m_richEditCtrl.SendMessage(EM_SETCHARFORMAT, SCF_SELECTION | SCF_WORD, reinterpret_cast<LPARAM>(&cf));
 
     return result;
 }
@@ -59,8 +55,8 @@ void CRichEditDevice::SetHighlightColor(COLORREF color)
 
     cf.dwMask = CFM_BACKCOLOR;
     cf.crBackColor = color;
-    
-    m_richEditCtrl.SendMessage(EM_SETCHARFORMAT, SCF_SELECTION | SCF_WORD, (LPARAM)&cf);
+
+    m_richEditCtrl.SendMessage(EM_SETCHARFORMAT, SCF_SELECTION | SCF_WORD, reinterpret_cast<LPARAM>(&cf));
 }
 
 void CRichEditDevice::SetFontName(LPCWSTR name)
@@ -70,7 +66,7 @@ void CRichEditDevice::SetFontName(LPCWSTR name)
     cf.dwEffects = 0;
 
     cf.wWeight = FW_NORMAL;
-    int len = (int)wcslen(name);
+    const int len = static_cast<int>(wcslen(name));
     for (int i = 0; i < len; i++)
     {
         cf.szFaceName[i] = name[i];
@@ -78,7 +74,7 @@ void CRichEditDevice::SetFontName(LPCWSTR name)
     cf.szFaceName[len] = L'\0';
     cf.dwMask = CFM_FACE | CFM_WEIGHT;
 
-    m_richEditCtrl.SendMessage(EM_SETCHARFORMAT, SCF_SELECTION | SCF_WORD, (LPARAM)&cf);
+    m_richEditCtrl.SendMessage(EM_SETCHARFORMAT, SCF_SELECTION | SCF_WORD, reinterpret_cast<LPARAM>(&cf));
 }
 
 int CRichEditDevice::SetFontSize(int pointSize)
@@ -87,8 +83,8 @@ int CRichEditDevice::SetFontSize(int pointSize)
     cf.cbSize = sizeof(CHARFORMAT2);
     m_richEditCtrl.GetSelectionCharFormat(cf);
     cf.dwEffects = 0;
-    
-    int result = cf.yHeight / 20;
+
+    const int result = cf.yHeight / 20;
 
     cf.wWeight = FW_NORMAL;
     cf.yHeight = 20 * pointSize; // Convert to twips
@@ -109,12 +105,12 @@ void CRichEditDevice::BeginSection(LPCWSTR name)
     {
         AddText(L"\n");
 
-        int headingSize = TEXT_SIZE + ((m_sections.GetSize() <= 4) ? (4 - m_sections.GetSize())*TEXT_SIZE/4 : 0);
-        int oldSize = SetFontSize(headingSize);
-        COLORREF oldColor = SetTextColor(RGB(192, 0, 0));
+        const int headingSize = TEXT_SIZE + ((m_sections.GetSize() <= 4) ? (4 - m_sections.GetSize())*TEXT_SIZE/4 : 0);
+        const int oldSize = SetFontSize(headingSize);
+        const COLORREF oldColor = SetTextColor(RGB(192, 0, 0));
 
         AddText(name);
-        
+
         SetTextColor(oldColor);
         SetFontSize(oldSize);
 
@@ -140,7 +136,7 @@ void CRichEditDevice::AddDib(HGLOBAL hBitmap)
 
     if (nullptr != oleInterface)
     {
-        HRESULT res = CBitmapDataObject::InsertDib(m_richEditCtrl.m_hWnd, oleInterface, hBitmap);
+        const HRESULT res = CBitmapDataObject::InsertDib(m_richEditCtrl.m_hWnd, oleInterface, hBitmap);
 
         if (FAILED(res))
         {
@@ -149,8 +145,8 @@ void CRichEditDevice::AddDib(HGLOBAL hBitmap)
 
             GetHresultString(res, err);
 
-            msg.Format(L"Failed to render bitmap: %s\n", (LPCWSTR)err);
-            COLORREF oldColor = SetTextColor(RGB(255, 0, 0));
+            msg.Format(L"Failed to render bitmap: %s\n", err.GetString());
+            const COLORREF oldColor = SetTextColor(RGB(255, 0, 0));
             AddText(msg);
             SetTextColor(oldColor);
         }
@@ -163,15 +159,15 @@ void CRichEditDevice::AddDib(HGLOBAL hBitmap)
     }
 }
 
-void CRichEditDevice::BeginKeyValues(LPCWSTR name)
+void CRichEditDevice::BeginKeyValues(const LPCWSTR name)
 {
     // Write the heading if one was specified
     if ((nullptr != name) && (L'\0' != *name))
     {
-        COLORREF oldColor = SetTextColor(RGB(0, 0, 128));
+        const COLORREF oldColor = SetTextColor(RGB(0, 0, 128));
 
         AddText(name);
-        
+
         SetTextColor(oldColor);
 
         AddText(L"\n");
@@ -180,10 +176,10 @@ void CRichEditDevice::BeginKeyValues(LPCWSTR name)
 
 void CRichEditDevice::AddKeyValue(LPCWSTR key, LPCWSTR value)
 {
-    COLORREF oldColor = SetTextColor(RGB(0, 128, 0));
+    const COLORREF oldColor = SetTextColor(RGB(0, 128, 0));
 
     AddText(key);
-        
+
     SetTextColor(oldColor);
 
     AddText(L"\t\t");

@@ -30,7 +30,6 @@ void GetHresultString(HRESULT hr, CString &out)
         const DWORD MAX_MsgLength = 256;
 
         WCHAR msg[MAX_MsgLength];
-        DWORD len = 0;
 
         msg[0] = TEXT('\0');
 
@@ -40,8 +39,8 @@ void GetHresultString(HRESULT hr, CString &out)
         }
 
         // Try to have windows give a nice message, otherwise just format the HRESULT into a string.
-        len = FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS, nullptr,
-            hr, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), msg, MAX_MsgLength, nullptr);
+        const DWORD len = FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr,
+                                   hr, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), msg, MAX_MsgLength, nullptr);
         if (len != 0)
         {
             // remove the trailing newline
@@ -112,10 +111,8 @@ static void PopulateWicErrorCodes()
     g_wicErrorCodes.Add(WINCODEC_ERR_INVALIDQUERYCHARACTER, L"WINCODEC_ERR_INVALIDQUERYCHARACTER");
 }
 
-static int Run(LPWSTR lpCmdLine, int nCmdShow)
+static int Run(const LPWSTR lpCmdLine, const int nCmdShow)
 {
-    int result = 0;
-
     CMessageLoop msgLoop;
     _Module.AddMessageLoop(&msgLoop);
 
@@ -145,14 +142,14 @@ static int Run(LPWSTR lpCmdLine, int nCmdShow)
     // Show the window
     mainWnd.ShowWindow(nCmdShow);
 
-    result = msgLoop.Run();
+    const int result = msgLoop.Run();
 
     _Module.RemoveMessageLoop();
 
     return result;
 }
 
-int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR lpCmdLine, int nCmdShow)
+int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR lpCmdLine, const int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
@@ -194,7 +191,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR lpC
     }
 
     // Initialize the RichEdit library
-    HINSTANCE hInstRich = ::LoadLibrary(CRichEditCtrl::GetLibraryName());
+    const HINSTANCE hInstRich = ::LoadLibrary(CRichEditCtrl::GetLibraryName());
     ATLASSERT(NULL != hInstRich);
 
     // Start running

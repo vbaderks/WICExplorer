@@ -61,13 +61,13 @@ HRESULT CImageTransencoder::Begin(REFGUID containerFormat, LPCWSTR filename, ICo
     return result;
 }
 
-HRESULT CImageTransencoder::AddFrame(IWICBitmapSourcePtr bitmapSource)
+HRESULT CImageTransencoder::AddFrame(IWICBitmapSource* bitmapSource)
 {
     HRESULT result = S_OK;
 
     // Check the params
-    ATLASSERT(NULL != bitmapSource);
-    if (NULL == bitmapSource)
+    ATLASSERT(bitmapSource);
+    if (!bitmapSource)
     {
         return E_INVALIDARG;
     }
@@ -80,8 +80,8 @@ HRESULT CImageTransencoder::AddFrame(IWICBitmapSourcePtr bitmapSource)
     }
 
     // Perform different operations if this is a frame vs. just a boring BitmapSource
-    IWICBitmapFrameDecodePtr frame = bitmapSource;
-    if (NULL != frame)
+    const IWICBitmapFrameDecodePtr frame{bitmapSource};
+    if (frame)
     {
         m_codeGen->BeginVariableScope(L"IWICBitmapFrameDecode*", L"source", L"...");
         IFC(AddBitmapFrameDecode(frame));
@@ -99,8 +99,6 @@ HRESULT CImageTransencoder::AddFrame(IWICBitmapSourcePtr bitmapSource)
 
 HRESULT CImageTransencoder::SetThumbnail(IWICBitmapSourcePtr thumb)
 {
-    HRESULT result = S_OK;
-
     // Check the state of the object
     ATLASSERT(m_encoding);
     if (!m_encoding)
@@ -114,7 +112,7 @@ HRESULT CImageTransencoder::SetThumbnail(IWICBitmapSourcePtr thumb)
     // Allow failure
     m_encoder->SetThumbnail(thumb);
 
-    return result;
+    return S_OK;
 }
 
 HRESULT CImageTransencoder::SetPreview(IWICBitmapSourcePtr preview)
@@ -141,14 +139,14 @@ HRESULT CImageTransencoder::End()
 {
     HRESULT result = S_OK;
 
-    if (NULL != m_encoder)
+    if (m_encoder)
     {
         m_encoder->Commit();
 
         m_codeGen->EndVariableScope();
     }
 
-    if (NULL != m_stream)
+    if ( m_stream)
     {
         m_codeGen->EndVariableScope();
     }
@@ -162,19 +160,19 @@ UINT NumPaletteColorsRequiredByFormat(REFGUID pf)
 {
     if (GUID_WICPixelFormat1bppIndexed == pf)
     {
-        return (1 << 1);
+        return 1 << 1;
     }
-    else if (GUID_WICPixelFormat2bppIndexed == pf)
+    if (GUID_WICPixelFormat2bppIndexed == pf)
     {
-        return (1 << 2);
+        return 1 << 2;
     }
-    else if (GUID_WICPixelFormat4bppIndexed == pf)
+    if (GUID_WICPixelFormat4bppIndexed == pf)
     {
-        return (1 << 4);
+        return 1 << 4;
     }
-    else if (GUID_WICPixelFormat8bppIndexed == pf)
+    if (GUID_WICPixelFormat8bppIndexed == pf)
     {
-        return (1 << 8);
+        return 1 << 8;
     }
 
     return 0;
@@ -236,7 +234,7 @@ HRESULT CImageTransencoder::CreateFrameEncode(IWICBitmapSourcePtr bitmapSource, 
     // If the format that we will encode to requires a palette, then we need to
     // retrieve one. First we will try the palette of the BitmapSource itself.
     // If that fails, we will generate a palette from the BitmapSource.
-    UINT numPaletteColors = NumPaletteColorsRequiredByFormat(supportedPixelFormat);
+    const UINT numPaletteColors = NumPaletteColorsRequiredByFormat(supportedPixelFormat);
     if (numPaletteColors > 0)
     {
         // Create the palette

@@ -293,7 +293,6 @@ HRESULT CBitmapDecoderElement::Load(ICodeGenerator &codeGen)
 
     // Even if one frame fails, we keep trying the others. However, we still
     // want to remember the failure so that we can return it from this function.
-    HRESULT frameResult = S_OK;
     HRESULT lastFailResult = result;
 
     if (frameCount == 0)
@@ -307,7 +306,7 @@ HRESULT CBitmapDecoderElement::Load(ICodeGenerator &codeGen)
         IWICBitmapFrameDecodePtr frameDecode = NULL;
 
         codeGen.CallFunction(L"decoder->GetFrame(%d, &frameDecode)", i);
-        frameResult = m_decoder->GetFrame(i, &frameDecode);
+        HRESULT frameResult = m_decoder->GetFrame(i, &frameDecode);
 
         if (SUCCEEDED(frameResult))
         {
@@ -377,11 +376,9 @@ HRESULT CBitmapDecoderElement::Load(ICodeGenerator &codeGen)
 
 HRESULT CElementManager::CreateDecoderAndChildElements(LPCWSTR filename, ICodeGenerator &codeGen, CInfoElement *&decElem)
 {
-    HRESULT result = S_OK;
-
     decElem = new CBitmapDecoderElement(filename);
-    result = (((CBitmapDecoderElement *)decElem)->Load(codeGen));
-    if(!((CBitmapDecoderElement *)decElem)->IsLoaded())
+    const HRESULT result = (static_cast<CBitmapDecoderElement *>(decElem)->Load(codeGen));
+    if(!static_cast<CBitmapDecoderElement *>(decElem)->IsLoaded())
     {
         root.RemoveChild(decElem);
         decElem = nullptr;
@@ -392,8 +389,6 @@ HRESULT CElementManager::CreateDecoderAndChildElements(LPCWSTR filename, ICodeGe
 
 HRESULT CElementManager::CreateFrameAndChildElements(CInfoElement *parent, UINT index, IWICBitmapFrameDecodePtr frameDecode, ICodeGenerator &codeGen)
 {
-    HRESULT result = S_OK;
-
     // Add the frame itself
     CInfoElement *frameElem = new CBitmapFrameDecodeElement(index, frameDecode);
 
@@ -403,7 +398,7 @@ HRESULT CElementManager::CreateFrameAndChildElements(CInfoElement *parent, UINT 
     IWICBitmapSourcePtr thumb;
 
     codeGen.CallFunction(L"frameDecode->GetThumbnail(&thumb)");
-    result = frameDecode->GetThumbnail(&thumb);
+    HRESULT result = frameDecode->GetThumbnail(&thumb);
 
     if (SUCCEEDED(result))
     {
@@ -455,7 +450,7 @@ HRESULT CElementManager::CreateFrameAndChildElements(CInfoElement *parent, UINT 
 
 HRESULT CElementManager::CreateMetadataElementsFromBlock(CInfoElement *parent, IWICMetadataBlockReaderPtr blockReader, ICodeGenerator &codeGen)
 {
-    HRESULT result = S_OK;
+    HRESULT result;
 
     UINT blockCount = 0;
 
@@ -1102,7 +1097,7 @@ HRESULT CBitmapSourceElement::OutputView(IOutputDevice &output, const InfoElemen
 
         result = CreateDibFromBitmapSource(source, hGlobal, context.bIsAlphaEnable ? &hAlpha : nullptr);
 
-        DWORD renderTime = renderTimer.GetTimeMS();
+        const DWORD renderTime = renderTimer.GetTimeMS();
 
         // Note how long it took to render
         StringCchPrintfW(v, 64, L"%u ms", renderTime);
@@ -1201,7 +1196,7 @@ HRESULT CBitmapSourceElement::CreateDibFromBitmapSource(IWICBitmapSourcePtr sour
 
     // Allocate the DIB bytes
     hGlobal = GlobalAlloc(GMEM_MOVEABLE, dibSize);
-    ATLASSERT(NULL != hGlobal);
+    ATLASSERT(hGlobal);
 
     if (nullptr == hGlobal)
     {
@@ -1209,7 +1204,6 @@ HRESULT CBitmapSourceElement::CreateDibFromBitmapSource(IWICBitmapSourcePtr sour
     }
 
     BYTE *dibBytes = static_cast<BYTE*>(GlobalLock(hGlobal));
-
     ATLASSERT(dibBytes);
 
     if (nullptr == dibBytes)

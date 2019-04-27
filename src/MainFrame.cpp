@@ -15,17 +15,17 @@
 
 LRESULT CMainFrame::OnCreate(UINT, WPARAM, LPARAM, BOOL&)
 {
-    const HWND hWndToolBar = CreateSimpleToolBarCtrl(m_hWnd, IDR_MAINFRAME, FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE | TBSTYLE_TRANSPARENT | TBSTYLE_LIST | TBSTYLE_FLAT | CCS_NORESIZE | CCS_TOP);
+    const HWND hWndToolBar = CreateSimpleToolBarCtrl(m_hWnd, IDR_MAINFRAME, false, ATL_SIMPLE_TOOLBAR_PANE_STYLE | TBSTYLE_TRANSPARENT | TBSTYLE_LIST | TBSTYLE_FLAT | CCS_NORESIZE | CCS_TOP);
 
     CreateSimpleReBar((ATL_SIMPLE_REBAR_NOBORDER_STYLE | CCS_TOP | RBS_DBLCLKTOGGLE) & ~RBS_AUTOSIZE);
-    AddSimpleReBarBand(hWndToolBar, nullptr, TRUE);
+    AddSimpleReBarBand(hWndToolBar, nullptr, true);
 
     CreateSimpleStatusBar();
 
     m_hWndClient = CreateClient();
 
-    m_suppressMessageBox = FALSE;
-    m_viewcontext.bIsAlphaEnable = TRUE;
+    m_suppressMessageBox = false;
+    m_viewcontext.bIsAlphaEnable = true;
 
     return 0;
 }
@@ -101,11 +101,10 @@ LRESULT CMainFrame::OnPaneClose(WORD, WORD, HWND hWndCtl, BOOL&)
 
     // find the container's parent splitter
     const HWND hWnd = ::GetParent(hWndCtl);
-    CSplitterWindow* pWnd;
 
-#pragma warning( disable : 4312 )
-    pWnd = reinterpret_cast<CSplitterWindow*>(::GetWindowLong(hWnd, GWL_ID));
-#pragma warning( default : 4312 )
+    #pragma warning( disable : 4312 )
+    CSplitterWindow* pWnd = reinterpret_cast<CSplitterWindow*>(::GetWindowLong(hWnd, GWL_ID));
+    #pragma warning( default : 4312 )
 
     // take the container that was Closed out of the splitter.
     // Use SetSplitterPane(nPane, NULL) if you want to stay in
@@ -122,9 +121,8 @@ LRESULT CMainFrame::OnPaneClose(WORD, WORD, HWND hWndCtl, BOOL&)
 
     if(hWndCtl == m_viewPane.m_hWnd)
     {
-        const HMENU menu = GetMenu();
         // Clear the "Show View Pane" check mark in the menu
-        CheckMenuItem(menu, ID_SHOW_VIEWPANE, MF_UNCHECKED | MF_BYCOMMAND);
+        CheckMenuItem(GetMenu(), ID_SHOW_VIEWPANE, MF_UNCHECKED | MF_BYCOMMAND);
     }
 
     return 0;
@@ -289,15 +287,15 @@ HRESULT CMainFrame::OpenWildcard(LPCWSTR search, DWORD &attempted, DWORD &opened
     updateElements = false;
     HRESULT hr = S_OK;
     WIN32_FIND_DATA fdata;
-    HANDLE hf = FindFirstFile(search, &fdata);
+    const HANDLE hf = FindFirstFile(search, &fdata);
 
     // fdata.cFileName does not store the directory, nor is the directory
     // stored anywhere else inside of fdata. The directory needs to be copied
     // from the search string, and then cFileName has to be concatonated to the
     // directory.
     WCHAR directoryPrefix[MAX_PATH*2] = {0};
-    WCHAR *lastSlash = (WCHAR *)wcsrchr(search, L'\\');
-    WCHAR *lastSlash2 = (WCHAR *)wcsrchr(search, L'/');
+    WCHAR *lastSlash = const_cast<WCHAR *>(wcsrchr(search, L'\\'));
+    WCHAR *lastSlash2 = const_cast<WCHAR *>(wcsrchr(search, L'/'));
 
     if(lastSlash2 > lastSlash)
     {
@@ -327,10 +325,11 @@ HRESULT CMainFrame::OpenWildcard(LPCWSTR search, DWORD &attempted, DWORD &opened
         }
         return 0;
     }
+
     do
     {
         HRESULT temp;
-        bool updateThis = 0;
+        bool updateThis{};
 
         // Concat the filename onto the directory.
         wcscpy_s(directoryPrefix + directorySize,
@@ -355,23 +354,23 @@ HRESULT CMainFrame::OpenWildcard(LPCWSTR search, DWORD &attempted, DWORD &opened
     return hr;
 }
 
-HRESULT CMainFrame::Load(const LPCWSTR *argv, int argc)
+HRESULT CMainFrame::Load(const LPCWSTR *filenames, int count)
 {
     HRESULT result = S_OK;
     bool needsUpdate = false;
-    CString quiet = "/quiet";
+    const CString quiet = "/quiet";
 
     DWORD attempted = 0, opened = 0;
-    for(int i = 0; i < argc; i++)
+    for(int i = 0; i < count; i++)
     {
-        if(quiet.CompareNoCase(argv[i]) == 0)
+        if(quiet.CompareNoCase(filenames[i]) == 0)
         {
             m_suppressMessageBox = TRUE;
         }
         else
         {
             bool thisNeedsUpdate = false;
-            result = OpenWildcard(argv[i], attempted, opened, thisNeedsUpdate);
+            result = OpenWildcard(filenames[i], attempted, opened, thisNeedsUpdate);
             needsUpdate = needsUpdate || thisNeedsUpdate;
         }
     }
@@ -395,7 +394,7 @@ HRESULT CMainFrame::Load(const LPCWSTR *argv, int argc)
     return result;
 }
 
-CString GetFullPath(CString directory, CString file)
+CString GetFullPath(const CString& directory, const CString& file)
 {
     WCHAR buffer[MAX_PATH*2];
     WCHAR oldDirectory[MAX_PATH];
@@ -417,11 +416,12 @@ CString GetFullPath(CString directory, CString file)
             // It's an absolute path.
             return file;
         }
+
         // It's a relative path, so it needs the directory too.
         if(directory.Right(1) == L'\\')
             return directory + file;
-        else
-            return directory + L"\\" + file;
+
+        return directory + L"\\" + file;
     }
     LPWSTR filePart;
 
@@ -619,7 +619,7 @@ void CMainFrame::DrawElement(CInfoElement &element)
 
 LRESULT CMainFrame::OnTreeViewSelChanged(WPARAM /*wParam*/, LPNMHDR lpNmHdr, BOOL &bHandled)
 {
-    bHandled = TRUE;
+    bHandled = true;
 
     const auto lpNmTreeView = reinterpret_cast<LPNMTREEVIEW>(lpNmHdr);
 
@@ -796,7 +796,7 @@ HRESULT CMainFrame::SaveElementAsImage(CInfoElement &element)
     else
     {
         CString msg;
-        msg.Format(L"The selected element '%s' cannot be saved as an Image.", (LPCWSTR)element.Name());
+        msg.Format(L"The selected element '%s' cannot be saved as an Image.", element.Name().GetString());
 
         if(m_suppressMessageBox == FALSE)
         {
@@ -976,7 +976,7 @@ LRESULT CMainFrame::OnShowViewPane(WORD /*code*/, WORD item, HWND /*hSender*/, B
     MENUITEMINFO currentState{};
     currentState.cbSize = sizeof(MENUITEMINFO);
     currentState.fMask = MIIM_STATE;
-    HMENU menu = GetMenu();
+    const HMENU menu = GetMenu();
 
     GetMenuItemInfo(menu, item, FALSE, &currentState);
 
@@ -1004,7 +1004,7 @@ LRESULT CMainFrame::OnShowAlpha(WORD /*code*/, WORD item, HWND /*hSender*/, BOOL
     memset(&currentState, 0, sizeof(currentState));
     currentState.cbSize = sizeof(MENUITEMINFO);
     currentState.fMask = MIIM_STATE;
-    HMENU menu = GetMenu();
+    const HMENU menu = GetMenu();
 
     GetMenuItemInfo(menu, item, FALSE, &currentState);
     if((currentState.fState & MFS_CHECKED) == MFS_CHECKED)
@@ -1019,7 +1019,7 @@ LRESULT CMainFrame::OnShowAlpha(WORD /*code*/, WORD item, HWND /*hSender*/, BOOL
         handled = 1;
     }
 
-    HTREEITEM hItem = m_mainTree.GetSelectedItem();
+    const HTREEITEM hItem = m_mainTree.GetSelectedItem();
     CInfoElement *elem = GetElementFromTreeItem(hItem);
     if (elem)
     {
@@ -1032,7 +1032,7 @@ LRESULT CMainFrame::OnShowAlpha(WORD /*code*/, WORD item, HWND /*hSender*/, BOOL
 LRESULT CMainFrame::OnContextClick(WORD /*code*/, const WORD item, HWND /*hSender*/, BOOL& handled)
 {
     handled = 1;
-    HTREEITEM hItem = m_mainTree.GetSelectedItem();
+    const HTREEITEM hItem = m_mainTree.GetSelectedItem();
     CInfoElement *elem = GetElementFromTreeItem(hItem);
 
     switch(item)
@@ -1040,19 +1040,19 @@ LRESULT CMainFrame::OnContextClick(WORD /*code*/, const WORD item, HWND /*hSende
     case ID_FILE_LOAD:
         {
             CSimpleCodeGenerator temp;
-            static_cast<CBitmapDecoderElement *>(elem)->Load(temp);
-            UpdateTreeView(0);
+            dynamic_cast<CBitmapDecoderElement *>(elem)->Load(temp);
+            UpdateTreeView(false);
             DrawElement(*elem);
         }
         break;
     case ID_FILE_UNLOAD:
         static_cast<CBitmapDecoderElement *>(elem)->Unload();
-        UpdateTreeView(0);
+        UpdateTreeView(false);
         DrawElement(*elem);
         break;
     case ID_FILE_CLOSE:
-        CElementManager::GetRootElement()->RemoveChild(static_cast<CBitmapDecoderElement *>(elem));
-        UpdateTreeView(0);
+        CElementManager::GetRootElement()->RemoveChild(dynamic_cast<CBitmapDecoderElement *>(elem));
+        UpdateTreeView(false);
         break;
     case ID_FIND_METADATA:
         {

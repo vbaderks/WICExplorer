@@ -34,7 +34,6 @@ class CRichEditDevice final : public IOutputDevice
 {
 public:
     explicit CRichEditDevice(CRichEditCtrl &richEditCtrl);
-    ~CRichEditDevice();
 
     void SetBackgroundColor(COLORREF color) override;
     COLORREF SetTextColor(COLORREF color) override;

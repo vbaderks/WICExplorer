@@ -24,7 +24,7 @@ template<class T> static LPCWSTR GetTypeName()
 
 template<> void WriteValue<CHAR>(const CHAR &val, CString &out)
 {
-    out.Format(L"%d", (int)val);
+    out.Format(L"%d", static_cast<int>(val));
 }
 
 template<> LPCWSTR GetTypeName<CHAR>()
@@ -128,7 +128,7 @@ template<> void WriteValue<ULARGE_INTEGER>(const ULARGE_INTEGER &val, CString &o
     if (0 != val.HighPart)
     {
         WCHAR str[64];
-        StringCchPrintfW(str, 64, L"%u / %u (%g)", val.LowPart, val.HighPart, (double)val.LowPart / (double)val.HighPart);
+        StringCchPrintfW(str, 64, L"%u / %u (%g)", val.LowPart, val.HighPart, static_cast<double>(val.LowPart) / static_cast<double>(val.HighPart));
         out = str;
     }
     else
@@ -168,7 +168,7 @@ template<> LPCWSTR GetTypeName<DOUBLE>()
 
 template<> void WriteValue<CY>(const CY &val, CString &out)
 {
-    out.Format(L"%g", (double)val.int64 / 10000.0);
+    out.Format(L"%g", static_cast<double>(val.int64) / 10000.0);
 }
 
 template<> LPCWSTR GetTypeName<CY>()
@@ -258,7 +258,7 @@ template<typename T> void WriteValues(ULONG count, T *vals, VARTYPE type, unsign
         out = L"{ ";
     }
 
-    ULONG num = std::min(MAX_VALUES, count);
+    const ULONG num = std::min(MAX_VALUES, count);
     for (ULONG i = 0; i < num; i++)
     {
         WriteValue(vals[i], b);
@@ -281,10 +281,8 @@ template<typename T> void WriteValues(ULONG count, T *vals, VARTYPE type, unsign
     out += L"}";
 }
 
-HRESULT VariantTypeToString(VARTYPE vt, CString &out)
+HRESULT VariantTypeToString(const VARTYPE vt, CString &out)
 {
-    HRESULT result = S_OK;
-
     switch (vt)
     {
     case VT_EMPTY:
@@ -402,17 +400,15 @@ HRESULT VariantTypeToString(VARTYPE vt, CString &out)
         out = L"VARIANT";
         break;
     default:
-        out.Format(L"<vt: 0x%.4X>", (unsigned)vt);
+        out.Format(L"<vt: 0x%.4X>", static_cast<unsigned>(vt));
         break;
     }
 
-    return result;
+    return S_OK;
 }
 
 static HRESULT AddTypeToString(VARTYPE vt, CString &out)
 {
-    HRESULT result = S_OK;
-
     CString typeName;
     VariantTypeToString(vt, typeName);
 
@@ -425,16 +421,14 @@ static HRESULT AddTypeToString(VARTYPE vt, CString &out)
         out = typeName;
     }
 
-    return result;
+    return S_OK;
 }
 
 HRESULT PropVariantToString(PROPVARIANT *pv, unsigned options, CString &out)
 {
-    HRESULT result = S_OK;
-
     if (options & PVTSOPTION_IncludeType)
     {
-        out.Format(L"<UnknownType: 0x%.4X>", (unsigned)pv->vt);
+        out.Format(L"<UnknownType: 0x%.4X>", static_cast<unsigned>(pv->vt));
     }
     else
     {
@@ -445,7 +439,7 @@ HRESULT PropVariantToString(PROPVARIANT *pv, unsigned options, CString &out)
     {
         out.Format(L"%u elements of type 0x%.4X", pv->cac.cElems, pv->vt & ~VT_VECTOR);
 
-        VARTYPE typ = pv->vt & ~VT_VECTOR;
+        const VARTYPE typ = pv->vt & ~VT_VECTOR;
 
         switch (typ)
         {
@@ -640,5 +634,5 @@ HRESULT PropVariantToString(PROPVARIANT *pv, unsigned options, CString &out)
         }
     }
 
-    return result;
+    return S_OK;
 }

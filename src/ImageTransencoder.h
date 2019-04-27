@@ -17,7 +17,7 @@ public:
     ~CImageTransencoder();
 
     HRESULT Begin(REFCLSID containerFormat, LPCWSTR filename, ICodeGenerator &codeGen);
-    HRESULT AddFrame(IWICBitmapSourcePtr bitmapSource);
+    HRESULT AddFrame(IWICBitmapSource* bitmapSource);
     HRESULT SetThumbnail(IWICBitmapSourcePtr thumb);
     HRESULT SetPreview(IWICBitmapSourcePtr preview);
     HRESULT End();
