@@ -22,6 +22,7 @@
 
 #pragma warning(push)
 #pragma warning(disable: 4471) // enum forward without type
+#pragma warning(disable: 5204) // class has virtual functions, but its trivial destructor is not virtual;
 #import "msxml2.tlb" named_guids
 #pragma warning(pop)
 
@@ -31,6 +32,7 @@
 #pragma warning(push)
 #pragma warning(disable: 4986) // exception specs
 #pragma warning(disable: 4755) // conversin rules, inline
+#pragma warning(disable: 5204) // class has virtual functions, but its trivial destructor is not virtual;
 #include <atlbase.h>
 #include <atlstr.h>
 #include <atlwin.h>
@@ -42,6 +44,7 @@
 
 #pragma warning(push)
 #pragma warning(disable: 4127) // conditional expression is constant
+#pragma warning(disable: 5204) // class has virtual functions, but its trivial destructor is not virtual;
 #include <atlapp.h>
 
 extern CAppModule _Module;
