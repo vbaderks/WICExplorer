@@ -32,8 +32,6 @@
       <TreatWarningAsError>true</TreatWarningAsError>
 
       <!--
-        __cplusplus = Use the correct value for the __cplusplus macro
-        throwingNew = Communicate with the compiler that only the throwing variant of operator new is used.
         Disable level All warnings that are not useful:
         C4061 = enumerator 'identifier' in switch of enum 'enumeration' is not explicitly handled by a case label
         C4191 = operator/operation' : unsafe conversion from 'type of expression' to 'type required'
@@ -60,13 +58,14 @@
         C5042 = 'declaration': function declarations at block scope cannot be specified 'inline' in standard C++; remove 'inline' specifier
         C5045 = Compiler will insert Spectre mitigation for memory load if /Qspectre switch specified
       -->
+      <DisableSpecificWarnings>4061;4191;4263;4264;4265;4266;4365;4464;4505;4514;4571;4623;4625;4626;4668;4710;4711;4738;4774;4820;5026;5027;5039;5042;5045</DisableSpecificWarnings>
+
+      <!--
+        __cplusplus = Use the correct value for the __cplusplus macro
+        throwingNew = Communicate with the compiler that only the throwing variant of operator new is used.
+      -->
       <AdditionalOptions>
         /Zc:__cplusplus /Zc:throwingNew /Zc:twoPhase-
-        /wd4061 /wd4191 /wd4263 /wd4264 /wd4265 /wd4266
-        /wd4365 /wd4464 /wd4505 /wd4514 /wd4571
-        /wd4623 /wd4625 /wd4626 /wd4668
-        /wd4710 /wd4711 /wd4738 /wd4774 /wd4820
-        /wd5026 /wd5027 /wd5039 /wd5042 /wd5045
       </AdditionalOptions>
 
       <!--
