@@ -14,7 +14,6 @@
 #include <algorithm>
 #include <utility>
 
-CAppModule _Module;
 
 #ifdef _UNICODE
 #pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
@@ -25,6 +24,8 @@ using std::pair;
 
 namespace
 {
+    CAppModule _Module;
+
     constexpr array g_wicErrorCodes{
         pair{WINCODEC_ERR_GENERIC_ERROR, L"WINCODEC_ERR_GENERIC_ERROR"},
         pair{WINCODEC_ERR_INVALIDPARAMETER, L"WINCODEC_ERR_INVALIDPARAMETER"},

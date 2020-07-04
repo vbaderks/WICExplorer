@@ -12,9 +12,6 @@
 #include <algorithm>
 #include <utility>
 
-// Change these values to use different versions
-#define _RICHEDIT_VER    0x0300
-
 #include <Windows.h>
 #include <tchar.h>
 #include <shellapi.h>
@@ -30,7 +27,6 @@
 #import "msxml2.tlb" named_guids
 #pragma warning(pop)
 
-#define STRSAFE_NO_DEPRECATE 1
 #include <strsafe.h>
 
 #pragma warning(push)
@@ -42,17 +38,11 @@
 #include <atlwin.h>
 #pragma warning(pop)
 
-// ***** The Windows Template Library (WTL) is required for this project *****
-// ***** and must be downloaded separately. See instructions in readme.md. *****
-#define _WTL_NO_CSTRING
-
+//The Windows Template Library (WTL) is required for this project
 #pragma warning(push)
 #pragma warning(disable: 4127) // conditional expression is constant
 #pragma warning(disable: 5204) // class has virtual functions, but its trivial destructor is not virtual;
 #include <atlapp.h>
-
-extern CAppModule _Module;
-
 #include <atlframe.h>
 #include <atlctrls.h>
 #include <atldlgs.h>
