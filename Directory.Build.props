@@ -21,8 +21,8 @@
       <!-- Use all cores to speed up the compilation (MS recommended best practice). -->
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
 
-      <!-- Explicit define that all projects are compiled according the C++17 standard -->
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <!-- Explicit define that all projects are compiled according the latest (currently C++20 draft) standard -->
+      <LanguageStandard>stdcpplatest</LanguageStandard>
 
       <!-- Explicit disable non conforming MSVC compiler options that are not compatible with the C++ standard -->
       <ConformanceMode>true</ConformanceMode>
