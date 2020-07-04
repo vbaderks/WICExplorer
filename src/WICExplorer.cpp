@@ -15,9 +15,12 @@
 #include <utility>
 
 
-#ifdef _UNICODE
-#pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
+#ifndef _UNICODE
+#error Only Unicode builds are supported (required by common controls v6 and ANSI doesn't make sense for Windows 10)
 #endif
+
+// Ensure the linker creates the manifest for the v6 common controls (modern look and feel).
+#pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
 using std::array;
 using std::pair;
