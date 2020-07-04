@@ -249,8 +249,6 @@ HRESULT CMainFrame::OpenFile(LPCWSTR filename, bool &updateElements)
     else
     {
         CString msg;
-        CString err;
-        GetHresultString(result, err);
 
         if (result == E_FAIL)
         {
@@ -258,13 +256,14 @@ HRESULT CMainFrame::OpenFile(LPCWSTR filename, bool &updateElements)
         }
         else
         {
-            msg.Format(L"Unable to load the file \"%s\". The error is: %s.\n\n", filename, (LPCWSTR)err);
+            msg.Format(L"Unable to load the file \"%s\". The error is: %s.\n\n", filename, GetHresultString(result).GetString());
         }
 
         if (nullptr != newRoot)
         {
             updateElements = true;
-            msg.Format(L"Unable to completely load the file \"%s\". The error is: %s. Some parts of the file may still be viewed.\n\n", filename, (LPCWSTR)err);
+            msg.Format(L"Unable to completely load the file \"%s\". The error is: %s. Some parts of the file may still be viewed.\n\n",
+                filename, GetHresultString(result).GetString());
         }
 
         CString code;
@@ -746,12 +745,9 @@ HRESULT CMainFrame::SaveElementAsImage(CInfoElement &element)
 
                 if (FAILED(result))
                 {
-                    CString err;
-                    GetHresultString(result, err);
-
                     CString msg;
                     msg.Format(L"Unable to encode '%s' as '%s'. The error is: %s.\n\n",
-                        element.Name().GetString(), fileDlg.m_szFileName, err.GetString());
+                        element.Name().GetString(), fileDlg.m_szFileName, GetHresultString(result).GetString());
 
                     CString code;
                     codeGen->GenerateCode(code);
@@ -1031,7 +1027,7 @@ LRESULT CMainFrame::OnShowAlpha(WORD /*code*/, WORD item, HWND /*hSender*/, BOOL
 
 LRESULT CMainFrame::OnContextClick(WORD /*code*/, const WORD item, HWND /*hSender*/, BOOL& handled)
 {
-    handled = 1;
+    handled = true;
     const HTREEITEM hItem = m_mainTree.GetSelectedItem();
     CInfoElement *elem = GetElementFromTreeItem(hItem);
 
@@ -1060,9 +1056,7 @@ LRESULT CMainFrame::OnContextClick(WORD /*code*/, const WORD item, HWND /*hSende
             if(FAILED(result))
             {
                 CString msg;
-                CString err;
-                GetHresultString(result, err);
-                msg.Format(L"Unable find metadata. The error is: %s.", err.GetString());
+                msg.Format(L"Unable find metadata. The error is: %s.", GetHresultString(result).GetString());
 
                 if(m_suppressMessageBox == FALSE)
                 {

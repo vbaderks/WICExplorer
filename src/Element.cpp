@@ -1119,12 +1119,8 @@ HRESULT CBitmapSourceElement::OutputView(IOutputDevice &output, const InfoElemen
         else
         {
             CString msg;
-            CString err;
-
-            GetHresultString(result, err);
-
-            msg.Format(L"Failed to convert IWICBitmapSource to HBITMAP: %s", (LPCWSTR)err);
-            COLORREF oldColor = output.SetTextColor(RGB(255, 0, 0));
+            msg.Format(L"Failed to convert IWICBitmapSource to HBITMAP: %s", GetHresultString(result).GetString());
+            const COLORREF oldColor = output.SetTextColor(RGB(255, 0, 0));
             output.AddText(msg);
             output.SetTextColor(oldColor);
         }

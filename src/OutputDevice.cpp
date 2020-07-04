@@ -130,22 +130,18 @@ void CRichEditDevice::AddVerbatimText(LPCWSTR name)
     SetFontName(NormalFontName);
 }
 
-void CRichEditDevice::AddDib(HGLOBAL hBitmap)
+void CRichEditDevice::AddDib(const HGLOBAL hBitmap)
 {
     IRichEditOle *oleInterface = m_richEditCtrl.GetOleInterface();
 
     if (nullptr != oleInterface)
     {
-        const HRESULT res = CBitmapDataObject::InsertDib(m_richEditCtrl.m_hWnd, oleInterface, hBitmap);
+        const HRESULT result = CBitmapDataObject::InsertDib(m_richEditCtrl.m_hWnd, oleInterface, hBitmap);
 
-        if (FAILED(res))
+        if (FAILED(result))
         {
             CString msg;
-            CString err;
-
-            GetHresultString(res, err);
-
-            msg.Format(L"Failed to render bitmap: %s\n", err.GetString());
+            msg.Format(L"Failed to render bitmap: %s\n", GetHresultString(result).GetString());
             const COLORREF oldColor = SetTextColor(RGB(255, 0, 0));
             AddText(msg);
             SetTextColor(oldColor);

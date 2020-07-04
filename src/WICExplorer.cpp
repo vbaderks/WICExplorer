@@ -27,8 +27,6 @@ using std::pair;
 
 namespace
 {
-    CAppModule _Module;
-
     constexpr array g_wicErrorCodes{
         pair{WINCODEC_ERR_GENERIC_ERROR, L"WINCODEC_ERR_GENERIC_ERROR"},
         pair{WINCODEC_ERR_INVALIDPARAMETER, L"WINCODEC_ERR_INVALIDPARAMETER"},
@@ -77,10 +75,10 @@ namespace
         pair{ WINCODEC_ERR_INVALIDQUERYCHARACTER, L"WINCODEC_ERR_INVALIDQUERYCHARACTER"} };
 
 
-int Run(const LPWSTR lpCmdLine, const int nCmdShow)
+int Run(CAppModule& appModule, const LPWSTR lpCmdLine, const int nCmdShow)
 {
     CMessageLoop msgLoop;
-    _Module.AddMessageLoop(&msgLoop);
+    appModule.AddMessageLoop(&msgLoop);
 
     CMainFrame mainWnd;
 
@@ -110,21 +108,21 @@ int Run(const LPWSTR lpCmdLine, const int nCmdShow)
 
     const int result = msgLoop.Run();
 
-    _Module.RemoveMessageLoop();
+    appModule.RemoveMessageLoop();
 
     return result;
 }
 
 }
 
-void GetHresultString(HRESULT hr, CString& out)
+CString GetHresultString(HRESULT hr)
 {
     const auto knownError = std::find_if(g_wicErrorCodes.begin(), g_wicErrorCodes.end(),
         [=](const pair<HRESULT, LPCWSTR>& x) { return x.first == hr; });
 
     if (FACILITY_WINCODEC_ERR == HRESULT_FACILITY(hr) && knownError != g_wicErrorCodes.end())
     {
-        out = knownError->second;
+        return knownError->second;
     }
     else
     {
@@ -141,7 +139,7 @@ void GetHresultString(HRESULT hr, CString& out)
 
         // Try to have windows give a nice message, otherwise just format the HRESULT into a string.
         const DWORD len = FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr,
-            hr, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), msg, MAX_MsgLength, nullptr);
+            static_cast<DWORD>(hr), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), msg, MAX_MsgLength, nullptr);
         if (len != 0)
         {
             // remove the trailing newline
@@ -159,7 +157,7 @@ void GetHresultString(HRESULT hr, CString& out)
             StringCchPrintf(msg, MAX_MsgLength, L"0x%.8X", static_cast<unsigned>(hr));
         }
 
-        out = msg;
+        return msg;
     }
 }
 
@@ -167,8 +165,6 @@ void GetHresultString(HRESULT hr, CString& out)
 int WINAPI wWinMain(const HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR lpCmdLine, const int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-
-    int result = 0;
 
     // Initialize COM
     HRESULT hr = CoInitialize(nullptr);
@@ -179,10 +175,8 @@ int WINAPI wWinMain(const HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWS
     }
 
     // Initialize the Common Controls
-    INITCOMMONCONTROLSEX iccx;
-    iccx.dwSize = sizeof(iccx);
-    iccx.dwICC = ICC_COOL_CLASSES | ICC_BAR_CLASSES | ICC_WIN95_CLASSES;
-    const BOOL initCCRes = InitCommonControlsEx(&iccx);
+    const INITCOMMONCONTROLSEX iccx{.dwSize = sizeof iccx, .dwICC = ICC_COOL_CLASSES | ICC_BAR_CLASSES | ICC_WIN95_CLASSES};
+    const bool initCCRes = InitCommonControlsEx(&iccx);
     ATLASSERT(initCCRes);
     if (!initCCRes)
     {
@@ -196,10 +190,7 @@ int WINAPI wWinMain(const HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWS
     if (FAILED(hr))
     {
         CString msg;
-        CString err;
-        GetHresultString(hr, err);
-
-        msg.Format(L"Unable to create ImagingFactory. The error is: %s.", err.GetString());
+        msg.Format(L"Unable to create ImagingFactory. The error is: %s.", GetHresultString(hr).GetString());
         MessageBoxW(nullptr, msg, L"Error Creating ImagingFactory", MB_ICONERROR);
     }
 
@@ -208,16 +199,19 @@ int WINAPI wWinMain(const HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWS
     ATLASSERT(NULL != hInstRich);
 
     // Start running
+    int result = 0;
     if (SUCCEEDED(hr) && (nullptr != hInstRich))
     {
         ::DefWindowProc(nullptr, 0, 0, 0L);
 
-        hr = _Module.Init(nullptr, hInstance);
+        CAppModule appModule;
+
+        hr = appModule.Init(nullptr, hInstance);
         ATLASSERT(SUCCEEDED(hr));
 
-        result = Run(lpCmdLine, nCmdShow);
+        result = Run(appModule, lpCmdLine, nCmdShow);
 
-        _Module.Term();
+        appModule.Term();
 
         // Release the factory
         IWICImagingFactory* imagingFactory = g_imagingFactory.Detach();

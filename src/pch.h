@@ -65,4 +65,4 @@ extern IWICImagingFactoryPtr g_imagingFactory;
         out.ReleaseBuffer(strLen - 1);                                  \
     } else { out = L""; } } while(0);
 
-void GetHresultString(HRESULT hr, CString &out);
+CString GetHresultString(HRESULT hr);
