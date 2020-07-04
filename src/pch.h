@@ -8,6 +8,10 @@
 //----------------------------------------------------------------------------------------
 #pragma once
 
+#include <array>
+#include <algorithm>
+#include <utility>
+
 // Change these values to use different versions
 #define _RICHEDIT_VER    0x0300
 
@@ -60,7 +64,6 @@ extern CAppModule _Module;
 #include "Interfaces.h"
 
 extern IWICImagingFactoryPtr g_imagingFactory;
-extern CSimpleMap<HRESULT, LPCWSTR> g_wicErrorCodes;
 
 #define IFC(c) do { result = (c); if (FAILED(result)) return result; } while(0);
 
