@@ -11,6 +11,8 @@
 #include "ImageTransencoder.h"
 #include "OutputDevice.h"
 
+HRESULT GetPixelFormatName(WCHAR* dest, UINT chars, WICPixelFormatGUID guid);
+
 struct InfoElementViewContext
 {
     bool bIsAlphaEnable;
@@ -22,7 +24,13 @@ public:
     explicit CInfoElement(LPCWSTR name);
     virtual ~CInfoElement();
 
-    const CString &Name()
+    CInfoElement() = delete;
+    CInfoElement(const CInfoElement&) = default;
+    CInfoElement(CInfoElement&&) = default;
+    CInfoElement& operator=(const CInfoElement&) = default;
+    CInfoElement& operator=(CInfoElement&&) = default;
+
+    [[nodiscard]] const CString &Name() const
     {
         return m_name;
     }
@@ -64,7 +72,7 @@ public:
         return m_firstChild;
     }
 
-    [[nodiscard]] BOOL IsChild(CInfoElement *element)
+    [[nodiscard]] BOOL IsChild(CInfoElement *element) const
     {
         CInfoElement *child = FirstChild();
         while(child)
@@ -118,6 +126,7 @@ protected:
 
 private:
     void Unlink();
+
     CInfoElement *m_parent{};
     CInfoElement *m_prevSibling{};
     CInfoElement *m_nextSibling{};
@@ -139,9 +148,9 @@ public:
 
     static HRESULT SaveElementAsImage(CInfoElement &element, REFGUID containerFormat, WICPixelFormatGUID &format, LPCWSTR filename, ICodeGenerator &codeGen);
     static HRESULT CreateDecoderAndChildElements(LPCWSTR filename, ICodeGenerator &codeGen, CInfoElement *&decElem);
-    static HRESULT CreateFrameAndChildElements(CInfoElement *parent, UINT index, IWICBitmapFrameDecodePtr frameDecode, ICodeGenerator &codeGen);
-    static HRESULT CreateMetadataElementsFromBlock(CInfoElement *parent, IWICMetadataBlockReaderPtr blockReader, ICodeGenerator &codeGen);
-    static HRESULT CreateMetadataElements(CInfoElement *parent, UINT childIdx, IWICMetadataReaderPtr reader, ICodeGenerator &codeGen);
+    static HRESULT CreateFrameAndChildElements(CInfoElement *parent, UINT index, IWICBitmapFrameDecode* frameDecode, ICodeGenerator &codeGen);
+    static HRESULT CreateMetadataElementsFromBlock(CInfoElement *parent, IWICMetadataBlockReader* blockReader, ICodeGenerator &codeGen);
+    static HRESULT CreateMetadataElements(CInfoElement *parent, UINT childIdx, IWICMetadataReader* reader, ICodeGenerator &codeGen);
 
     static CString queryKey;
     static CString queryValue;
@@ -153,21 +162,21 @@ private:
 class CComponentInfoElement : public CInfoElement
 {
 public:
-    CComponentInfoElement(LPCWSTR name)
+    explicit CComponentInfoElement(const LPCWSTR name)
         : CInfoElement(name)
     {
     }
 
-    HRESULT OutputMetadataHandlerInfo(IOutputDevice &output, IWICMetadataHandlerInfoPtr metaInfo);
-    HRESULT OutputDecoderInfo(IOutputDevice &output, IWICBitmapDecoderInfoPtr decoderInfo);
-    HRESULT OutputCodecInfo(IOutputDevice &output, IWICBitmapCodecInfoPtr codecInfo);
-    HRESULT OutputComponentInfo(IOutputDevice &output, IWICComponentInfoPtr compInfo);
+    static HRESULT OutputMetadataHandlerInfo(IOutputDevice &output, IWICMetadataHandlerInfo* metaInfo);
+    static HRESULT OutputDecoderInfo(IOutputDevice &output, IWICBitmapDecoderInfo* decoderInfo);
+    static HRESULT OutputCodecInfo(IOutputDevice &output, IWICBitmapCodecInfo* codecInfo);
+    static HRESULT OutputComponentInfo(IOutputDevice &output, IWICComponentInfo* compInfo);
 };
 
-class CBitmapDecoderElement : public CComponentInfoElement
+class CBitmapDecoderElement final : public CComponentInfoElement
 {
 public:
-    CBitmapDecoderElement(const LPCWSTR filename)
+    explicit CBitmapDecoderElement(const LPCWSTR filename)
         : CComponentInfoElement(filename)
         , m_filename(filename)
     {
@@ -180,6 +189,7 @@ public:
 
     // Creates the decoder and child objects based on the filename
     HRESULT Load(ICodeGenerator &codeGen);
+
     // Releases the decoder and child objects but keeps the filename
     void Unload();
 
@@ -188,10 +198,10 @@ public:
         return m_loaded;
     }
 
-    HRESULT SaveAsImage(CImageTransencoder &trans, ICodeGenerator &codeGen);
+    HRESULT SaveAsImage(CImageTransencoder &trans, ICodeGenerator &codeGen) override;
 
-    HRESULT OutputView(IOutputDevice &output, const InfoElementViewContext& context);
-    HRESULT OutputInfo(IOutputDevice &output);
+    HRESULT OutputView(IOutputDevice &output, const InfoElementViewContext& context) override;
+    HRESULT OutputInfo(IOutputDevice &output) override;
 
     void SetCreationTime(DWORD ms);
     void SetCreationCode(LPCWSTR code);
@@ -208,23 +218,22 @@ private:
 class CBitmapSourceElement : public CInfoElement
 {
 public:
-    CBitmapSourceElement(LPCWSTR name, IWICBitmapSourcePtr source)
+    CBitmapSourceElement(const LPCWSTR name, IWICBitmapSource* source)
         : CInfoElement(name)
         , m_source(source)
     {
 
     }
 
-    HRESULT SaveAsImage(CImageTransencoder &trans, ICodeGenerator &codeGen);
+    HRESULT SaveAsImage(CImageTransencoder &trans, ICodeGenerator &codeGen) override;
 
-    HRESULT OutputView(IOutputDevice &output, const InfoElementViewContext& context);
-    HRESULT OutputInfo(IOutputDevice &output);
-    void FillContextMenu(HMENU context);
+    HRESULT OutputView(IOutputDevice &output, const InfoElementViewContext& context) override;
+    HRESULT OutputInfo(IOutputDevice &output) override;
+    void FillContextMenu(HMENU context) override;
 
 protected:
-    HRESULT CreateDibFromBitmapSource(IWICBitmapSourcePtr source,
-        HGLOBAL &hGlobal, HGLOBAL* phAlpha);
-    HRESULT CreateHbitmapFromBitmapSource(IWICBitmapSourcePtr source, HBITMAP &hGlobal);
+    static HRESULT CreateDibFromBitmapSource(IWICBitmapSource* source,
+                                             HGLOBAL &hGlobal, HGLOBAL* phAlpha);
 
 private:
     IWICBitmapSourcePtr m_source;
@@ -236,9 +245,8 @@ private:
 class CBitmapFrameDecodeElement final : public CBitmapSourceElement
 {
 public:
-    CBitmapFrameDecodeElement(UINT index, IWICBitmapFrameDecodePtr frameDecode)
+    CBitmapFrameDecodeElement(const UINT index, IWICBitmapFrameDecode* frameDecode)
         : CBitmapSourceElement(L"", frameDecode)
-        , m_index(index)
         , m_frameDecode(frameDecode)
     {
         m_name.Format(L"Frame #%u", index);
@@ -255,14 +263,13 @@ public:
     }
 
 private:
-    UINT                     m_index;
     IWICBitmapFrameDecodePtr m_frameDecode;
 };
 
 class CMetadataReaderElement final : public CComponentInfoElement
 {
 public:
-    CMetadataReaderElement(CInfoElement *parent, UINT idx, IWICMetadataReaderPtr reader);
+    CMetadataReaderElement(CInfoElement *parent, UINT idx, IWICMetadataReader* reader);
 
     HRESULT OutputView(IOutputDevice &output, const InfoElementViewContext& context) override;
     HRESULT OutputInfo(IOutputDevice &output) override;
@@ -276,7 +283,7 @@ public:
     }
 
 private:
-    HRESULT TranslateValueID(PROPVARIANT *pv, unsigned options, CString &out);
+    HRESULT TranslateValueID(PROPVARIANT *pv, unsigned options, CString &out) const;
     static HRESULT TrimQuotesFromName(CString &out);
     HRESULT SetNiceName(CInfoElement *parent, UINT idx);
 

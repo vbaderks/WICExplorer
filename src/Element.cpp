@@ -9,15 +9,49 @@
 #include "pch.h"
 
 #include "Element.h"
+
 #include "Stopwatch.h"
 #include "PropVariant.h"
 #include "MetadataTranslator.h"
 #include "resource.h"
 
+namespace 
+{
+
+// Just hardcoded for now
+bool HasAlpha(REFWICPixelFormatGUID pGuid)
+{
+    return IsEqualGUID(pGuid, GUID_WICPixelFormat32bppBGRA)
+        || IsEqualGUID(pGuid, GUID_WICPixelFormat32bppPBGRA)
+        || IsEqualGUID(pGuid, GUID_WICPixelFormat64bppRGBA)
+        || IsEqualGUID(pGuid, GUID_WICPixelFormat64bppPRGBA)
+        || IsEqualGUID(pGuid, GUID_WICPixelFormat128bppRGBAFloat)
+        || IsEqualGUID(pGuid, GUID_WICPixelFormat128bppPRGBAFloat)
+        || IsEqualGUID(pGuid, GUID_WICPixelFormat128bppRGBAFixedPoint);
+}
+
+}
+
+
+HRESULT GetPixelFormatName(WCHAR* dest, UINT chars, const WICPixelFormatGUID guid)
+{
+    HRESULT result;
+    if (guid == GUID_WICPixelFormatDontCare)
+    {
+        wcscpy_s(dest, chars, L"Don't Care");
+        return S_OK;
+    }
+    IWICComponentInfoPtr info;
+    IFC(g_imagingFactory->CreateComponentInfo(guid, &info));
+    IFC(info->GetFriendlyName(chars, dest, &chars));
+    return S_OK;
+}
+
+
 class CProgressiveBitmapSource final : public IWICBitmapSource
 {
 public:
-    CProgressiveBitmapSource(IWICBitmapSource * source, int level) :
+    CProgressiveBitmapSource(IWICBitmapSource* source, const int level) :
         m_level(level),
         m_source(source)
     {
@@ -33,9 +67,15 @@ public:
         m_prog->Release();
     }
 
+    CProgressiveBitmapSource() = delete;
+    CProgressiveBitmapSource(const CProgressiveBitmapSource&) = delete;
+    CProgressiveBitmapSource(CProgressiveBitmapSource&&) = delete;
+    CProgressiveBitmapSource& operator=(const CProgressiveBitmapSource&) = delete;
+    CProgressiveBitmapSource& operator=(CProgressiveBitmapSource&&) = delete;
+
     HRESULT STDMETHODCALLTYPE QueryInterface(
-            REFIID riid,
-            void **ppvObject) override
+        REFIID riid,
+        void** ppvObject) override
     {
         if (riid == IID_IUnknown)
         {
@@ -73,40 +113,40 @@ public:
     }
 
     STDMETHOD(GetSize)(
-        UINT *puiWidth,
-        UINT *puiHeight
+        UINT* puiWidth,
+        UINT* puiHeight
         ) override
     {
         return m_source->GetSize(puiWidth, puiHeight);
     }
 
-    STDMETHOD( GetPixelFormat)(
-        WICPixelFormatGUID *pPixelFormat
+    STDMETHOD(GetPixelFormat)(
+        WICPixelFormatGUID* pPixelFormat
         ) override
     {
         return m_source->GetPixelFormat(pPixelFormat);
     }
 
-    STDMETHOD( GetResolution)(
-        double *pDpiX,
-        double *pDpiY
+    STDMETHOD(GetResolution)(
+        double* pDpiX,
+        double* pDpiY
         ) override
     {
         return m_source->GetResolution(pDpiX, pDpiY);
     }
 
-    STDMETHOD( CopyPalette)(
-        IWICPalette *pIPalette
+    STDMETHOD(CopyPalette)(
+        IWICPalette* pIPalette
         ) override
     {
         return m_source->CopyPalette(pIPalette);
     }
 
-    STDMETHOD( CopyPixels)(
-        const WICRect *prc,
+    STDMETHOD(CopyPixels)(
+        const WICRect* prc,
         const UINT cbStride,
         const UINT cbBufferSize,
-        BYTE *pbBuffer
+        BYTE* pbBuffer
         ) override
     {
         HRESULT result;
@@ -118,21 +158,21 @@ public:
         return result;
     }
 
-
 private:
     int m_level{};
     UINT m_max{};
-    IWICBitmapSource * m_source{};
-    IWICProgressiveLevelControl * m_prog{};
-    int m_ref{};
+    IWICBitmapSource* m_source{};
+    IWICProgressiveLevelControl* m_prog{};
+    uint32_t m_ref{};
 };
 
 
 IWICImagingFactoryPtr g_imagingFactory;
 
-CInfoElement::CInfoElement(LPCWSTR name)
+CInfoElement::CInfoElement(const LPCWSTR name)
+    : m_name{ name }
 {
-    m_name = name;
+
     CElementManager::RegisterElement(this);
 }
 
@@ -141,11 +181,11 @@ CInfoElement::~CInfoElement()
     RemoveChildren();
 }
 
-void CInfoElement::SetParent(CInfoElement *element)
+void CInfoElement::SetParent(CInfoElement* element)
 {
-    if(m_parent != element)
+    if (m_parent != element)
     {
-        if(m_parent)
+        if (m_parent)
         {
             m_parent->AddChild(this);
         }
@@ -157,7 +197,7 @@ void CInfoElement::SetParent(CInfoElement *element)
 }
 
 //Adds element after this object
-void CInfoElement::AddSibling(CInfoElement *element)
+void CInfoElement::AddSibling(CInfoElement* element)
 {
     element->Unlink();
     element->m_prevSibling = this;
@@ -166,10 +206,10 @@ void CInfoElement::AddSibling(CInfoElement *element)
     element->m_parent = m_parent;
 }
 
-void CInfoElement::AddChild(CInfoElement *element)
+void CInfoElement::AddChild(CInfoElement* element)
 {
-    CInfoElement *firstChild = FirstChild();
-    if(!firstChild)
+    CInfoElement* firstChild = FirstChild();
+    if (!firstChild)
     {
         element->Unlink();
         m_firstChild = element;
@@ -177,8 +217,8 @@ void CInfoElement::AddChild(CInfoElement *element)
     }
     else
     {
-        CInfoElement *prev = firstChild;
-        while(firstChild)
+        CInfoElement* prev = firstChild;
+        while (firstChild)
         {
             prev = firstChild;
             firstChild = firstChild->NextSibling();
@@ -190,7 +230,7 @@ void CInfoElement::AddChild(CInfoElement *element)
 void CInfoElement::RemoveChildren()
 {
     //First unlink the children from the tree, then delete them
-    while(m_firstChild)
+    while (m_firstChild)
     {
         RemoveChild(m_firstChild);
     }
@@ -198,15 +238,15 @@ void CInfoElement::RemoveChildren()
 
 void CInfoElement::Unlink()
 {
-    if(m_parent && m_parent->m_firstChild == this)
+    if (m_parent && m_parent->m_firstChild == this)
     {
         m_parent->m_firstChild = m_nextSibling;
     }
-    if(m_nextSibling)
+    if (m_nextSibling)
     {
         m_nextSibling->m_prevSibling = m_prevSibling;
     }
-    if(m_prevSibling)
+    if (m_prevSibling)
     {
         m_prevSibling->m_nextSibling = m_nextSibling;
     }
@@ -215,9 +255,9 @@ void CInfoElement::Unlink()
     m_parent = nullptr;
 }
 
-void CInfoElement::RemoveChild(CInfoElement *child)
+void CInfoElement::RemoveChild(CInfoElement* child)
 {
-    if(child->m_parent != this)
+    if (child->m_parent != this)
     {
         return;
     }
@@ -225,7 +265,7 @@ void CInfoElement::RemoveChild(CInfoElement *child)
     delete child;
 }
 
-HRESULT CElementManager::OpenFile(LPCWSTR filename, ICodeGenerator &codeGen, CInfoElement *&decElem)
+HRESULT CElementManager::OpenFile(const LPCWSTR filename, ICodeGenerator& codeGen, CInfoElement*& decElem)
 {
     HRESULT result = E_UNEXPECTED;
 
@@ -266,7 +306,7 @@ HRESULT CElementManager::OpenFile(LPCWSTR filename, ICodeGenerator &codeGen, CIn
 
 void CBitmapDecoderElement::Unload()
 {
-    if(m_decoder)
+    if (m_decoder)
     {
         m_decoder->Release();
         m_decoder = nullptr;
@@ -276,7 +316,7 @@ void CBitmapDecoderElement::Unload()
     m_loaded = FALSE;
 }
 
-HRESULT CBitmapDecoderElement::Load(ICodeGenerator &codeGen)
+HRESULT CBitmapDecoderElement::Load(ICodeGenerator& codeGen)
 {
     HRESULT result = S_OK;
 
@@ -329,12 +369,8 @@ HRESULT CBitmapDecoderElement::Load(ICodeGenerator &codeGen)
 
     if (SUCCEEDED(result))
     {
-        CInfoElement *thumbElem = new CBitmapSourceElement(L"Thumbnail", thumb);
+        CInfoElement* thumbElem = new CBitmapSourceElement(L"Thumbnail", thumb);
         CElementManager::AddChildToElement(this, thumbElem);
-    }
-    else
-    {
-        result = S_OK;
     }
 
     // Add the Preview if it exists
@@ -345,12 +381,8 @@ HRESULT CBitmapDecoderElement::Load(ICodeGenerator &codeGen)
 
     if (SUCCEEDED(result))
     {
-        CInfoElement *prevElem = new CBitmapSourceElement(L"Preview", preview);
+        CInfoElement* prevElem = new CBitmapSourceElement(L"Preview", preview);
         CElementManager::AddChildToElement(this, prevElem);
-    }
-    else
-    {
-        result = S_OK;
     }
 
     // For each of the MetadataReaders attached to the decoder, create an element
@@ -374,11 +406,11 @@ HRESULT CBitmapDecoderElement::Load(ICodeGenerator &codeGen)
     return (FAILED(lastFailResult)) ? lastFailResult : result;
 }
 
-HRESULT CElementManager::CreateDecoderAndChildElements(LPCWSTR filename, ICodeGenerator &codeGen, CInfoElement *&decElem)
+HRESULT CElementManager::CreateDecoderAndChildElements(const LPCWSTR filename, ICodeGenerator& codeGen, CInfoElement*& decElem)
 {
     decElem = new CBitmapDecoderElement(filename);
-    const HRESULT result = (static_cast<CBitmapDecoderElement *>(decElem)->Load(codeGen));
-    if(!static_cast<CBitmapDecoderElement *>(decElem)->IsLoaded())
+    const HRESULT result = (static_cast<CBitmapDecoderElement*>(decElem)->Load(codeGen));
+    if (!static_cast<CBitmapDecoderElement*>(decElem)->IsLoaded())
     {
         root.RemoveChild(decElem);
         decElem = nullptr;
@@ -387,10 +419,10 @@ HRESULT CElementManager::CreateDecoderAndChildElements(LPCWSTR filename, ICodeGe
     return result;
 }
 
-HRESULT CElementManager::CreateFrameAndChildElements(CInfoElement *parent, UINT index, IWICBitmapFrameDecodePtr frameDecode, ICodeGenerator &codeGen)
+HRESULT CElementManager::CreateFrameAndChildElements(CInfoElement* parent, const UINT index, IWICBitmapFrameDecode* frameDecode, ICodeGenerator& codeGen)
 {
     // Add the frame itself
-    CInfoElement *frameElem = new CBitmapFrameDecodeElement(index, frameDecode);
+    CInfoElement* frameElem = new CBitmapFrameDecodeElement(index, frameDecode);
 
     AddChildToElement(parent, frameElem);
 
@@ -402,12 +434,8 @@ HRESULT CElementManager::CreateFrameAndChildElements(CInfoElement *parent, UINT 
 
     if (SUCCEEDED(result))
     {
-        CInfoElement *thumbElem = new CBitmapSourceElement(L"Thumbnail", thumb);
+        CInfoElement* thumbElem = new CBitmapSourceElement(L"Thumbnail", thumb);
         AddChildToElement(frameElem, thumbElem);
-    }
-    else
-    {
-        result = S_OK;
     }
 
     IWICProgressiveLevelControlPtr prog;
@@ -419,10 +447,10 @@ HRESULT CElementManager::CreateFrameAndChildElements(CInfoElement *parent, UINT 
         result = prog->GetLevelCount(&count);
         if (count > 1)
         {
-            for (int c = 0; c < (int)count; c++)
+            for (int c = 0; c < static_cast<int>(count); c++)
             {
                 AddChildToElement(frameElem, new CBitmapSourceElement(L"Level",
-                                              new CProgressiveBitmapSource(frameDecode, c)));
+                    new CProgressiveBitmapSource(frameDecode, c)));
             }
         }
     }
@@ -448,7 +476,7 @@ HRESULT CElementManager::CreateFrameAndChildElements(CInfoElement *parent, UINT 
     return result;
 }
 
-HRESULT CElementManager::CreateMetadataElementsFromBlock(CInfoElement *parent, IWICMetadataBlockReaderPtr blockReader, ICodeGenerator &codeGen)
+HRESULT CElementManager::CreateMetadataElementsFromBlock(CInfoElement* parent, IWICMetadataBlockReader* blockReader, ICodeGenerator& codeGen)
 {
     HRESULT result;
 
@@ -473,12 +501,12 @@ HRESULT CElementManager::CreateMetadataElementsFromBlock(CInfoElement *parent, I
     return result;
 }
 
-HRESULT CElementManager::CreateMetadataElements(CInfoElement *parent, UINT childIdx, IWICMetadataReaderPtr reader, ICodeGenerator &codeGen)
+HRESULT CElementManager::CreateMetadataElements(CInfoElement* parent, UINT childIdx, IWICMetadataReader* reader, ICodeGenerator& codeGen)
 {
     HRESULT result = S_OK;
 
     // Add this reader
-    CInfoElement *readerElem = new CMetadataReaderElement(parent, childIdx, reader);
+    CInfoElement* readerElem = new CMetadataReaderElement(parent, childIdx, reader);
 
     AddChildToElement(parent, readerElem);
 
@@ -530,9 +558,9 @@ HRESULT CElementManager::CreateMetadataElements(CInfoElement *parent, UINT child
     return result;
 }
 
-void CElementManager::RegisterElement(CInfoElement *element)
+void CElementManager::RegisterElement(CInfoElement* element)
 {
-    if(!element->Parent() && !root.IsChild(element) && element != &root)
+    if (!element->Parent() && !root.IsChild(element) && element != &root)
     {
         root.AddChild(element);
     }
@@ -543,14 +571,14 @@ void CElementManager::ClearAllElements()
     root.RemoveChildren();
 }
 
-void CElementManager::AddSiblingToElement(CInfoElement *element, CInfoElement *sib)
+void CElementManager::AddSiblingToElement(CInfoElement* element, CInfoElement* sib)
 {
     ATLASSERT(NULL != element);
 
     if (nullptr != element)
     {
         // Find the end of the sibling chain
-        CInfoElement *curr = element;
+        CInfoElement* curr = element;
         while (nullptr != curr->NextSibling())
         {
             curr = curr->NextSibling();
@@ -561,7 +589,7 @@ void CElementManager::AddSiblingToElement(CInfoElement *element, CInfoElement *s
     }
 }
 
-void CElementManager::AddChildToElement(CInfoElement *element, CInfoElement *child)
+void CElementManager::AddChildToElement(CInfoElement* element, CInfoElement* child)
 {
     ATLASSERT(NULL != element);
 
@@ -571,14 +599,14 @@ void CElementManager::AddChildToElement(CInfoElement *element, CInfoElement *chi
     }
 }
 
-CInfoElement *CElementManager::GetRootElement()
+CInfoElement* CElementManager::GetRootElement()
 {
     return &root;
 }
 
-HRESULT CElementManager::SaveElementAsImage(CInfoElement &element, REFGUID containerFormat, WICPixelFormatGUID &format, LPCWSTR filename, ICodeGenerator &codeGen)
+HRESULT CElementManager::SaveElementAsImage(CInfoElement& element, REFGUID containerFormat, WICPixelFormatGUID& format, const LPCWSTR filename, ICodeGenerator& codeGen)
 {
-    HRESULT result = S_OK;
+    HRESULT result;
 
     CImageTransencoder te;
 
@@ -599,9 +627,9 @@ CInfoElement CElementManager::root(L"");
 // COMPONENT INFO ELEMENT
 //----------------------------------------------------------------------------------------
 
-HRESULT CComponentInfoElement::OutputMetadataHandlerInfo(IOutputDevice &output, IWICMetadataHandlerInfoPtr metaInfo)
+HRESULT CComponentInfoElement::OutputMetadataHandlerInfo(IOutputDevice& output, IWICMetadataHandlerInfo* metaInfo)
 {
-    HRESULT result = S_OK;
+    HRESULT result;
 
     CString str;
     WCHAR guidString[64];
@@ -613,13 +641,13 @@ HRESULT CComponentInfoElement::OutputMetadataHandlerInfo(IOutputDevice &output, 
     StringFromGUID2(guid, guidString, 64);
     output.AddKeyValue(L"MetadataFormat", guidString);
 
-    READ_WIC_STRING(metaInfo->GetDeviceManufacturer, str);
+    READ_WIC_STRING(metaInfo->GetDeviceManufacturer, str)
     if (SUCCEEDED(result))
     {
         output.AddKeyValue(L"DeviceManufacturer", str);
     }
 
-    READ_WIC_STRING(metaInfo->GetDeviceModels, str);
+    READ_WIC_STRING(metaInfo->GetDeviceModels, str)
     if (SUCCEEDED(result))
     {
         output.AddKeyValue(L"DeviceModels", str);
@@ -632,7 +660,7 @@ HRESULT CComponentInfoElement::OutputMetadataHandlerInfo(IOutputDevice &output, 
     return result;
 }
 
-HRESULT CComponentInfoElement::OutputDecoderInfo(IOutputDevice &output, IWICBitmapDecoderInfoPtr decoderInfo)
+HRESULT CComponentInfoElement::OutputDecoderInfo(IOutputDevice& output, IWICBitmapDecoderInfo* decoderInfo)
 {
     HRESULT result = S_OK;
 
@@ -641,7 +669,7 @@ HRESULT CComponentInfoElement::OutputDecoderInfo(IOutputDevice &output, IWICBitm
     return result;
 }
 
-HRESULT CComponentInfoElement::OutputCodecInfo(IOutputDevice &output, IWICBitmapCodecInfoPtr codecInfo)
+HRESULT CComponentInfoElement::OutputCodecInfo(IOutputDevice& output, IWICBitmapCodecInfo* codecInfo)
 {
     HRESULT result = S_OK;
 
@@ -656,25 +684,25 @@ HRESULT CComponentInfoElement::OutputCodecInfo(IOutputDevice &output, IWICBitmap
     StringFromGUID2(guid, guidString, 64);
     output.AddKeyValue(L"ContainerFormat", guidString);
 
-    READ_WIC_STRING(codecInfo->GetColorManagementVersion, str);
+    READ_WIC_STRING(codecInfo->GetColorManagementVersion, str)
     if (SUCCEEDED(result))
     {
         output.AddKeyValue(L"ColorManagementVersion", str);
     }
 
-    READ_WIC_STRING(codecInfo->GetDeviceManufacturer, str);
+    READ_WIC_STRING(codecInfo->GetDeviceManufacturer, str)
     if (SUCCEEDED(result))
     {
         output.AddKeyValue(L"DeviceManufacturer", str);
     }
 
-    READ_WIC_STRING(codecInfo->GetDeviceModels, str);
+    READ_WIC_STRING(codecInfo->GetDeviceModels, str)
     if (SUCCEEDED(result))
     {
         output.AddKeyValue(L"DeviceModels", str);
     }
 
-    READ_WIC_STRING(codecInfo->GetMimeTypes, str);
+    READ_WIC_STRING(codecInfo->GetMimeTypes, str)
     if (SUCCEEDED(result))
     {
         output.AddKeyValue(L"MimeTypes", str);
@@ -699,7 +727,7 @@ HRESULT CComponentInfoElement::OutputCodecInfo(IOutputDevice &output, IWICBitmap
     return result;
 }
 
-HRESULT CComponentInfoElement::OutputComponentInfo(IOutputDevice &output, IWICComponentInfoPtr compInfo)
+HRESULT CComponentInfoElement::OutputComponentInfo(IOutputDevice& output, IWICComponentInfo* compInfo)
 {
     HRESULT result = S_OK;
 
@@ -713,7 +741,7 @@ HRESULT CComponentInfoElement::OutputComponentInfo(IOutputDevice &output, IWICCo
     StringFromGUID2(guid, guidString, 64);
     output.AddKeyValue(L"ClassID", guidString);
 
-    READ_WIC_STRING(compInfo->GetAuthor, str);
+    READ_WIC_STRING(compInfo->GetAuthor, str)
     if (SUCCEEDED(result))
     {
         output.AddKeyValue(L"Author", str);
@@ -723,19 +751,19 @@ HRESULT CComponentInfoElement::OutputComponentInfo(IOutputDevice &output, IWICCo
     StringFromGUID2(guid, guidString, 64);
     output.AddKeyValue(L"VendorGUID", guidString);
 
-    READ_WIC_STRING(compInfo->GetVersion, str);
+    READ_WIC_STRING(compInfo->GetVersion, str)
     if (SUCCEEDED(result))
     {
         output.AddKeyValue(L"Version", str);
     }
 
-    READ_WIC_STRING(compInfo->GetSpecVersion, str);
+    READ_WIC_STRING(compInfo->GetSpecVersion, str)
     if (SUCCEEDED(result))
     {
         output.AddKeyValue(L"SpecVersion", str);
     }
 
-    READ_WIC_STRING(compInfo->GetFriendlyName, str);
+    READ_WIC_STRING(compInfo->GetFriendlyName, str)
     if (SUCCEEDED(result))
     {
         output.AddKeyValue(L"FriendlyName", str);
@@ -751,17 +779,18 @@ HRESULT CComponentInfoElement::OutputComponentInfo(IOutputDevice &output, IWICCo
 // BITMAP DECODER ELEMENT
 //----------------------------------------------------------------------------------------
 
-void CBitmapDecoderElement::FillContextMenu(HMENU context)
+void CBitmapDecoderElement::FillContextMenu(const HMENU context)
 {
     CComponentInfoElement::FillContextMenu(context);
 
-    MENUITEMINFO itemInfo{};
-    itemInfo.cbSize = sizeof(MENUITEMINFO);
-    itemInfo.fMask = MIIM_FTYPE | MIIM_ID | MIIM_STATE | MIIM_STRING;
-    itemInfo.fType = MFT_STRING;
-    itemInfo.fState = MFS_ENABLED;
+    MENUITEMINFO itemInfo {
+        .cbSize = sizeof itemInfo,
+        .fMask = MIIM_FTYPE | MIIM_ID | MIIM_STATE | MIIM_STRING,
+        .fType = MFT_STRING,
+        .fState = MFS_ENABLED
+        };
 
-    if(m_loaded)
+    if (m_loaded)
     {
         itemInfo.wID = ID_FILE_SAVE;
         itemInfo.dwTypeData = const_cast<LPWSTR>(L"Save As Image...");
@@ -782,20 +811,20 @@ void CBitmapDecoderElement::FillContextMenu(HMENU context)
     InsertMenuItem(context, GetMenuItemCount(context), TRUE, &itemInfo);
 }
 
-HRESULT CBitmapDecoderElement::SaveAsImage(CImageTransencoder &trans, ICodeGenerator &codeGen)
+HRESULT CBitmapDecoderElement::SaveAsImage(CImageTransencoder& trans, ICodeGenerator& codeGen)
 {
     HRESULT result = S_OK;
-    if(!m_loaded)
+    if (!m_loaded)
     {
         return E_FAIL;
     }
 
     // Find the frame children and output them
-    CInfoElement *child = FirstChild();
+    CInfoElement* child = FirstChild();
     while (nullptr != child)
     {
-        CBitmapFrameDecodeElement *frameDecodeElement = dynamic_cast<CBitmapFrameDecodeElement*>(child);
-        if (nullptr != frameDecodeElement)
+        auto* frameDecodeElement = dynamic_cast<CBitmapFrameDecodeElement*>(child);
+        if (frameDecodeElement)
         {
             IFC(frameDecodeElement->SaveAsImage(trans, codeGen));
         }
@@ -805,7 +834,7 @@ HRESULT CBitmapDecoderElement::SaveAsImage(CImageTransencoder &trans, ICodeGener
 
     // Output Thumbnail
     codeGen.BeginVariableScope(L"IWICBitmapSource*", L"thumb", L"NULL");
-    IWICBitmapSourcePtr thumb = NULL;
+    IWICBitmapSourcePtr thumb;
 
     codeGen.CallFunction(L"decoder->GetThumbnail(&thumb)");
     m_decoder->GetThumbnail(&thumb);
@@ -819,12 +848,12 @@ HRESULT CBitmapDecoderElement::SaveAsImage(CImageTransencoder &trans, ICodeGener
 
     // Output Preview
     codeGen.BeginVariableScope(L"IWICBitmapSource*", L"preview", L"NULL");
-    IWICBitmapSourcePtr preview = NULL;
+    IWICBitmapSourcePtr preview;
 
     codeGen.CallFunction(L"decoder->GetPreview(&preview)");
     m_decoder->GetPreview(&preview);
 
-    if (NULL != preview)
+    if (preview)
     {
         IFC(trans.SetPreview(preview));
     }
@@ -838,16 +867,14 @@ HRESULT CBitmapDecoderElement::SaveAsImage(CImageTransencoder &trans, ICodeGener
     return result;
 }
 
-HRESULT CBitmapDecoderElement::OutputView(IOutputDevice &output, const InfoElementViewContext& context)
+HRESULT CBitmapDecoderElement::OutputView(IOutputDevice& output, const InfoElementViewContext& context)
 {
-    HRESULT result = S_OK;
-
-    if(!m_loaded)
+    if (!m_loaded)
     {
-        int oldSize = output.SetFontSize(20);
+        const int oldSize = output.SetFontSize(20);
         output.AddText(L"File not loaded");
         output.SetFontSize(oldSize);
-        return result;
+        return S_OK;
     }
 
     ATLASSERT(NULL != m_decoder);
@@ -872,7 +899,7 @@ HRESULT CBitmapDecoderElement::OutputView(IOutputDevice &output, const InfoEleme
         output.EndKeyValues();
 
         // Also show the children
-        CInfoElement *child = FirstChild();
+        CInfoElement* child = FirstChild();
         while (nullptr != child)
         {
             output.BeginSection(child->Name());
@@ -895,14 +922,14 @@ HRESULT CBitmapDecoderElement::OutputView(IOutputDevice &output, const InfoEleme
     {
     }
 
-    return result;
+    return S_OK;
 }
 
-HRESULT CBitmapDecoderElement::OutputInfo(IOutputDevice &output)
+HRESULT CBitmapDecoderElement::OutputInfo(IOutputDevice& output)
 {
     HRESULT result = S_OK;
 
-    if(m_loaded)
+    if (m_loaded)
     {
         IWICBitmapDecoderInfoPtr decoderInfo;
         IFC(m_decoder->GetDecoderInfo(&decoderInfo));
@@ -912,12 +939,12 @@ HRESULT CBitmapDecoderElement::OutputInfo(IOutputDevice &output)
     return result;
 }
 
-void CBitmapDecoderElement::SetCreationTime(DWORD ms)
+void CBitmapDecoderElement::SetCreationTime(const DWORD ms)
 {
     m_creationTime = ms;
 }
 
-void CBitmapDecoderElement::SetCreationCode(LPCWSTR code)
+void CBitmapDecoderElement::SetCreationCode(const LPCWSTR code)
 {
     m_creationCode = code;
 }
@@ -932,18 +959,19 @@ void CBitmapSourceElement::FillContextMenu(const HMENU context)
     CInfoElement::FillContextMenu(context);
 
     // Add the Save as Bitmap string if this element supports it
-    MENUITEMINFO itemInfo{};
-    itemInfo.cbSize = sizeof(MENUITEMINFO);
-    itemInfo.fMask = MIIM_FTYPE | MIIM_ID | MIIM_STATE | MIIM_STRING;
-    itemInfo.fType = MFT_STRING;
-    itemInfo.fState = MFS_ENABLED;
-    itemInfo.wID = ID_FILE_SAVE;
-    itemInfo.dwTypeData = const_cast<LPWSTR>(L"Save As Image...");
+    MENUITEMINFO itemInfo{
+        .cbSize = sizeof itemInfo,
+        .fMask = MIIM_FTYPE | MIIM_ID | MIIM_STATE | MIIM_STRING,
+        .fType = MFT_STRING,
+        .fState = MFS_ENABLED,
+        .wID = ID_FILE_SAVE,
+        .dwTypeData = const_cast<LPWSTR>(L"Save As Image...")
+    };
 
     InsertMenuItem(context, GetMenuItemCount(context), TRUE, &itemInfo);
 }
 
-HRESULT CBitmapSourceElement::SaveAsImage(CImageTransencoder &trans, ICodeGenerator & /*codeGen*/)
+HRESULT CBitmapSourceElement::SaveAsImage(CImageTransencoder& trans, ICodeGenerator& /*codeGen*/)
 {
     HRESULT result = S_OK;
 
@@ -952,27 +980,14 @@ HRESULT CBitmapSourceElement::SaveAsImage(CImageTransencoder &trans, ICodeGenera
     return result;
 }
 
-HRESULT GetPixelFormatName(WCHAR *dest, UINT chars, WICPixelFormatGUID guid)
-{
-    HRESULT result;
-    if(guid == GUID_WICPixelFormatDontCare)
-    {
-        wcscpy_s(dest, chars, L"Don't Care");
-        return S_OK;
-    }
-    IWICComponentInfoPtr info;
-    IFC(g_imagingFactory->CreateComponentInfo(guid, &info));
-    IFC(info->GetFriendlyName(chars, dest, &chars));
-    return S_OK;
-}
 
-HRESULT CBitmapSourceElement::OutputView(IOutputDevice &output, const InfoElementViewContext& context)
+HRESULT CBitmapSourceElement::OutputView(IOutputDevice& output, const InfoElementViewContext& context)
 {
     HRESULT result;
 
     ATLASSERT(NULL != m_source);
 
-    IFC(CInfoElement::OutputView(output,context));
+    IFC(CInfoElement::OutputView(output, context));
     if (NULL != m_source)
     {
         // First, some info
@@ -997,13 +1012,13 @@ HRESULT CBitmapSourceElement::OutputView(IOutputDevice &output, const InfoElemen
         output.AddKeyValue(L"DpiX", v);
         StringCchPrintfW(v, ARRAYSIZE(v), L"%g", dpiY);
         output.AddKeyValue(L"DpiY", v);
-        if(FAILED(GetPixelFormatName(v, ARRAYSIZE(v), pixelFormat)))
+        if (FAILED(GetPixelFormatName(v, ARRAYSIZE(v), pixelFormat)))
         {
             wcscpy_s(v, ARRAYSIZE(v), L"Unknown ");
         }
         wcscat_s(v, ARRAYSIZE(v), L" ");
-        size_t len = wcslen(v);
-        StringFromGUID2(pixelFormat, v + len, int(ARRAYSIZE(v) - len));
+        const size_t len = wcslen(v);
+        StringFromGUID2(pixelFormat, v + len, static_cast<int>(ARRAYSIZE(v) - len));
         output.AddKeyValue(L"Format", v);
 
         // Now, the bitmap itself
@@ -1020,14 +1035,14 @@ HRESULT CBitmapSourceElement::OutputView(IOutputDevice &output, const InfoElemen
             IWICColorContextPtr colorContextSrc;
             IWICColorContextPtr colorContextDst;
             IWICColorTransformPtr colorTransform;
-            WCHAR wzFilename[_MAX_PATH+1];
+            WCHAR wzFilename[_MAX_PATH + 1];
             UINT cActual = 0;
 
             result = m_source->QueryInterface(IID_PPV_ARGS(&frame));
 
             if (SUCCEEDED(result))
             {
-                IWICColorContext **ppiContextSrc = &colorContextSrc;
+                IWICColorContext** ppiContextSrc = &colorContextSrc;
                 result = g_imagingFactory->CreateColorContext(ppiContextSrc);
 
                 if (SUCCEEDED(result))
@@ -1049,8 +1064,8 @@ HRESULT CBitmapSourceElement::OutputView(IOutputDevice &output, const InfoElemen
                         if (GetColorDirectoryW(nullptr, wzFilename, &cbFilename))
                         {
                             result = StringCchCatW(wzFilename,
-                                                   sizeof(wzFilename)/sizeof(wzFilename[0]),
-                                                   L"\\sRGB Color Space Profile.icm");
+                                sizeof(wzFilename) / sizeof(wzFilename[0]),
+                                L"\\sRGB Color Space Profile.icm");
                         }
                         else
                         {
@@ -1071,9 +1086,9 @@ HRESULT CBitmapSourceElement::OutputView(IOutputDevice &output, const InfoElemen
                     if (SUCCEEDED(result))
                     {
                         result = colorTransform->Initialize(m_source,
-                                                            colorContextSrc,
-                                                            colorContextDst,
-                                                            GUID_WICPixelFormat32bppBGRA);
+                            colorContextSrc,
+                            colorContextDst,
+                            GUID_WICPixelFormat32bppBGRA);
                         if (SUCCEEDED(result))
                         {
                             m_colorTransform = colorTransform;
@@ -1132,39 +1147,25 @@ HRESULT CBitmapSourceElement::OutputView(IOutputDevice &output, const InfoElemen
     return result;
 }
 
-HRESULT CBitmapSourceElement::OutputInfo(IOutputDevice & /*output*/)
+HRESULT CBitmapSourceElement::OutputInfo(IOutputDevice& /*output*/)
 {
     return S_OK;
 }
 
-// Just hardcoded for now
-bool HasAlpha (REFWICPixelFormatGUID pGuid)
-{
-    return IsEqualGUID(pGuid, GUID_WICPixelFormat32bppBGRA)
-        || IsEqualGUID(pGuid, GUID_WICPixelFormat32bppPBGRA)
-        || IsEqualGUID(pGuid, GUID_WICPixelFormat64bppRGBA)
-        || IsEqualGUID(pGuid, GUID_WICPixelFormat64bppPRGBA)
-        || IsEqualGUID(pGuid, GUID_WICPixelFormat128bppRGBAFloat)
-        || IsEqualGUID(pGuid, GUID_WICPixelFormat128bppPRGBAFloat)
-        || IsEqualGUID(pGuid, GUID_WICPixelFormat128bppRGBAFixedPoint);
-}
 
-HRESULT CBitmapSourceElement::CreateDibFromBitmapSource(IWICBitmapSourcePtr source,
-    HGLOBAL &hGlobal, HGLOBAL* phAlpha)
+HRESULT CBitmapSourceElement::CreateDibFromBitmapSource(IWICBitmapSource* source, HGLOBAL& hGlobal, HGLOBAL* phAlpha)
 {
-    HRESULT result = S_OK;
-    if (NULL == source)
-    {
+    if (!source)
         return E_INVALIDARG;
-    }
 
+    HRESULT result = S_OK;
     UINT width = 0, height = 0;
     UINT stride = 0;
 
     WICPixelFormatGUID pFormatGuid;
-    IFC (source->GetPixelFormat(&pFormatGuid));
+    IFC(source->GetPixelFormat(&pFormatGuid));
 
-    const bool bAlphaEnabled = (phAlpha != nullptr) && HasAlpha (pFormatGuid);
+    const bool bAlphaEnabled = (phAlpha != nullptr) && HasAlpha(pFormatGuid);
 
     // Create a format converter
     IWICFormatConverterPtr formatConverter;
@@ -1188,7 +1189,7 @@ HRESULT CBitmapSourceElement::CreateDibFromBitmapSource(IWICBitmapSourcePtr sour
     // Force the stride to be a multiple of sizeof(DWORD)
     stride = ((stride + sizeof(DWORD) - 1) / sizeof(DWORD)) * sizeof(DWORD);
 
-    const SIZE_T dibSize = sizeof(BITMAPINFOHEADER) + stride*height;
+    const SIZE_T dibSize = sizeof(BITMAPINFOHEADER) + stride * height;
 
     // Allocate the DIB bytes
     hGlobal = GlobalAlloc(GMEM_MOVEABLE, dibSize);
@@ -1199,7 +1200,7 @@ HRESULT CBitmapSourceElement::CreateDibFromBitmapSource(IWICBitmapSourcePtr sour
         return E_OUTOFMEMORY;
     }
 
-    BYTE *dibBytes = static_cast<BYTE*>(GlobalLock(hGlobal));
+    BYTE* dibBytes = static_cast<BYTE*>(GlobalLock(hGlobal));
     ATLASSERT(dibBytes);
 
     if (nullptr == dibBytes)
@@ -1209,7 +1210,7 @@ HRESULT CBitmapSourceElement::CreateDibFromBitmapSource(IWICBitmapSourcePtr sour
     }
 
     auto* bmih = reinterpret_cast<BITMAPINFOHEADER*>(dibBytes);
-    BYTE *dibPixels = dibBytes + sizeof(BITMAPINFOHEADER);
+    BYTE* dibPixels = dibBytes + sizeof(BITMAPINFOHEADER);
 
     // Set the header
     ZeroMemory(bmih, sizeof(BITMAPINFOHEADER));
@@ -1219,7 +1220,7 @@ HRESULT CBitmapSourceElement::CreateDibFromBitmapSource(IWICBitmapSourcePtr sour
     bmih->biCompression = BI_RGB;
     bmih->biWidth = width;
     bmih->biHeight = height;
-    bmih->biSizeImage = stride*height;
+    bmih->biSizeImage = stride * height;
 
     // Copy the pixels
     WICRect rct;
@@ -1228,7 +1229,7 @@ HRESULT CBitmapSourceElement::CreateDibFromBitmapSource(IWICBitmapSourcePtr sour
     rct.Width = width;
     rct.Height = height;
 
-    result = flipper->CopyPixels(&rct, stride, stride*height, dibPixels);
+    result = flipper->CopyPixels(&rct, stride, stride * height, dibPixels);
 
     if (bAlphaEnabled)
     {
@@ -1236,12 +1237,12 @@ HRESULT CBitmapSourceElement::CreateDibFromBitmapSource(IWICBitmapSourcePtr sour
         ATLASSERT(NULL != *phAlpha);
         if (nullptr == hGlobal)
         {
-        return E_OUTOFMEMORY;
+            return E_OUTOFMEMORY;
         }
 
-        BYTE *dibPixels2 = dibBytes + sizeof(BITMAPINFOHEADER);
+        BYTE* dibPixels2 = dibBytes + sizeof(BITMAPINFOHEADER);
 
-        BYTE *dibAlphaBytes = static_cast<BYTE*>(GlobalLock(*phAlpha));
+        BYTE* dibAlphaBytes = static_cast<BYTE*>(GlobalLock(*phAlpha));
 
         ATLASSERT(dibAlphaBytes);
         if (nullptr == dibAlphaBytes)
@@ -1251,7 +1252,7 @@ HRESULT CBitmapSourceElement::CreateDibFromBitmapSource(IWICBitmapSourcePtr sour
             return E_OUTOFMEMORY;
         }
 
-        BYTE *dibAlphaPixels = dibAlphaBytes + sizeof(BITMAPINFOHEADER);
+        BYTE* dibAlphaPixels = dibAlphaBytes + sizeof(BITMAPINFOHEADER);
         auto* bmih2 = reinterpret_cast<BITMAPINFOHEADER*>(dibAlphaBytes);
 
         // Set the header
@@ -1262,22 +1263,22 @@ HRESULT CBitmapSourceElement::CreateDibFromBitmapSource(IWICBitmapSourcePtr sour
         bmih2->biCompression = BI_RGB;
         bmih2->biWidth = width;
         bmih2->biHeight = height;
-        bmih2->biSizeImage = stride*height;
+        bmih2->biSizeImage = stride * height;
 
         // Fill the dibpixels with alpha values:
         for (unsigned y = 0; y < height; y++)
         {
             for (unsigned x = 0; x < width; x++)
             {
-                dibAlphaPixels[x*4+0] = dibPixels2[x*4+3];
-                dibAlphaPixels[x*4+1] = dibPixels2[x*4+3];
-                dibAlphaPixels[x*4+2] = dibPixels2[x*4+3];
-                dibAlphaPixels[x*4+3] = dibPixels2[x*4+3];
+                dibAlphaPixels[x * 4 + 0] = dibPixels2[x * 4 + 3];
+                dibAlphaPixels[x * 4 + 1] = dibPixels2[x * 4 + 3];
+                dibAlphaPixels[x * 4 + 2] = dibPixels2[x * 4 + 3];
+                dibAlphaPixels[x * 4 + 3] = dibPixels2[x * 4 + 3];
             }
             dibAlphaPixels += stride;
             dibPixels2 += stride;
         }
-        GlobalUnlock (*phAlpha);
+        GlobalUnlock(*phAlpha);
         if (FAILED(result))
         {
             GlobalFree(*phAlpha);
@@ -1300,22 +1301,24 @@ HRESULT CBitmapSourceElement::CreateDibFromBitmapSource(IWICBitmapSourcePtr sour
 // BITMAP FRAME DECODE ELEMENT
 //----------------------------------------------------------------------------------------
 
-void CBitmapFrameDecodeElement::FillContextMenu(HMENU context)
+void CBitmapFrameDecodeElement::FillContextMenu(const HMENU context)
 {
     CBitmapSourceElement::FillContextMenu(context);
 
-    MENUITEMINFO itemInfo = { 0 };
-    itemInfo.cbSize = sizeof(MENUITEMINFO);
-    itemInfo.fMask = MIIM_FTYPE | MIIM_ID | MIIM_STATE | MIIM_STRING;
-    itemInfo.fType = MFT_STRING;
-    itemInfo.fState = MFS_ENABLED;
+    const MENUITEMINFO itemInfo =
+    {
+        .cbSize = sizeof itemInfo,
+        .fMask = MIIM_FTYPE | MIIM_ID | MIIM_STATE | MIIM_STRING,
+        .fType = MFT_STRING,
+        .fState = MFS_ENABLED,
+        .wID = ID_FIND_METADATA,
+        .dwTypeData = const_cast<LPWSTR>(L"Find metadata by Query Language")
+    };
 
-    itemInfo.wID = ID_FIND_METADATA;
-    itemInfo.dwTypeData = const_cast<LPWSTR>(L"Find metadata by Query Language");
     InsertMenuItem(context, GetMenuItemCount(context), TRUE, &itemInfo);
 }
 
-HRESULT CBitmapFrameDecodeElement::SaveAsImage(CImageTransencoder &trans, ICodeGenerator & /*codeGen*/)
+HRESULT CBitmapFrameDecodeElement::SaveAsImage(CImageTransencoder& trans, ICodeGenerator& /*codeGen*/)
 {
     HRESULT result = S_OK;
 
@@ -1324,7 +1327,7 @@ HRESULT CBitmapFrameDecodeElement::SaveAsImage(CImageTransencoder &trans, ICodeG
     return result;
 }
 
-HRESULT CBitmapFrameDecodeElement::OutputView(IOutputDevice &output, const InfoElementViewContext& context)
+HRESULT CBitmapFrameDecodeElement::OutputView(IOutputDevice& output, const InfoElementViewContext& context)
 {
     HRESULT result = S_OK;
 
@@ -1338,7 +1341,7 @@ HRESULT CBitmapFrameDecodeElement::OutputView(IOutputDevice &output, const InfoE
     return result;
 }
 
-HRESULT CBitmapFrameDecodeElement::OutputInfo(IOutputDevice & /*output*/)
+HRESULT CBitmapFrameDecodeElement::OutputInfo(IOutputDevice& /*output*/)
 {
     return S_OK;
 }
@@ -1348,7 +1351,7 @@ HRESULT CBitmapFrameDecodeElement::OutputInfo(IOutputDevice & /*output*/)
 // METADATA READER ELEMENT
 //----------------------------------------------------------------------------------------
 
-CMetadataReaderElement::CMetadataReaderElement(CInfoElement *parent, UINT idx, IWICMetadataReaderPtr reader)
+CMetadataReaderElement::CMetadataReaderElement(CInfoElement* parent, const UINT idx, IWICMetadataReader* reader)
     : CComponentInfoElement(L"")
     , m_reader(reader)
 {
@@ -1358,7 +1361,7 @@ CMetadataReaderElement::CMetadataReaderElement(CInfoElement *parent, UINT idx, I
     }
 }
 
-HRESULT CMetadataReaderElement::SetNiceName(CInfoElement *parent, UINT idx)
+HRESULT CMetadataReaderElement::SetNiceName(CInfoElement* parent, const UINT idx)
 {
     HRESULT result = S_OK;
 
@@ -1371,7 +1374,7 @@ HRESULT CMetadataReaderElement::SetNiceName(CInfoElement *parent, UINT idx)
         result = m_reader->GetMetadataHandlerInfo(&info);
         if (SUCCEEDED(result))
         {
-            READ_WIC_STRING(info->GetFriendlyName, t);
+            READ_WIC_STRING(info->GetFriendlyName, t)
         }
 
         // Next, try to get the name that our parent gave us. We can do this
@@ -1411,7 +1414,7 @@ HRESULT CMetadataReaderElement::SetNiceName(CInfoElement *parent, UINT idx)
     return result;
 }
 
-HRESULT CMetadataReaderElement::TrimQuotesFromName(CString &out)
+HRESULT CMetadataReaderElement::TrimQuotesFromName(CString& out)
 {
     out.TrimLeft(L'\"');
     out.TrimRight(L'\"');
@@ -1419,7 +1422,7 @@ HRESULT CMetadataReaderElement::TrimQuotesFromName(CString &out)
     return S_OK;
 }
 
-HRESULT CMetadataReaderElement::OutputView(IOutputDevice &output, const InfoElementViewContext& context)
+HRESULT CMetadataReaderElement::OutputView(IOutputDevice& output, const InfoElementViewContext& context)
 {
     HRESULT result = S_OK;
 
@@ -1472,7 +1475,7 @@ HRESULT CMetadataReaderElement::OutputView(IOutputDevice &output, const InfoElem
     return result;
 }
 
-HRESULT CMetadataReaderElement::OutputInfo(IOutputDevice &output)
+HRESULT CMetadataReaderElement::OutputInfo(IOutputDevice& output)
 {
     HRESULT result = S_OK;
 
@@ -1490,7 +1493,7 @@ HRESULT CMetadataReaderElement::OutputInfo(IOutputDevice &output)
     return result;
 }
 
-HRESULT CMetadataReaderElement::TranslateValueID(PROPVARIANT *pv, unsigned options, CString &out)
+HRESULT CMetadataReaderElement::TranslateValueID(PROPVARIANT* pv, const unsigned options, CString& out) const
 {
     HRESULT result = S_OK;
 

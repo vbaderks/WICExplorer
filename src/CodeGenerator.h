@@ -8,10 +8,15 @@
 //----------------------------------------------------------------------------------------
 #pragma once
 
-class ICodeGenerator
+struct ICodeGenerator
 {
-public:
     virtual ~ICodeGenerator() = default;
+
+    ICodeGenerator() = default;
+    ICodeGenerator(const ICodeGenerator&) = default;
+    ICodeGenerator(ICodeGenerator&&) = default;
+    ICodeGenerator& operator=(const ICodeGenerator&) = default;
+    ICodeGenerator& operator=(ICodeGenerator&&) = default;
 
     virtual void BeginVariableScope(LPCWSTR varType, LPCWSTR varBaseName, LPCWSTR varInitValue) = 0;
     virtual void EndVariableScope() = 0;
@@ -83,7 +88,7 @@ public:
     }
 
 private:
-    void BeginVariable(LPCWSTR varType, LPCWSTR varBaseName, LPCWSTR varInitValue)
+    void BeginVariable(const LPCWSTR varType, const LPCWSTR varBaseName, const LPCWSTR varInitValue)
     {
         CString decl;
         decl.Format(L"%s %s = %s;", varType, varBaseName, varInitValue);
@@ -93,7 +98,7 @@ private:
         m_lastVarName = varBaseName;
     }
 
-    void AddLine(LPCWSTR line)
+    void AddLine(const LPCWSTR line)
     {
         m_lines.Add(CString(L' ', m_indent) + line);
     }

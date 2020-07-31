@@ -43,7 +43,7 @@ LRESULT CEncoderSelectionDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPA
             IWICBitmapEncoderInfoPtr encoderInfo = unk;
 
             // Get the name of the container
-            READ_WIC_STRING(encoderInfo->GetFriendlyName, friendlyName);
+            READ_WIC_STRING(encoderInfo->GetFriendlyName, friendlyName)
 
             // Add the container to the ListView
             const int idx = containerList.InsertItem(0, friendlyName);
@@ -65,7 +65,7 @@ LRESULT CEncoderSelectionDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPA
     // Enumerate all of the pixel formats installed on the system
     m_formats.RemoveAll();
 
-    e = 0;
+    e = nullptr;
     result = g_imagingFactory->CreateComponentEnumerator(WICPixelFormat, WICComponentEnumerateRefresh, &e);
     if (SUCCEEDED(result))
     {
@@ -78,7 +78,7 @@ LRESULT CEncoderSelectionDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPA
             IWICPixelFormatInfoPtr formatInfo = unk;
 
             // Get the name of the format
-            READ_WIC_STRING(formatInfo->GetFriendlyName, friendlyName);
+            READ_WIC_STRING(formatInfo->GetFriendlyName, friendlyName)
 
             // Add the format to the ListView
             const int idx = formatList.InsertItem(0, friendlyName);

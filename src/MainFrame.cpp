@@ -9,9 +9,52 @@
 #include "pch.h"
 
 #include "MainFrame.h"
+
 #include "EncoderSelectionDlg.h"
 #include "AboutDlg.h"
 #include "PropVariant.h"
+
+namespace
+{
+    CString GetFullPath(const CString& directory, const CString& file)
+    {
+        WCHAR buffer[MAX_PATH * 2];
+        WCHAR oldDirectory[MAX_PATH];
+
+        // Ideally we'd like to use GetFullPathName to give us an absolute path,
+        // since it's more reliable. Unfortunately, it only works off of the current
+        // directory. That means we'll have to backup the current directory and then
+        // switch it to what's passed.
+
+        GetCurrentDirectory(MAX_PATH, oldDirectory);
+
+        if (!SetCurrentDirectory(directory))
+        {
+            // We can't switch to that directory for some reason.
+            // This is a backup algorithm, but it might fail in very unusual cases.
+            if (file.Left(2).Right(1) == L':' ||
+                file.Left(2) == L"\\\\")
+            {
+                // It's an absolute path.
+                return file;
+            }
+
+            // It's a relative path, so it needs the directory too.
+            if (directory.Right(1) == L'\\')
+                return directory + file;
+
+            return directory + L"\\" + file;
+        }
+        LPWSTR filePart;
+
+        GetFullPathName(file, MAX_PATH * 2, buffer, &filePart);
+
+        SetCurrentDirectory(oldDirectory);
+
+        return buffer;
+    }
+
+}
 
 LRESULT CMainFrame::OnCreate(UINT, WPARAM, LPARAM, BOOL&)
 {
@@ -35,8 +78,7 @@ HWND CMainFrame::CreateClient()
     CRect clientRect;
     GetClientRect(&clientRect);
 
-    HWND hWnd = m_mainSplit.Create(m_hWnd, clientRect, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
-    ATLASSERT(NULL != hWnd);
+    ATLVERIFY(m_mainSplit.Create(m_hWnd, clientRect, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN));
 
     m_mainSplit.m_cxyMin = 35;                           // Minimum sizes
     m_mainSplit.SetSplitterExtendedStyle(0);             // Extend right pane when resizing main window
@@ -45,8 +87,7 @@ HWND CMainFrame::CreateClient()
     CRect leftRect;
     GetClientRect(&leftRect);
 
-    hWnd = m_infoSplit.Create(m_mainSplit.m_hWnd, leftRect, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
-    ATLASSERT(NULL != hWnd);
+    ATLVERIFY(m_infoSplit.Create(m_mainSplit.m_hWnd, leftRect, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN));
 
     m_infoSplit.m_cxyMin = 35;                                 // Minimum sizes
     m_infoSplit.SetSplitterExtendedStyle(SPLIT_BOTTOMALIGNED); // Extend right pane when resizing main window
@@ -54,8 +95,7 @@ HWND CMainFrame::CreateClient()
 
     m_mainSplit.SetSplitterPane(0, m_infoSplit);
 
-    hWnd = m_viewPane.Create(m_mainSplit.m_hWnd);
-    ATLASSERT(NULL != hWnd);
+    ATLVERIFY(m_viewPane.Create(m_mainSplit.m_hWnd));
 
     m_mainSplit.SetSplitterPane(1, m_viewPane);
 
@@ -63,22 +103,19 @@ HWND CMainFrame::CreateClient()
 
     m_mainTreeImages.CreateFromImage(IDB_MAINTREE, 16, 0, RGB(255, 255, 255), IMAGE_BITMAP, LR_LOADTRANSPARENT | LR_CREATEDIBSECTION);
 
-    hWnd = m_mainTree.Create(m_infoSplit.m_hWnd, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | TVS_HASBUTTONS | TVS_TRACKSELECT | TVS_HASLINES | TVS_LINESATROOT | TVS_SHOWSELALWAYS, WS_EX_CLIENTEDGE);
-    ATLASSERT(NULL != hWnd);
+    ATLVERIFY(m_mainTree.Create(m_infoSplit.m_hWnd, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | TVS_HASBUTTONS | TVS_TRACKSELECT | TVS_HASLINES | TVS_LINESATROOT | TVS_SHOWSELALWAYS, WS_EX_CLIENTEDGE));
 
     m_mainTree.SetImageList(m_mainTreeImages, TVSIL_NORMAL);
 
     m_infoSplit.SetSplitterPane(0, m_mainTree);
 
-    hWnd = m_infoEdit.Create(m_infoSplit.m_hWnd, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY, WS_EX_CLIENTEDGE);
-    ATLASSERT(NULL != hWnd);
+    ATLVERIFY(m_infoEdit.Create(m_infoSplit.m_hWnd, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY, WS_EX_CLIENTEDGE));
 
     m_infoEdit.SendMessage(EM_SETBKGNDCOLOR, 0, GetSysColor(COLOR_INFOBK));
 
     m_infoSplit.SetSplitterPane(1, m_infoEdit);
 
-    hWnd = m_viewEdit.Create(m_viewPane.m_hWnd, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VSCROLL | WS_HSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY , WS_EX_CLIENTEDGE);
-    ATLASSERT(NULL != hWnd);
+    ATLVERIFY(m_viewEdit.Create(m_viewPane.m_hWnd, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VSCROLL | WS_HSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY, WS_EX_CLIENTEDGE));
 
     m_viewEdit.SendMessage(EM_SETBKGNDCOLOR, 0, GetSysColor(COLOR_INFOBK));
     m_viewEdit.SetOptions(ECOOP_OR, ECO_AUTOVSCROLL);
@@ -86,31 +123,30 @@ HWND CMainFrame::CreateClient()
     m_viewPane.SetClient(m_viewEdit.m_hWnd);
 
     m_mainSplit.SetSplitterPos(clientRect.Width() / 4);    // Default size of left pane
-    m_infoSplit.SetSplitterPos((2*leftRect.Height()) / 3); // Default size of bottom pane
+    m_infoSplit.SetSplitterPos((2 * leftRect.Height()) / 3); // Default size of bottom pane
 
     return m_mainSplit.m_hWnd;
 }
 
-LRESULT CMainFrame::OnPaneClose(WORD, WORD, HWND hWndCtl, BOOL&)
+LRESULT CMainFrame::OnPaneClose(WORD, WORD, const HWND hWndCtl, BOOL&) const
 {
     // hide the container whose Close button was clicked. Use
     // DestroyWindow(hWndCtl) instead if you want to totally
     // remove the container instead of just hiding it
     ::ShowWindow(hWndCtl, SW_HIDE);
 
-
     // find the container's parent splitter
     const HWND hWnd = ::GetParent(hWndCtl);
 
-    #pragma warning( disable : 4312 )
-    CSplitterWindow* pWnd = reinterpret_cast<CSplitterWindow*>(::GetWindowLong(hWnd, GWL_ID));
-    #pragma warning( default : 4312 )
+#pragma warning( disable : 4312 )
+    auto* pWnd = reinterpret_cast<CSplitterWindow*>(::GetWindowLong(hWnd, GWL_ID));
+#pragma warning( default : 4312 ) // TODO: fix with push/pop
 
     // take the container that was Closed out of the splitter.
     // Use SetSplitterPane(nPane, NULL) if you want to stay in
     // multipane mode instead of changing to single pane mode
     const int nCount = pWnd->m_nPanesCount;
-    for(int nPane = 0; nPane < nCount; nPane++)
+    for (int nPane = 0; nPane < nCount; nPane++)
     {
         if (hWndCtl == pWnd->m_hWndPane[nPane])
         {
@@ -119,7 +155,7 @@ LRESULT CMainFrame::OnPaneClose(WORD, WORD, HWND hWndCtl, BOOL&)
         }
     }
 
-    if(hWndCtl == m_viewPane.m_hWnd)
+    if (hWndCtl == m_viewPane.m_hWnd)
     {
         // Clear the "Show View Pane" check mark in the menu
         CheckMenuItem(GetMenu(), ID_SHOW_VIEWPANE, MF_UNCHECKED | MF_BYCOMMAND);
@@ -128,35 +164,35 @@ LRESULT CMainFrame::OnPaneClose(WORD, WORD, HWND hWndCtl, BOOL&)
     return 0;
 }
 
-CInfoElement *CMainFrame::GetElementFromTreeItem(const HTREEITEM hItem) const
+CInfoElement* CMainFrame::GetElementFromTreeItem(const HTREEITEM hItem) const
 {
     return reinterpret_cast<CInfoElement*>(m_mainTree.GetItemData(hItem));
 }
 
-HTREEITEM CMainFrame::GetTreeItemFromElement(CInfoElement *element)
+HTREEITEM CMainFrame::GetTreeItemFromElement(CInfoElement* element) const
 {
-    return FindTreeItem(m_mainTree.GetRootItem(),element);
+    return FindTreeItem(m_mainTree.GetRootItem(), element);
 }
 
-HTREEITEM CMainFrame::FindTreeItem(const HTREEITEM start, CInfoElement *element)
+HTREEITEM CMainFrame::FindTreeItem(const HTREEITEM start, CInfoElement* element) const
 {
-    if(!start)
+    if (!start)
     {
         return nullptr;
     }
-    if(GetElementFromTreeItem(start) == element)
+    if (GetElementFromTreeItem(start) == element)
     {
         return start;
     }
     HTREEITEM result;
-    if((result = FindTreeItem(m_mainTree.GetChildItem(start), element)) != nullptr)
+    if ((result = FindTreeItem(m_mainTree.GetChildItem(start), element)) != nullptr)
     {
         return result;
     }
     return FindTreeItem(m_mainTree.GetNextSiblingItem(start), element);
 }
 
-int CMainFrame::GetElementTreeImage(CInfoElement *elem)
+int CMainFrame::GetElementTreeImage(CInfoElement* elem)
 {
     if (dynamic_cast<CBitmapDecoderElement*>(elem))
     {
@@ -176,17 +212,17 @@ int CMainFrame::GetElementTreeImage(CInfoElement *elem)
     return 85;
 }
 
-HTREEITEM CMainFrame::BuildTree(CInfoElement *elem, HTREEITEM hParent)
+HTREEITEM CMainFrame::BuildTree(CInfoElement* elem, const HTREEITEM hParent)
 {
     ATLASSERT(elem);
 
     if (elem)
     {
-        int image = GetElementTreeImage(elem);
-        UINT state = (nullptr == hParent) ? TVIS_BOLD : 0;
+        const int image = GetElementTreeImage(elem);
+        const UINT state = (nullptr == hParent) ? TVIS_BOLD : 0;
 
-        HTREEITEM hItem = m_mainTree.InsertItem(TVIF_TEXT | TVIF_STATE | TVIF_IMAGE | TVIF_SELECTEDIMAGE,
-            elem->Name(), image, image, state, state, 0, hParent, nullptr);
+        const HTREEITEM hItem = m_mainTree.InsertItem(TVIF_TEXT | TVIF_STATE | TVIF_IMAGE | TVIF_SELECTEDIMAGE,
+                                                      elem->Name(), image, image, state, state, 0, hParent, nullptr);
 
         // Set a pointer to the element in the tree
         m_mainTree.SetItemData(hItem, reinterpret_cast<DWORD_PTR>(elem));
@@ -212,14 +248,14 @@ HTREEITEM CMainFrame::BuildTree(CInfoElement *elem, HTREEITEM hParent)
     return nullptr;
 }
 
-void CMainFrame::UpdateTreeView(bool selectLastRoot)
+void CMainFrame::UpdateTreeView(const bool selectLastRoot)
 {
     // This method simply destroys the entire tree, then re-creates it from scratch.
     m_mainTree.DeleteAllItems();
 
-    CInfoElement *root = CElementManager::GetRootElement();
+    CInfoElement* root = CElementManager::GetRootElement();
     HTREEITEM rootItem = nullptr;
-    if(root->FirstChild())
+    if (root->FirstChild())
     {
         // BuildTree traverses by the first child and next sibling.
         // Therefore, all of the elements will be added except for root.
@@ -233,14 +269,14 @@ void CMainFrame::UpdateTreeView(bool selectLastRoot)
     }
 }
 
-HRESULT CMainFrame::OpenFile(LPCWSTR filename, bool &updateElements)
+HRESULT CMainFrame::OpenFile(const LPCWSTR filename, bool& updateElements)
 {
     updateElements = false;
 
-    CInfoElement *newRoot = nullptr;
-    ICodeGenerator *codeGen = new CSimpleCodeGenerator();
+    CInfoElement* newRoot = nullptr;
+    ICodeGenerator* codeGen = new CSimpleCodeGenerator();
 
-    HRESULT result = CElementManager::OpenFile(filename, *codeGen, newRoot);
+    const HRESULT result = CElementManager::OpenFile(filename, *codeGen, newRoot);
 
     if (SUCCEEDED(result))
     {
@@ -270,7 +306,7 @@ HRESULT CMainFrame::OpenFile(LPCWSTR filename, bool &updateElements)
         codeGen->GenerateCode(code);
         msg += code;
 
-        if(m_suppressMessageBox == FALSE)
+        if (m_suppressMessageBox == FALSE)
         {
             MessageBoxW(msg, L"Error Opening File", MB_OK | MB_ICONWARNING);
         }
@@ -281,7 +317,7 @@ HRESULT CMainFrame::OpenFile(LPCWSTR filename, bool &updateElements)
     return result;
 }
 
-HRESULT CMainFrame::OpenWildcard(LPCWSTR search, DWORD &attempted, DWORD &opened, bool &updateElements)
+HRESULT CMainFrame::OpenWildcard(const LPCWSTR search, DWORD& attempted, DWORD& opened, bool& updateElements)
 {
     updateElements = false;
     HRESULT hr = S_OK;
@@ -292,23 +328,23 @@ HRESULT CMainFrame::OpenWildcard(LPCWSTR search, DWORD &attempted, DWORD &opened
     // stored anywhere else inside of fdata. The directory needs to be copied
     // from the search string, and then cFileName has to be concatonated to the
     // directory.
-    WCHAR directoryPrefix[MAX_PATH*2] = {0};
-    WCHAR *lastSlash = const_cast<WCHAR *>(wcsrchr(search, L'\\'));
-    WCHAR *lastSlash2 = const_cast<WCHAR *>(wcsrchr(search, L'/'));
+    WCHAR directoryPrefix[MAX_PATH * 2] = { 0 };
+    auto* lastSlash = const_cast<WCHAR*>(wcsrchr(search, L'\\'));
+    auto* lastSlash2 = const_cast<WCHAR*>(wcsrchr(search, L'/'));
 
-    if(lastSlash2 > lastSlash)
+    if (lastSlash2 > lastSlash)
     {
         lastSlash = lastSlash2;
     }
 
     size_t directorySize = 0;
 
-    if(lastSlash != nullptr)
+    if (lastSlash != nullptr)
     {
         // The +1 is to include the slash.
         directorySize = (lastSlash + 1) - search;
 
-        if(directorySize > MAX_PATH)
+        if (directorySize > MAX_PATH)
         {
             return E_INVALIDARG;
         }
@@ -316,9 +352,9 @@ HRESULT CMainFrame::OpenWildcard(LPCWSTR search, DWORD &attempted, DWORD &opened
         wcsncpy_s(directoryPrefix, ARRAYSIZE(directoryPrefix), search, directorySize);
     }
 
-    if(hf == INVALID_HANDLE_VALUE)
+    if (hf == INVALID_HANDLE_VALUE)
     {
-        if(m_suppressMessageBox == FALSE)
+        if (m_suppressMessageBox == FALSE)
         {
             MessageBox(L"Could not open " + CString(search), L"Error opening expression", MB_OK);
         }
@@ -335,7 +371,7 @@ HRESULT CMainFrame::OpenWildcard(LPCWSTR search, DWORD &attempted, DWORD &opened
             ARRAYSIZE(directoryPrefix) - directorySize,
             fdata.cFileName);
 
-        if(SUCCEEDED(temp = OpenFile(directoryPrefix, updateThis)))
+        if (SUCCEEDED(temp = OpenFile(directoryPrefix, updateThis)))
         {
             opened++;
         }
@@ -346,23 +382,23 @@ HRESULT CMainFrame::OpenWildcard(LPCWSTR search, DWORD &attempted, DWORD &opened
 
         attempted++;
         updateElements = updateElements || updateThis;
-    } while(FindNextFile(hf, &fdata));
+    } while (FindNextFile(hf, &fdata));
 
     FindClose(hf);
 
     return hr;
 }
 
-HRESULT CMainFrame::Load(const LPCWSTR *filenames, int count)
+HRESULT CMainFrame::Load(const LPCWSTR* filenames, const int count)
 {
     HRESULT result = S_OK;
-    bool needsUpdate = false;
+    bool needsUpdate{};
     const CString quiet = "/quiet";
 
     DWORD attempted = 0, opened = 0;
-    for(int i = 0; i < count; i++)
+    for (int i = 0; i < count; i++)
     {
-        if(quiet.CompareNoCase(filenames[i]) == 0)
+        if (quiet.CompareNoCase(filenames[i]) == 0)
         {
             m_suppressMessageBox = TRUE;
         }
@@ -374,17 +410,17 @@ HRESULT CMainFrame::Load(const LPCWSTR *filenames, int count)
         }
     }
 
-    if(needsUpdate)
+    if (needsUpdate)
     {
         UpdateTreeView(true);
     }
 
-    if(attempted > 1)
+    if (attempted > 1)
     {
         WCHAR buffer[60];
         swprintf_s(buffer, 60, L"Successfully opened %lu out of %lu image files", opened, attempted);
 
-        if(m_suppressMessageBox == FALSE)
+        if (m_suppressMessageBox == FALSE)
         {
             MessageBox(buffer, L"Done", MB_OK);
         }
@@ -393,52 +429,15 @@ HRESULT CMainFrame::Load(const LPCWSTR *filenames, int count)
     return result;
 }
 
-CString GetFullPath(const CString& directory, const CString& file)
-{
-    WCHAR buffer[MAX_PATH*2];
-    WCHAR oldDirectory[MAX_PATH];
 
-    // Ideally we'd like to use GetFullPathName to give us an absolute path,
-    // since it's more reliable. Unfortunately, it only works off of the current
-    // directory. That means we'll have to backup the current directory and then
-    // switch it to what's passed.
-
-    GetCurrentDirectory(MAX_PATH, oldDirectory);
-
-    if(!SetCurrentDirectory(directory))
-    {
-        // We can't switch to that directory for some reason.
-        // This is a backup algorithm, but it might fail in very unusual cases.
-        if(file.Left(2).Right(1) == L':' ||
-            file.Left(2) == L"\\\\")
-        {
-            // It's an absolute path.
-            return file;
-        }
-
-        // It's a relative path, so it needs the directory too.
-        if(directory.Right(1) == L'\\')
-            return directory + file;
-
-        return directory + L"\\" + file;
-    }
-    LPWSTR filePart;
-
-    GetFullPathName(file, MAX_PATH*2, buffer, &filePart);
-
-    SetCurrentDirectory(oldDirectory);
-
-    return buffer;
-}
-
-LRESULT CMainFrame::OnFileOpen(WORD, WORD, HWND hParentWnd, BOOL&)
+LRESULT CMainFrame::OnFileOpen(WORD, WORD, const HWND hParentWnd, BOOL&)
 {
     CSimpleFileDialog fileDlg(TRUE, nullptr, nullptr, OFN_HIDEREADONLY | OFN_FILEMUSTEXIST | OFN_ALLOWMULTISELECT,
         L"All Files (*.*)\0*.*\0\0", hParentWnd);
 
     // Create a large buffer to hold the result of the filenames.
     const int BUFFER_SIZE = 16 * 1024;
-    WCHAR *filenameBuffer = new WCHAR[BUFFER_SIZE];
+    auto* filenameBuffer = new WCHAR[BUFFER_SIZE];
     if (nullptr != filenameBuffer)
     {
         filenameBuffer[0] = L'\0';
@@ -466,7 +465,7 @@ LRESULT CMainFrame::OnFileOpen(WORD, WORD, HWND hParentWnd, BOOL&)
         else
         {
             // Get each of the files
-            WCHAR *filenamePtr = fileDlg.m_ofn.lpstrFile + path.GetLength() + 1;
+            WCHAR* filenamePtr = fileDlg.m_ofn.lpstrFile + path.GetLength() + 1;
             while (L'\0' != *filenamePtr)
             {
                 CString filename = filenamePtr;
@@ -495,15 +494,15 @@ LRESULT CMainFrame::OnFileOpen(WORD, WORD, HWND hParentWnd, BOOL&)
     return 0;
 }
 
-HRESULT CMainFrame::OpenDirectory(LPCWSTR directory, DWORD &attempted, DWORD &opened)
+HRESULT CMainFrame::OpenDirectory(const LPCWSTR directory, DWORD& attempted, DWORD& opened)
 {
     HRESULT hr = S_OK;
     WIN32_FIND_DATA fdata;
     const HANDLE hf = FindFirstFile(CString(directory) + "\\*", &fdata);
 
-    if(hf == INVALID_HANDLE_VALUE)
+    if (hf == INVALID_HANDLE_VALUE)
     {
-        if(m_suppressMessageBox == FALSE)
+        if (m_suppressMessageBox == FALSE)
         {
             MessageBox(L"Could not open " + CString(directory), L"Error opening directory", MB_OK);
         }
@@ -516,16 +515,16 @@ HRESULT CMainFrame::OpenDirectory(LPCWSTR directory, DWORD &attempted, DWORD &op
         CString extension = CString(fdata.cFileName).Right(4);
         HRESULT temp;
 
-        if((fdata.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY &&
+        if ((fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY &&
             wcscmp(fdata.cFileName, L".") &&
             wcscmp(fdata.cFileName, L".."))
         {
-            if(FAILED(temp = OpenDirectory(path, attempted, opened)))
+            if (FAILED(temp = OpenDirectory(path, attempted, opened)))
             {
                 hr = temp;
             }
         }
-        else if(!extension.CompareNoCase(L".jpg") ||
+        else if (!extension.CompareNoCase(L".jpg") ||
             !extension.CompareNoCase(L".jpeg") ||
             !extension.CompareNoCase(L".png") ||
             !extension.CompareNoCase(L".gif") ||
@@ -536,8 +535,8 @@ HRESULT CMainFrame::OpenDirectory(LPCWSTR directory, DWORD &attempted, DWORD &op
             !extension.CompareNoCase(L".icon") ||
             !extension.CompareNoCase(L".dds"))
         {
-            bool updateThis = 0;
-            if(SUCCEEDED(temp = OpenFile(path, updateThis)))
+            bool updateThis{};
+            if (SUCCEEDED(temp = OpenFile(path, updateThis)))
             {
                 opened++;
             }
@@ -547,14 +546,14 @@ HRESULT CMainFrame::OpenDirectory(LPCWSTR directory, DWORD &attempted, DWORD &op
             }
             attempted++;
         }
-    } while(FindNextFile(hf, &fdata));
+    } while (FindNextFile(hf, &fdata));
 
     FindClose(hf);
 
     return hr;
 }
 
-LRESULT CMainFrame::OnFileOpenDir(WORD /*code*/, WORD /*item*/, HWND hSender, BOOL& handled)
+LRESULT CMainFrame::OnFileOpenDir(WORD /*code*/, WORD /*item*/, const HWND hSender, BOOL& handled)
 {
     CFolderDialog fileDlg(hSender,
         L"Select directory with *.jpg, *.png, *.gif, *.bmp, *.tif, *.ico, or *.dds",
@@ -563,7 +562,7 @@ LRESULT CMainFrame::OnFileOpenDir(WORD /*code*/, WORD /*item*/, HWND hSender, BO
     handled = 1;
 
     // Bring up the dialog
-    if(fileDlg.DoModal() != IDOK)
+    if (fileDlg.DoModal() != IDOK)
     {
         return 0;
     }
@@ -576,7 +575,7 @@ LRESULT CMainFrame::OnFileOpenDir(WORD /*code*/, WORD /*item*/, HWND hSender, BO
     WCHAR buffer[60];
     swprintf_s(buffer, 60, L"Successfully opened %lu out of %lu image files", opened, attempted);
 
-    if(m_suppressMessageBox == FALSE)
+    if (m_suppressMessageBox == FALSE)
     {
         MessageBox(buffer, L"Done", MB_OK);
     }
@@ -584,7 +583,7 @@ LRESULT CMainFrame::OnFileOpenDir(WORD /*code*/, WORD /*item*/, HWND hSender, BO
     return 0;
 }
 
-void CMainFrame::DrawElement(CInfoElement &element)
+void CMainFrame::DrawElement(CInfoElement& element)
 {
     // Clear the RichEdits
     m_viewEdit.SetSelAll();
@@ -594,7 +593,7 @@ void CMainFrame::DrawElement(CInfoElement &element)
 
     // Display the view -- prepend it with a path to the selected element
     CString path = element.Name();
-    CInfoElement *parent = &element;
+    CInfoElement* parent = &element;
 
     while (nullptr != parent->Parent())
     {
@@ -604,7 +603,7 @@ void CMainFrame::DrawElement(CInfoElement &element)
 
     CRichEditDevice view(m_viewEdit);
     view.BeginSection(path);
-    element.OutputView(view,m_viewcontext);
+    element.OutputView(view, m_viewcontext);
     view.EndSection();
 
     m_viewEdit.SetSel(0, 0);
@@ -616,13 +615,13 @@ void CMainFrame::DrawElement(CInfoElement &element)
     m_infoEdit.SetSel(0, 0);
 }
 
-LRESULT CMainFrame::OnTreeViewSelChanged(WPARAM /*wParam*/, LPNMHDR lpNmHdr, BOOL &bHandled)
+LRESULT CMainFrame::OnTreeViewSelChanged(WPARAM /*wParam*/, const LPNMHDR lpNmHdr, BOOL& bHandled)
 {
     bHandled = true;
 
-    const auto lpNmTreeView = reinterpret_cast<LPNMTREEVIEW>(lpNmHdr);
+    const auto* lpNmTreeView = reinterpret_cast<LPNMTREEVIEW>(lpNmHdr);
 
-    CInfoElement *elem = GetElementFromTreeItem(lpNmTreeView->itemNew.hItem);
+    CInfoElement* elem = GetElementFromTreeItem(lpNmTreeView->itemNew.hItem);
 
     if (elem)
     {
@@ -632,7 +631,7 @@ LRESULT CMainFrame::OnTreeViewSelChanged(WPARAM /*wParam*/, LPNMHDR lpNmHdr, BOO
     return 0;
 }
 
-LRESULT CMainFrame::OnNMRClick(int, LPNMHDR pnmh, BOOL&)
+LRESULT CMainFrame::OnNMRClick(int, const LPNMHDR pnmh, BOOL&)
 {
     // Get the location of the click point in the window
     POINT pt;
@@ -653,7 +652,7 @@ LRESULT CMainFrame::OnNMRClick(int, LPNMHDR pnmh, BOOL&)
 
         if (0 != (tvhti.flags & TVHT_ONITEMLABEL))
         {
-            CInfoElement *elem = GetElementFromTreeItem(tvhti.hItem);
+            CInfoElement* elem = GetElementFromTreeItem(tvhti.hItem);
             if (nullptr != elem)
             {
                 m_mainTree.SelectItem(tvhti.hItem);
@@ -665,7 +664,7 @@ LRESULT CMainFrame::OnNMRClick(int, LPNMHDR pnmh, BOOL&)
     return 0;
 }
 
-HMENU CMainFrame::CreateElementContextMenu(CInfoElement &element)
+HMENU CMainFrame::CreateElementContextMenu(CInfoElement& element)
 {
     const HMENU result = CreatePopupMenu();
 
@@ -679,7 +678,7 @@ HMENU CMainFrame::CreateElementContextMenu(CInfoElement &element)
     return result;
 }
 
-BOOL CMainFrame::DoElementContextMenu(HWND hWnd, CInfoElement &element, POINT point)
+BOOL CMainFrame::DoElementContextMenu(const HWND hWnd, CInfoElement& element, const POINT point)
 {
     const HMENU hMenu = CreateElementContextMenu(element);
     if (!hMenu)
@@ -700,7 +699,7 @@ LRESULT CMainFrame::OnFileSave(WORD, WORD, HWND, BOOL&)
 
     if (hItem)
     {
-        CInfoElement *elem = GetElementFromTreeItem(hItem);
+        CInfoElement* elem = GetElementFromTreeItem(hItem);
         if (nullptr != elem)
         {
             SaveElementAsImage(*elem);
@@ -710,15 +709,14 @@ LRESULT CMainFrame::OnFileSave(WORD, WORD, HWND, BOOL&)
     return 0;
 }
 
-bool CMainFrame::ElementCanBeSavedAsImage(CInfoElement &element)
+bool CMainFrame::ElementCanBeSavedAsImage(CInfoElement& element)
 {
     return ((nullptr != dynamic_cast<CBitmapDecoderElement*>(&element)) ||
-            (nullptr != dynamic_cast<CBitmapSourceElement*>(&element)));
+        (nullptr != dynamic_cast<CBitmapSourceElement*>(&element)));
 }
 
-HRESULT GetPixelFormatName(WCHAR *dest, UINT chars, WICPixelFormatGUID guid);
 
-HRESULT CMainFrame::SaveElementAsImage(CInfoElement &element)
+HRESULT CMainFrame::SaveElementAsImage(CInfoElement& element)
 {
     HRESULT result = E_UNEXPECTED;
 
@@ -738,7 +736,7 @@ HRESULT CMainFrame::SaveElementAsImage(CInfoElement &element)
             if (IDOK == id)
             {
                 // Now we have a filename and an encoder, let's go
-                ICodeGenerator *codeGen = new CSimpleCodeGenerator();
+                ICodeGenerator* codeGen = new CSimpleCodeGenerator();
 
                 WICPixelFormatGUID format = dlg.GetPixelFormat();
                 result = CElementManager::SaveElementAsImage(element, dlg.GetContainerFormat(), format, fileDlg.m_szFileName, *codeGen);
@@ -753,29 +751,29 @@ HRESULT CMainFrame::SaveElementAsImage(CInfoElement &element)
                     codeGen->GenerateCode(code);
                     msg += code;
 
-                    if(m_suppressMessageBox == FALSE)
+                    if (m_suppressMessageBox == FALSE)
                     {
                         MessageBoxW(msg, L"Error Encoding Image", MB_OK | MB_ICONERROR);
                     }
                 }
-                else if( dlg.GetPixelFormat() != GUID_WICPixelFormatDontCare &&
+                else if (dlg.GetPixelFormat() != GUID_WICPixelFormatDontCare &&
                     dlg.GetPixelFormat() != format)
                 {
                     // The user cares about the pixel format, and WIC actually used
                     // a different one than what the user picked.
                     CString msg;
                     WCHAR picked[30], actual[30];
-                    if(FAILED(GetPixelFormatName(picked, ARRAYSIZE(picked), dlg.GetPixelFormat())))
+                    if (FAILED(GetPixelFormatName(picked, ARRAYSIZE(picked), dlg.GetPixelFormat())))
                     {
                         wcscpy_s(picked, ARRAYSIZE(picked), L"Unknown");
                     }
-                    if(FAILED(GetPixelFormatName(actual, ARRAYSIZE(actual), format)))
+                    if (FAILED(GetPixelFormatName(actual, ARRAYSIZE(actual), format)))
                     {
                         wcscpy_s(actual, ARRAYSIZE(actual), L"Unknown");
                     }
                     msg.Format(L"You specified '%s' as the pixel format and WIC used '%s'", picked, actual);
 
-                    if(m_suppressMessageBox == FALSE)
+                    if (m_suppressMessageBox == FALSE)
                     {
                         MessageBoxW(msg, L"Different format picked", MB_OK);
                     }
@@ -794,7 +792,7 @@ HRESULT CMainFrame::SaveElementAsImage(CInfoElement &element)
         CString msg;
         msg.Format(L"The selected element '%s' cannot be saved as an Image.", element.Name().GetString());
 
-        if(m_suppressMessageBox == FALSE)
+        if (m_suppressMessageBox == FALSE)
         {
             ::MessageBox(nullptr, msg, L"Cannot Save Element", MB_OK | MB_ICONERROR);
         }
@@ -818,156 +816,158 @@ LRESULT CMainFrame::OnAppAbout(WORD, WORD, HWND, BOOL&)
     return 0;
 }
 
-#define ERROR_BLOCK_READER MAKE_HRESULT(1, 0x899, 1)
+constexpr HRESULT ERROR_BLOCK_READER = MAKE_HRESULT(1, 0x899, 1);
 
-HRESULT GetReaderFromQueryReader(IWICMetadataQueryReader *queryReader, IWICMetadataReader **reader)
-{
-    HRESULT result = S_OK;
+namespace {
 
-    // This will take the query reader and copy it into a CDummyBlockWriter.
-    // Internally, AddWriter will be called with the unabstracted metadata reader.
-    class CDummyBlockWriter final:
-        public IWICMetadataBlockWriter
+    HRESULT GetReaderFromQueryReader(IWICMetadataQueryReader* queryReader, IWICMetadataReader** reader)
     {
-    public:
-        IWICMetadataWriterPtr writer;
-        IWICMetadataBlockReaderPtr blockReader;
+        HRESULT result = S_OK;
 
-        ULONG STDMETHODCALLTYPE AddRef() override
+        // This will take the query reader and copy it into a CDummyBlockWriter.
+        // Internally, AddWriter will be called with the unabstracted metadata reader.
+        class CDummyBlockWriter final :
+            public IWICMetadataBlockWriter
         {
-            return 0;
-        }
+        public:
+            IWICMetadataWriterPtr writer;
+            IWICMetadataBlockReaderPtr blockReader;
 
-        ULONG STDMETHODCALLTYPE Release() override
-        {
-            return 0;
-        }
+            ULONG STDMETHODCALLTYPE AddRef() override
+            {
+                return 0;
+            }
 
-        HRESULT STDMETHODCALLTYPE QueryInterface(const IID &id, void **dest)
-        {
-            if(id==IID_IWICMetadataBlockWriter)
-                *dest = this;
-            else if(id==IID_IWICMetadataBlockReader)
-                *dest = this;
-            else if(id==IID_IUnknown)
-                *dest = this;
-            else
+            ULONG STDMETHODCALLTYPE Release() override
+            {
+                return 0;
+            }
+
+            HRESULT STDMETHODCALLTYPE QueryInterface(const IID& id, void** dest) override
+            {
+                if (id == IID_IWICMetadataBlockWriter || id == IID_IWICMetadataBlockReader || id == IID_IWICMetadataBlockReader)
+                {
+                    *dest = this;
+                    return S_OK;
+                }
+
                 return E_NOINTERFACE;
-            return S_OK;
-        }
+            }
 
-        STDMETHOD(InitializeFromBlockReader)(
-            IWICMetadataBlockReader *pIMDBlockReader
-            ) override
-        {
-            blockReader = pIMDBlockReader;
-            return S_OK;
-        }
+            STDMETHOD(InitializeFromBlockReader)(
+                IWICMetadataBlockReader* pIMDBlockReader
+                ) override
+            {
+                blockReader = pIMDBlockReader;
+                return S_OK;
+            }
 
-        STDMETHOD(GetWriterByIndex)(
-            UINT /*nIndex*/,
-            IWICMetadataWriter **ppIMetadataWriter
-            ) override
-        {
-            *ppIMetadataWriter = nullptr;
-            return CO_E_NOT_SUPPORTED;
-        }
+            STDMETHOD(GetWriterByIndex)(
+                UINT /*nIndex*/,
+                IWICMetadataWriter** ppIMetadataWriter
+                ) override
+            {
+                *ppIMetadataWriter = nullptr;
+                return CO_E_NOT_SUPPORTED;
+            }
 
-        STDMETHOD(AddWriter)(
-            IWICMetadataWriter *pIMetadataWriter
-            ) override
-        {
-            if(writer)
+            STDMETHOD(AddWriter)(
+                IWICMetadataWriter* pIMetadataWriter
+                ) override
+            {
+                if (writer)
+                {
+                    return CO_E_NOT_SUPPORTED;
+                }
+                writer = pIMetadataWriter;
+                return S_OK;
+            }
+
+            STDMETHOD(SetWriterByIndex)(
+                UINT /*nIndex*/,
+                IWICMetadataWriter* /*pIMetadataWriter*/
+                ) override
             {
                 return CO_E_NOT_SUPPORTED;
             }
-            writer=pIMetadataWriter;
-            return S_OK;
-        }
 
-        STDMETHOD(SetWriterByIndex)(
-            UINT /*nIndex*/,
-            IWICMetadataWriter * /*pIMetadataWriter*/
-            ) override
+            STDMETHOD(RemoveWriterByIndex)(
+                UINT /*nIndex*/) override
+            {
+                return CO_E_NOT_SUPPORTED;
+            }
+
+            STDMETHOD(GetContainerFormat)(
+                GUID* /*pguidContainerFormat*/
+                ) override
+            {
+                return CO_E_NOT_SUPPORTED;
+            }
+
+            STDMETHOD(GetCount)(
+                UINT* pcCount
+                ) override
+            {
+                *pcCount = 0;
+                return CO_E_NOT_SUPPORTED;
+            }
+
+            STDMETHOD(GetReaderByIndex)(
+                UINT /*nIndex*/,
+                IWICMetadataReader** ppIMetadataReader
+                ) override
+            {
+                *ppIMetadataReader = nullptr;
+                return CO_E_NOT_SUPPORTED;
+            }
+
+            STDMETHOD(GetEnumerator)(
+                IEnumUnknown** ppIEnumMetadata
+                ) override
+            {
+                *ppIEnumMetadata = nullptr;
+                return CO_E_NOT_SUPPORTED;
+            }
+        } dummyWriter;
+
+        // These lower level metadata data functions will require the component factory.
+        IWICComponentFactoryPtr componentFactory;
+        IFC(g_imagingFactory->QueryInterface(IID_PPV_ARGS(&componentFactory)));
+
+        // This takes the IWICMetadataBlockWriter and wraps it as a IWICMetadataQueryWriter.
+        // This is necessary because only query writer to query writer copying is supported.
+        IWICMetadataQueryWriterPtr writerWrapper;
+        IFC(componentFactory->CreateQueryWriterFromBlockWriter(&dummyWriter, &writerWrapper));
+
+        // Prepare the propvariant for copying the query reader.
+        PROPVARIANT propValue;
+        PropVariantInit(&propValue);
+        propValue.vt = VT_UNKNOWN;
+        propValue.punkVal = queryReader;
+        propValue.punkVal->AddRef();
+
+        // Writing to "/" performs the special operation of copying from another query writer.
+        IFC(writerWrapper->SetMetadataByName(L"/", &propValue));
+        PropVariantClear(&propValue);
+
+        // At this point, dummyWriter.writer should be set to the unabstracted query reader.
+        if (dummyWriter.writer == 0)
         {
-            return CO_E_NOT_SUPPORTED;
+            if (dummyWriter.blockReader)
+            {
+                return ERROR_BLOCK_READER;
+            }
+            return E_FAIL;
         }
 
-        STDMETHOD(RemoveWriterByIndex)(
-            UINT /*nIndex*/) override
-        {
-            return CO_E_NOT_SUPPORTED;
-        }
+        IFC(dummyWriter.writer->QueryInterface(IID_PPV_ARGS(reader)));
 
-        STDMETHOD(GetContainerFormat)(
-            GUID * /*pguidContainerFormat*/
-            ) override
-        {
-            return CO_E_NOT_SUPPORTED;
-        }
-
-        STDMETHOD(GetCount)(
-            UINT *pcCount
-            ) override
-        {
-            *pcCount = 0;
-            return CO_E_NOT_SUPPORTED;
-        }
-
-        STDMETHOD(GetReaderByIndex)(
-            UINT /*nIndex*/,
-            IWICMetadataReader **ppIMetadataReader
-            ) override
-        {
-            *ppIMetadataReader = nullptr;
-            return CO_E_NOT_SUPPORTED;
-        }
-
-        STDMETHOD(GetEnumerator)(
-            IEnumUnknown **ppIEnumMetadata
-            ) override
-        {
-            *ppIEnumMetadata = nullptr;
-            return CO_E_NOT_SUPPORTED;
-        }
-    } dummyWriter;
-
-    // These lower level metadata data functions will require the component factory.
-    IWICComponentFactoryPtr componentFactory;
-    IFC(g_imagingFactory->QueryInterface(IID_PPV_ARGS(&componentFactory)));
-
-    // This takes the IWICMetadataBlockWriter and wraps it as a IWICMetadataQueryWriter.
-    // This is necessary because only query writer to query writer copying is supported.
-    IWICMetadataQueryWriterPtr writerWrapper;
-    IFC(componentFactory->CreateQueryWriterFromBlockWriter(&dummyWriter,&writerWrapper));
-
-    // Prepare the propvariant for copying the query reader.
-    PROPVARIANT propValue;
-    PropVariantInit(&propValue);
-    propValue.vt=VT_UNKNOWN;
-    propValue.punkVal=queryReader;
-    propValue.punkVal->AddRef();
-
-    // Writing to "/" performs the special operation of copying from another query writer.
-    IFC(writerWrapper->SetMetadataByName(L"/",&propValue));
-    PropVariantClear(&propValue);
-
-    // At this point, dummyWriter.writer should be set to the unabstracted query reader.
-    if(dummyWriter.writer == 0)
-    {
-        if(dummyWriter.blockReader)
-        {
-            return ERROR_BLOCK_READER;
-        }
-        return E_FAIL;
+        return result;
     }
 
-    IFC(dummyWriter.writer->QueryInterface(IID_PPV_ARGS(reader)));
-
-    return result;
 }
 
-LRESULT CMainFrame::OnShowViewPane(WORD /*code*/, WORD item, HWND /*hSender*/, BOOL& handled)
+LRESULT CMainFrame::OnShowViewPane(WORD /*code*/, const WORD item, HWND /*hSender*/, BOOL& handled)
 {
     MENUITEMINFO currentState{};
     currentState.cbSize = sizeof(MENUITEMINFO);
@@ -976,7 +976,7 @@ LRESULT CMainFrame::OnShowViewPane(WORD /*code*/, WORD item, HWND /*hSender*/, B
 
     GetMenuItemInfo(menu, item, FALSE, &currentState);
 
-    if((currentState.fState & MFS_CHECKED) == MFS_CHECKED)
+    if ((currentState.fState & MFS_CHECKED) == MFS_CHECKED)
     {
         // Hide it
         OnPaneClose(0, 0, m_viewPane.m_hWnd, handled);
@@ -994,7 +994,7 @@ LRESULT CMainFrame::OnShowViewPane(WORD /*code*/, WORD item, HWND /*hSender*/, B
     return 0;
 }
 
-LRESULT CMainFrame::OnShowAlpha(WORD /*code*/, WORD item, HWND /*hSender*/, BOOL& handled)
+LRESULT CMainFrame::OnShowAlpha(WORD /*code*/, const WORD item, HWND /*hSender*/, BOOL& handled)
 {
     MENUITEMINFO currentState;
     memset(&currentState, 0, sizeof(currentState));
@@ -1003,7 +1003,7 @@ LRESULT CMainFrame::OnShowAlpha(WORD /*code*/, WORD item, HWND /*hSender*/, BOOL
     const HMENU menu = GetMenu();
 
     GetMenuItemInfo(menu, item, FALSE, &currentState);
-    if((currentState.fState & MFS_CHECKED) == MFS_CHECKED)
+    if ((currentState.fState & MFS_CHECKED) == MFS_CHECKED)
     {
         m_viewcontext.bIsAlphaEnable = FALSE;
         CheckMenuItem(menu, item, MF_UNCHECKED | MF_BYCOMMAND);
@@ -1016,7 +1016,7 @@ LRESULT CMainFrame::OnShowAlpha(WORD /*code*/, WORD item, HWND /*hSender*/, BOOL
     }
 
     const HTREEITEM hItem = m_mainTree.GetSelectedItem();
-    CInfoElement *elem = GetElementFromTreeItem(hItem);
+    CInfoElement* elem = GetElementFromTreeItem(hItem);
     if (elem)
     {
         DrawElement(*elem);
@@ -1029,52 +1029,52 @@ LRESULT CMainFrame::OnContextClick(WORD /*code*/, const WORD item, HWND /*hSende
 {
     handled = true;
     const HTREEITEM hItem = m_mainTree.GetSelectedItem();
-    CInfoElement *elem = GetElementFromTreeItem(hItem);
+    CInfoElement* elem = GetElementFromTreeItem(hItem);
 
-    switch(item)
+    switch (item)
     {
     case ID_FILE_LOAD:
-        {
-            CSimpleCodeGenerator temp;
-            dynamic_cast<CBitmapDecoderElement *>(elem)->Load(temp);
-            UpdateTreeView(false);
-            DrawElement(*elem);
-        }
-        break;
+    {
+        CSimpleCodeGenerator temp;
+        dynamic_cast<CBitmapDecoderElement*>(elem)->Load(temp);
+        UpdateTreeView(false);
+        DrawElement(*elem);
+    }
+    break;
     case ID_FILE_UNLOAD:
-        static_cast<CBitmapDecoderElement *>(elem)->Unload();
+        static_cast<CBitmapDecoderElement*>(elem)->Unload();
         UpdateTreeView(false);
         DrawElement(*elem);
         break;
     case ID_FILE_CLOSE:
-        CElementManager::GetRootElement()->RemoveChild(dynamic_cast<CBitmapDecoderElement *>(elem));
+        CElementManager::GetRootElement()->RemoveChild(dynamic_cast<CBitmapDecoderElement*>(elem));
         UpdateTreeView(false);
         break;
     case ID_FIND_METADATA:
+    {
+        const HRESULT result = QueryMetadata(elem);
+        if (FAILED(result))
         {
-            const HRESULT result = QueryMetadata(elem);
-            if(FAILED(result))
-            {
-                CString msg;
-                msg.Format(L"Unable find metadata. The error is: %s.", GetHresultString(result).GetString());
+            CString msg;
+            msg.Format(L"Unable find metadata. The error is: %s.", GetHresultString(result).GetString());
 
-                if(m_suppressMessageBox == FALSE)
-                {
-                    MessageBoxW(msg, L"Error Finding Metadata", MB_OK | MB_ICONWARNING);
-                }
+            if (m_suppressMessageBox == FALSE)
+            {
+                MessageBoxW(msg, L"Error Finding Metadata", MB_OK | MB_ICONWARNING);
             }
         }
-        break;
+    }
+    break;
     }
 
     return 0;
 }
 
-HRESULT CMainFrame::QueryMetadata(CInfoElement *elem)
+HRESULT CMainFrame::QueryMetadata(CInfoElement* elem)
 {
     HRESULT result = S_OK;
 
-    class CQLPath : public CDialogImpl<CQLPath>
+    class CQLPath final : public CDialogImpl<CQLPath>
     {
     public:
         CAtlString m_path;
@@ -1085,7 +1085,7 @@ HRESULT CMainFrame::QueryMetadata(CInfoElement *elem)
             COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
         END_MSG_MAP()
 
-        LRESULT OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+        LRESULT OnCloseCmd(WORD /*wNotifyCode*/, const WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
         {
             GetDlgItemText(IDC_QLPATH, m_path);
             EndDialog(wID);
@@ -1101,25 +1101,25 @@ HRESULT CMainFrame::QueryMetadata(CInfoElement *elem)
     IWICMetadataQueryReaderPtr rootQueryReader;
     IFC(elem->GetQueryReader(&rootQueryReader));
 
-    bool inbraces = 0;
+    bool inbraces{};
     int lastSlash = -1;
-    for(int pos = 0; pos < qlpath.m_path.GetLength(); pos++)
+    for (int pos = 0; pos < qlpath.m_path.GetLength(); pos++)
     {
-        switch(qlpath.m_path[pos])
+        switch (qlpath.m_path[pos])
         {
         case L'\\':
             // skip the next character
             pos++;
             break;
         case L'{':
-            inbraces = 1;
+            inbraces = true;
             break;
         case L'}':
-            inbraces = 0;
+            inbraces = false;
             break;
         case L'/':
             // braces escape forward slashes, e.g. /ifd/xmp/{wstr=string with /s}
-            if(!inbraces)
+            if (!inbraces)
             {
                 lastSlash = pos;
             }
@@ -1129,9 +1129,9 @@ HRESULT CMainFrame::QueryMetadata(CInfoElement *elem)
 
     // Now let's get the query reader for everything upto the last slash
     CString parentPath, childPath;
-    if(lastSlash == -1 || lastSlash == 0)
+    if (lastSlash == -1 || lastSlash == 0)
     {
-        if(dynamic_cast<CBitmapFrameDecodeElement*>(elem))
+        if (dynamic_cast<CBitmapFrameDecodeElement*>(elem))
         {
             // A frame decode element doesn't normally display metadata. We should punt this.
             parentPath = qlpath.m_path;
@@ -1153,14 +1153,14 @@ HRESULT CMainFrame::QueryMetadata(CInfoElement *elem)
 
     PropVariantInit(&value);
 
-    if(parentPath != L"")
+    if (parentPath != L"")
     {
-        if(FAILED(rootQueryReader->GetMetadataByName(parentPath, &value)))
+        if (FAILED(rootQueryReader->GetMetadataByName(parentPath, &value)))
         {
             parentPath = qlpath.m_path;
             IFC(rootQueryReader->GetMetadataByName(parentPath, &value));
         }
-        if(value.vt == VT_UNKNOWN)
+        if (value.vt == VT_UNKNOWN)
         {
             IFC(value.punkVal->QueryInterface(IID_PPV_ARGS(&parentQueryReader)));
         }
@@ -1181,8 +1181,8 @@ HRESULT CMainFrame::QueryMetadata(CInfoElement *elem)
     }
 
     IWICMetadataReaderPtr parentReader;
-    CInfoElement *parentElem;
-    if(FAILED(GetReaderFromQueryReader(parentQueryReader, &parentReader)))
+    CInfoElement* parentElem;
+    if (FAILED(GetReaderFromQueryReader(parentQueryReader, &parentReader)))
     {
         parentElem = elem;
     }
@@ -1191,13 +1191,13 @@ HRESULT CMainFrame::QueryMetadata(CInfoElement *elem)
         parentElem = elem->FindElementByReader(parentReader);
     }
 
-    if(parentElem)
+    if (parentElem)
     {
         parentElem->m_queryKey = qlpath.m_path;
         CString v;
         // If there's a child element (might not be true if this is a branch), then
         // read its value. Otherwise, use the parent's path
-        if(childPath != L"")
+        if (childPath != L"")
         {
             parentQueryReader->GetMetadataByName(childPath, &value);
         }
@@ -1210,7 +1210,7 @@ HRESULT CMainFrame::QueryMetadata(CInfoElement *elem)
         IFC(result);
 
         parentElem->m_queryValue = v;
-        if(elem == parentElem)
+        if (elem == parentElem)
         {
             // Redraw the output view with the new query string
             DrawElement(*parentElem);

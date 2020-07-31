@@ -11,7 +11,13 @@
 class IOutputDevice
 {
 public:
+    IOutputDevice() = default;
     virtual ~IOutputDevice() = default;
+
+    IOutputDevice(const IOutputDevice&) = default;
+    IOutputDevice(IOutputDevice&&) = default;
+    IOutputDevice& operator=(const IOutputDevice&) = default;
+    IOutputDevice& operator=(IOutputDevice&&) = default;
 
     virtual void SetBackgroundColor(COLORREF color) = 0;
     virtual COLORREF SetTextColor(COLORREF color) = 0;

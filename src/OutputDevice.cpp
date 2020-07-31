@@ -11,8 +11,14 @@
 #include "OutputDevice.h"
 #include "BitmapDataObject.h"
 
-static const CString NormalFontName = L"Verdana";
-static const CString VerbatimFontName = L"Lucida Console";
+namespace 
+{
+
+LPCWSTR NormalFontName = L"Verdana";
+LPCWSTR VerbatimFontName = L"Lucida Console";
+
+}
+
 
 CRichEditDevice::CRichEditDevice(CRichEditCtrl &richEditCtrl)
 : m_richEditCtrl(richEditCtrl)
@@ -23,16 +29,15 @@ CRichEditDevice::CRichEditDevice(CRichEditCtrl &richEditCtrl)
     SetTextColor(GetSysColor(COLOR_INFOTEXT));
 }
 
-void CRichEditDevice::SetBackgroundColor(COLORREF color)
+void CRichEditDevice::SetBackgroundColor(const COLORREF color)
 {
     m_richEditCtrl.SendMessage(EM_SETBKGNDCOLOR, 0, color);
     InvalidateRect(m_richEditCtrl.GetParent(), nullptr, TRUE);
 }
 
-COLORREF CRichEditDevice::SetTextColor(COLORREF color)
+COLORREF CRichEditDevice::SetTextColor(const COLORREF color)
 {
-    CHARFORMAT2 cf;
-    cf.cbSize = sizeof(CHARFORMAT2);
+    CHARFORMAT2 cf{{.cbSize = sizeof cf}};
     m_richEditCtrl.GetSelectionCharFormat(cf);
     cf.dwEffects = 0;
 
@@ -47,25 +52,16 @@ COLORREF CRichEditDevice::SetTextColor(COLORREF color)
     return result;
 }
 
-void CRichEditDevice::SetHighlightColor(COLORREF color)
+void CRichEditDevice::SetHighlightColor(const COLORREF color)
 {
-    CHARFORMAT2 cf;
-    cf.cbSize = sizeof(CHARFORMAT2);
-    cf.dwEffects = 0;
-
-    cf.dwMask = CFM_BACKCOLOR;
-    cf.crBackColor = color;
-
+    CHARFORMAT2 cf{{.cbSize = sizeof cf, .dwMask = CFM_BACKCOLOR}, 0, 0, color};
     m_richEditCtrl.SendMessage(EM_SETCHARFORMAT, SCF_SELECTION | SCF_WORD, reinterpret_cast<LPARAM>(&cf));
 }
 
-void CRichEditDevice::SetFontName(LPCWSTR name)
+void CRichEditDevice::SetFontName(const LPCWSTR name)
 {
-    CHARFORMAT2 cf;
-    cf.cbSize = sizeof(CHARFORMAT2);
-    cf.dwEffects = 0;
+    CHARFORMAT2 cf{{.cbSize = sizeof cf}, FW_NORMAL};
 
-    cf.wWeight = FW_NORMAL;
     const int len = static_cast<int>(wcslen(name));
     for (int i = 0; i < len; i++)
     {
@@ -77,10 +73,9 @@ void CRichEditDevice::SetFontName(LPCWSTR name)
     m_richEditCtrl.SendMessage(EM_SETCHARFORMAT, SCF_SELECTION | SCF_WORD, reinterpret_cast<LPARAM>(&cf));
 }
 
-int CRichEditDevice::SetFontSize(int pointSize)
+int CRichEditDevice::SetFontSize(const int pointSize)
 {
-    CHARFORMAT2 cf;
-    cf.cbSize = sizeof(CHARFORMAT2);
+    CHARFORMAT2 cf{{.cbSize = sizeof cf}};
     m_richEditCtrl.GetSelectionCharFormat(cf);
     cf.dwEffects = 0;
 
@@ -95,7 +90,7 @@ int CRichEditDevice::SetFontSize(int pointSize)
     return result;
 }
 
-void CRichEditDevice::BeginSection(LPCWSTR name)
+void CRichEditDevice::BeginSection(const LPCWSTR name)
 {
     // Add this new level to the output stack
     m_sections.Add(CString(name));
@@ -118,12 +113,12 @@ void CRichEditDevice::BeginSection(LPCWSTR name)
     }
 }
 
-void CRichEditDevice::AddText(LPCWSTR name)
+void CRichEditDevice::AddText(const LPCWSTR name)
 {
     m_richEditCtrl.AppendText(name);
 }
 
-void CRichEditDevice::AddVerbatimText(LPCWSTR name)
+void CRichEditDevice::AddVerbatimText(const LPCWSTR name)
 {
     SetFontName(VerbatimFontName);
     m_richEditCtrl.AppendText(name);
@@ -170,7 +165,7 @@ void CRichEditDevice::BeginKeyValues(const LPCWSTR name)
     }
 }
 
-void CRichEditDevice::AddKeyValue(LPCWSTR key, LPCWSTR value)
+void CRichEditDevice::AddKeyValue(const LPCWSTR key, const LPCWSTR value)
 {
     const COLORREF oldColor = SetTextColor(RGB(0, 128, 0));
 

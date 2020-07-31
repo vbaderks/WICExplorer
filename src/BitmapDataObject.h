@@ -16,6 +16,11 @@ public:
     CBitmapDataObject() = default;
     ~CBitmapDataObject();
 
+    CBitmapDataObject(const CBitmapDataObject&) = delete;
+    CBitmapDataObject(CBitmapDataObject&&) = delete;
+    CBitmapDataObject& operator=(const CBitmapDataObject&) = delete;
+    CBitmapDataObject& operator=(CBitmapDataObject&&) = delete;
+
     // IUnknown Interface
     STDMETHOD(QueryInterface)(REFIID iid, void **ppvObject) noexcept override;
     STDMETHOD_(ULONG, AddRef)() noexcept override;

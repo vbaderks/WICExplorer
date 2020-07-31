@@ -16,19 +16,24 @@ public:
     CImageTransencoder() = default;
     ~CImageTransencoder();
 
+    CImageTransencoder(const CImageTransencoder&) = default;
+    CImageTransencoder(CImageTransencoder&&) = default;
+    CImageTransencoder& operator=(const CImageTransencoder&) = default;
+    CImageTransencoder& operator=(CImageTransencoder&&) = default;
+
     HRESULT Begin(REFCLSID containerFormat, LPCWSTR filename, ICodeGenerator &codeGen);
     HRESULT AddFrame(IWICBitmapSource* bitmapSource);
-    HRESULT SetThumbnail(IWICBitmapSourcePtr thumb);
-    HRESULT SetPreview(IWICBitmapSourcePtr preview);
+    HRESULT SetThumbnail(IWICBitmapSource* thumb) const;
+    HRESULT SetPreview(IWICBitmapSource* preview) const;
     HRESULT End();
 
     WICPixelFormatGUID     m_format{GUID_WICPixelFormatDontCare};
 
 private:
     void Clear();
-    HRESULT AddBitmapSource(IWICBitmapSourcePtr bitmapSource);
-    HRESULT AddBitmapFrameDecode(IWICBitmapFrameDecodePtr frame);
-    HRESULT CreateFrameEncode(IWICBitmapSourcePtr bitmapSource, IWICBitmapFrameEncodePtr &frameEncode);
+    HRESULT AddBitmapSource(IWICBitmapSource* bitmapSource);
+    HRESULT AddBitmapFrameDecode(IWICBitmapFrameDecode* frame);
+    HRESULT CreateFrameEncode(IWICBitmapSource* bitmapSource, IWICBitmapFrameEncodePtr &frameEncode);
 
     ICodeGenerator       *m_codeGen{};
     IWICStreamPtr         m_stream;

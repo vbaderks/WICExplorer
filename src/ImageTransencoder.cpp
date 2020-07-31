@@ -10,6 +10,33 @@
 
 #include "ImageTransencoder.h"
 
+namespace
+{
+
+    UINT NumPaletteColorsRequiredByFormat(REFGUID pf)
+    {
+        if (GUID_WICPixelFormat1bppIndexed == pf)
+        {
+            return 1 << 1;
+        }
+        if (GUID_WICPixelFormat2bppIndexed == pf)
+        {
+            return 1 << 2;
+        }
+        if (GUID_WICPixelFormat4bppIndexed == pf)
+        {
+            return 1 << 4;
+        }
+        if (GUID_WICPixelFormat8bppIndexed == pf)
+        {
+            return 1 << 8;
+        }
+
+        return 0;
+    }
+
+}
+
 
 CImageTransencoder::~CImageTransencoder()
 {
@@ -19,13 +46,13 @@ CImageTransencoder::~CImageTransencoder()
 void CImageTransencoder::Clear()
 {
     m_codeGen           = nullptr;
-    m_stream            = NULL;
-    m_encoder           = NULL;
+    m_stream            = nullptr;
+    m_encoder           = nullptr;
     m_encoding          = false;
     m_numPalettedFrames = 0;
 }
 
-HRESULT CImageTransencoder::Begin(REFGUID containerFormat, LPCWSTR filename, ICodeGenerator &codeGen)
+HRESULT CImageTransencoder::Begin(REFGUID containerFormat, const LPCWSTR filename, ICodeGenerator &codeGen)
 {
     HRESULT result = S_OK;
 
@@ -97,7 +124,7 @@ HRESULT CImageTransencoder::AddFrame(IWICBitmapSource* bitmapSource)
     return result;
 }
 
-HRESULT CImageTransencoder::SetThumbnail(IWICBitmapSourcePtr thumb)
+HRESULT CImageTransencoder::SetThumbnail(IWICBitmapSource* thumb) const
 {
     // Check the state of the object
     ATLASSERT(m_encoding);
@@ -115,10 +142,8 @@ HRESULT CImageTransencoder::SetThumbnail(IWICBitmapSourcePtr thumb)
     return S_OK;
 }
 
-HRESULT CImageTransencoder::SetPreview(IWICBitmapSourcePtr preview)
+HRESULT CImageTransencoder::SetPreview(IWICBitmapSource* preview) const
 {
-    HRESULT result = S_OK;
-
     // Check the state of the object
     ATLASSERT(m_encoding);
     if (!m_encoding)
@@ -132,13 +157,11 @@ HRESULT CImageTransencoder::SetPreview(IWICBitmapSourcePtr preview)
     // Allow failure
     m_encoder->SetPreview(preview);
 
-    return result;
+    return S_OK;
 }
 
 HRESULT CImageTransencoder::End()
 {
-    HRESULT result = S_OK;
-
     if (m_encoder)
     {
         m_encoder->Commit();
@@ -153,32 +176,11 @@ HRESULT CImageTransencoder::End()
 
     Clear();
 
-    return result;
+    return S_OK;
 }
 
-UINT NumPaletteColorsRequiredByFormat(REFGUID pf)
-{
-    if (GUID_WICPixelFormat1bppIndexed == pf)
-    {
-        return 1 << 1;
-    }
-    if (GUID_WICPixelFormat2bppIndexed == pf)
-    {
-        return 1 << 2;
-    }
-    if (GUID_WICPixelFormat4bppIndexed == pf)
-    {
-        return 1 << 4;
-    }
-    if (GUID_WICPixelFormat8bppIndexed == pf)
-    {
-        return 1 << 8;
-    }
 
-    return 0;
-}
-
-HRESULT CImageTransencoder::CreateFrameEncode(IWICBitmapSourcePtr bitmapSource, IWICBitmapFrameEncodePtr &frameEncode)
+HRESULT CImageTransencoder::CreateFrameEncode(IWICBitmapSource* bitmapSource, IWICBitmapFrameEncodePtr &frameEncode)
 {
     HRESULT result = S_OK;
 
@@ -211,8 +213,8 @@ HRESULT CImageTransencoder::CreateFrameEncode(IWICBitmapSourcePtr bitmapSource, 
 
     // Attempt to set the PixelFormat
     // This call is allowed to fail because the encoder may not support the desired format
-    WICPixelFormatGUID desiredPixelFormat = { 0 };
-    WICPixelFormatGUID supportedPixelFormat = { 0 };
+    WICPixelFormatGUID desiredPixelFormat{};
+    WICPixelFormatGUID supportedPixelFormat{};
 
     m_codeGen->CallFunction(L"source->GetPixelFormat(&desiredPixelFormat)");
     IFC(bitmapSource->GetPixelFormat(&desiredPixelFormat));
@@ -281,7 +283,7 @@ HRESULT CImageTransencoder::CreateFrameEncode(IWICBitmapSourcePtr bitmapSource, 
         SUCCEEDED(frame->GetColorContexts(0, nullptr, &colorContextCount)) &&
         colorContextCount > 0)
     {
-        IWICColorContext **contexts = new IWICColorContext*[colorContextCount];
+        auto** contexts = new IWICColorContext*[colorContextCount];
         for (UINT i = 0; i < colorContextCount; i++)
         {
             IFC(g_imagingFactory->CreateColorContext(&contexts[i]));
@@ -303,11 +305,7 @@ HRESULT CImageTransencoder::CreateFrameEncode(IWICBitmapSourcePtr bitmapSource, 
     }
 
     // Finally, write the actual BitmapSource
-    WICRect rct;
-    rct.X = 0;
-    rct.Y = 0;
-    rct.Width = width;
-    rct.Height = height;
+    WICRect rct{.Width = static_cast<int>(width), .Height = static_cast<int>(height)};
 
     m_codeGen->CallFunction(L"frame->WriteSource(source, &rct)");
     IFC(frameEncode->WriteSource(bitmapSource, &rct));
@@ -315,7 +313,7 @@ HRESULT CImageTransencoder::CreateFrameEncode(IWICBitmapSourcePtr bitmapSource, 
     return result;
 }
 
-HRESULT CImageTransencoder::AddBitmapSource(IWICBitmapSourcePtr bitmapSource)
+HRESULT CImageTransencoder::AddBitmapSource(IWICBitmapSource* bitmapSource)
 {
     HRESULT result = S_OK;
 
@@ -330,7 +328,7 @@ HRESULT CImageTransencoder::AddBitmapSource(IWICBitmapSourcePtr bitmapSource)
     return result;
 }
 
-HRESULT CImageTransencoder::AddBitmapFrameDecode(IWICBitmapFrameDecodePtr frame)
+HRESULT CImageTransencoder::AddBitmapFrameDecode(IWICBitmapFrameDecode* frame)
 {
     HRESULT result = S_OK;
 
@@ -340,12 +338,12 @@ HRESULT CImageTransencoder::AddBitmapFrameDecode(IWICBitmapFrameDecodePtr frame)
 
     // Output Thumbnail
     m_codeGen->BeginVariableScope(L"IWICBitmapSource*", L"thumb", L"NULL");
-    IWICBitmapSourcePtr thumb = NULL;
+    IWICBitmapSourcePtr thumb;
 
     m_codeGen->CallFunction(L"source->GetThumbnail(&thumb)");
     frame->GetThumbnail(&thumb);
 
-    if (NULL != thumb)
+    if (thumb)
     {
         m_codeGen->CallFunction(L"frame->SetThumbnail(thumb)");
 

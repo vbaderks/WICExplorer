@@ -10,7 +10,7 @@
 
 #include "MetadataTranslator.h"
 
-CMetadataTranslator::Key::Key(LPCWSTR guidStr, const LPCWSTR idStr)
+CMetadataTranslator::Key::Key(const LPCWSTR guidStr, const LPCWSTR idStr)
 {
     CLSIDFromString(guidStr, &m_format);
     m_id = _wtoi(idStr);
@@ -18,7 +18,7 @@ CMetadataTranslator::Key::Key(LPCWSTR guidStr, const LPCWSTR idStr)
 
 HRESULT CMetadataTranslator::ReadPropVariantInteger(PROPVARIANT *pv, int &out)
 {
-    HRESULT result = E_INVALIDARG;
+    HRESULT result{E_INVALIDARG};
 
     ATLASSERT(pv);
     if (pv)
@@ -56,6 +56,9 @@ HRESULT CMetadataTranslator::ReadPropVariantInteger(PROPVARIANT *pv, int &out)
         case VT_UINT:
             out = pv->uintVal;
             result = S_OK;
+            break;
+        default:
+            result = E_INVALIDARG;
             break;
         }
     }

@@ -27,9 +27,9 @@ public:
         LARGE_INTEGER now;
         QueryPerformanceCounter(&now);
 
-        const LONGLONG timeMS = (now.QuadPart - m_startTime.QuadPart) * LONGLONG(1000) / m_frequency.QuadPart;
+        const LONGLONG timeMS = (now.QuadPart - m_startTime.QuadPart) * static_cast<LONGLONG>(1000) / m_frequency.QuadPart;
 
-        return DWORD(timeMS);
+        return static_cast<DWORD>(timeMS);
     }
 
 private:

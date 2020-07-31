@@ -124,45 +124,43 @@ CString GetHresultString(HRESULT hr)
     {
         return knownError->second;
     }
+
+    const DWORD MAX_MsgLength = 256;
+
+    WCHAR msg[MAX_MsgLength];
+
+    msg[0] = TEXT('\0');
+
+    if (FACILITY_WINDOWS == HRESULT_FACILITY(hr))
+    {
+        hr = HRESULT_CODE(hr);
+    }
+
+    // Try to have windows give a nice message, otherwise just format the HRESULT into a string.
+    const DWORD len = FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr,
+                                     static_cast<DWORD>(hr), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), msg, MAX_MsgLength, nullptr);
+    if (len != 0)
+    {
+        // remove the trailing newline
+        if (L'\r' == msg[len - 2])
+        {
+            msg[len - 2] = L'\0';
+        }
+        else if (L'\n' == msg[len - 1])
+        {
+            msg[len - 1] = L'\0';
+        }
+    }
     else
     {
-        const DWORD MAX_MsgLength = 256;
-
-        WCHAR msg[MAX_MsgLength];
-
-        msg[0] = TEXT('\0');
-
-        if (FACILITY_WINDOWS == HRESULT_FACILITY(hr))
-        {
-            hr = HRESULT_CODE(hr);
-        }
-
-        // Try to have windows give a nice message, otherwise just format the HRESULT into a string.
-        const DWORD len = FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr,
-            static_cast<DWORD>(hr), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), msg, MAX_MsgLength, nullptr);
-        if (len != 0)
-        {
-            // remove the trailing newline
-            if (L'\r' == msg[len - 2])
-            {
-                msg[len - 2] = L'\0';
-            }
-            else if (L'\n' == msg[len - 1])
-            {
-                msg[len - 1] = L'\0';
-            }
-        }
-        else
-        {
-            StringCchPrintf(msg, MAX_MsgLength, L"0x%.8X", static_cast<unsigned>(hr));
-        }
-
-        return msg;
+        StringCchPrintf(msg, MAX_MsgLength, L"0x%.8X", static_cast<unsigned>(hr));
     }
+
+    return msg;
 }
 
 
-int WINAPI wWinMain(const HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR lpCmdLine, const int nCmdShow)
+int WINAPI wWinMain(const HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, const LPWSTR lpCmdLine, const int nShowCmd)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
@@ -209,7 +207,7 @@ int WINAPI wWinMain(const HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWS
         hr = appModule.Init(nullptr, hInstance);
         ATLASSERT(SUCCEEDED(hr));
 
-        result = Run(appModule, lpCmdLine, nCmdShow);
+        result = Run(appModule, lpCmdLine, nShowCmd);
 
         appModule.Term();
 

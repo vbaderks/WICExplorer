@@ -10,18 +10,18 @@
 
 #include "BitmapDataObject.h"
 
-HRESULT CBitmapDataObject::InsertDib(HWND /*hWnd*/, IRichEditOle *pRichEditOle, const HGLOBAL hGlobal)
+HRESULT CBitmapDataObject::InsertDib(HWND /*hWnd*/, IRichEditOle* pRichEditOle, const HGLOBAL hGlobal)
 {
     HRESULT result = S_OK;
 
     IOleClientSite* oleClientSite{};
     IDataObject* dataObject{};
-    IStorage *storage{};
+    IStorage* storage{};
     ILockBytes* lockBytes{};
     IOleObject* oleObject{};
 
     // Get the bitmap's DataObject
-    auto *bitmapDataObject = new CBitmapDataObject;
+    auto* bitmapDataObject = new CBitmapDataObject;
     bitmapDataObject->QueryInterface(IID_PPV_ARGS(&dataObject));
     bitmapDataObject->SetDib(hGlobal);
 
@@ -41,7 +41,7 @@ HRESULT CBitmapDataObject::InsertDib(HWND /*hWnd*/, IRichEditOle *pRichEditOle, 
     if (SUCCEEDED(result))
     {
         result = StgCreateDocfileOnILockBytes(lockBytes,
-            STGM_SHARE_EXCLUSIVE|STGM_CREATE|STGM_READWRITE, 0, &storage);
+            STGM_SHARE_EXCLUSIVE | STGM_CREATE | STGM_READWRITE, 0, &storage);
         ATLASSERT(storage);
     }
 
@@ -102,32 +102,20 @@ CBitmapDataObject::~CBitmapDataObject()
     ReleaseStgMedium(&m_stgmed);
 }
 
-HRESULT STDMETHODCALLTYPE CBitmapDataObject::QueryInterface(REFIID iid, void **ppvObject) noexcept
+HRESULT STDMETHODCALLTYPE CBitmapDataObject::QueryInterface(REFIID iid, void** ppvObject) noexcept
 {
-    HRESULT result = E_INVALIDARG;
+    if (!ppvObject)
+        return E_INVALIDARG;
 
-    if (ppvObject)
+    if (IID_IUnknown == iid || IID_IDataObject == iid)
     {
-        if (IID_IUnknown == iid)
-        {
-            *ppvObject = this;
-            AddRef();
-            result = S_OK;
-        }
-        else if (IID_IDataObject == iid)
-        {
-            *ppvObject = this;
-            AddRef();
-            result = S_OK;
-        }
-        else
-        {
-            *ppvObject = nullptr;
-            result = E_NOINTERFACE;
-        }
+        *ppvObject = this;
+        AddRef();
+        return S_OK;
     }
 
-    return result;
+    *ppvObject = nullptr;
+    return E_NOINTERFACE;
 }
 
 ULONG STDMETHODCALLTYPE CBitmapDataObject::AddRef() noexcept
@@ -153,7 +141,7 @@ ULONG STDMETHODCALLTYPE CBitmapDataObject::Release() noexcept
     return result;
 }
 
-HRESULT STDMETHODCALLTYPE CBitmapDataObject::GetData(FORMATETC * /*pformatetcIn*/, STGMEDIUM *pmedium) noexcept
+HRESULT STDMETHODCALLTYPE CBitmapDataObject::GetData(FORMATETC* /*pformatetcIn*/, STGMEDIUM* pmedium) noexcept
 {
     pmedium->tymed = TYMED_HGLOBAL;
     pmedium->hGlobal = OleDuplicateData(m_stgmed.hGlobal, CF_DIB, GMEM_MOVEABLE | GMEM_SHARE);
@@ -162,12 +150,12 @@ HRESULT STDMETHODCALLTYPE CBitmapDataObject::GetData(FORMATETC * /*pformatetcIn*
     return S_OK;
 }
 
-HRESULT STDMETHODCALLTYPE CBitmapDataObject::GetDataHere(FORMATETC * /*pformatetc*/, STGMEDIUM * /*pmedium*/) noexcept
+HRESULT STDMETHODCALLTYPE CBitmapDataObject::GetDataHere(FORMATETC* /*pformatetc*/, STGMEDIUM* /*pmedium*/) noexcept
 {
     return E_NOTIMPL;
 }
 
-HRESULT STDMETHODCALLTYPE CBitmapDataObject::QueryGetData(FORMATETC *pformatetc ) noexcept
+HRESULT STDMETHODCALLTYPE CBitmapDataObject::QueryGetData(FORMATETC* pformatetc) noexcept
 {
     HRESULT result = DV_E_FORMATETC;
     if (pformatetc)
@@ -180,12 +168,12 @@ HRESULT STDMETHODCALLTYPE CBitmapDataObject::QueryGetData(FORMATETC *pformatetc 
     return result;
 }
 
-HRESULT STDMETHODCALLTYPE CBitmapDataObject::GetCanonicalFormatEtc(FORMATETC * /*pformatectIn*/, FORMATETC* /*pformatetcOut*/) noexcept
+HRESULT STDMETHODCALLTYPE CBitmapDataObject::GetCanonicalFormatEtc(FORMATETC* /*pformatectIn*/, FORMATETC* /*pformatetcOut*/) noexcept
 {
     return E_NOTIMPL;
 }
 
-HRESULT STDMETHODCALLTYPE CBitmapDataObject::SetData(FORMATETC *pformatetc, STGMEDIUM *pmedium, BOOL /*fRelease*/) noexcept
+HRESULT STDMETHODCALLTYPE CBitmapDataObject::SetData(FORMATETC* pformatetc, STGMEDIUM* pmedium, BOOL /*fRelease*/) noexcept
 {
     m_format = *pformatetc;
     m_stgmed = *pmedium;
@@ -193,13 +181,13 @@ HRESULT STDMETHODCALLTYPE CBitmapDataObject::SetData(FORMATETC *pformatetc, STGM
     return S_OK;
 }
 
-HRESULT STDMETHODCALLTYPE CBitmapDataObject::EnumFormatEtc(DWORD /*dwDirection*/, IEnumFORMATETC **ppenumFormatEtc) noexcept
+HRESULT STDMETHODCALLTYPE CBitmapDataObject::EnumFormatEtc(DWORD /*dwDirection*/, IEnumFORMATETC** ppenumFormatEtc) noexcept
 {
     *ppenumFormatEtc = nullptr;
     return E_NOTIMPL;
 }
 
-HRESULT STDMETHODCALLTYPE CBitmapDataObject::DAdvise(FORMATETC * /*pformatetc*/, DWORD /*advf*/, IAdviseSink * /*pAdvSink*/, DWORD * /*pdwConnection*/) noexcept
+HRESULT STDMETHODCALLTYPE CBitmapDataObject::DAdvise(FORMATETC* /*pformatetc*/, DWORD /*advf*/, IAdviseSink* /*pAdvSink*/, DWORD* /*pdwConnection*/) noexcept
 {
     return OLE_E_ADVISENOTSUPPORTED;
 }
@@ -209,7 +197,7 @@ HRESULT STDMETHODCALLTYPE CBitmapDataObject::DUnadvise(DWORD /*dwConnection*/) n
     return OLE_E_ADVISENOTSUPPORTED;
 }
 
-HRESULT STDMETHODCALLTYPE CBitmapDataObject::EnumDAdvise(IEnumSTATDATA **ppenumAdvise) noexcept
+HRESULT STDMETHODCALLTYPE CBitmapDataObject::EnumDAdvise(IEnumSTATDATA** ppenumAdvise) noexcept
 {
     *ppenumAdvise = nullptr;
     return OLE_E_ADVISENOTSUPPORTED;
@@ -237,7 +225,7 @@ void CBitmapDataObject::SetDib(const HGLOBAL hGlobal)
     }
 }
 
-HRESULT CBitmapDataObject::GetOleObject(IOleClientSite *oleClientSite, IStorage *storage, IOleObject *&oleObject)
+HRESULT CBitmapDataObject::GetOleObject(IOleClientSite* oleClientSite, IStorage* storage, IOleObject*& oleObject)
 {
     HRESULT result = E_UNEXPECTED;
 
@@ -248,7 +236,7 @@ HRESULT CBitmapDataObject::GetOleObject(IOleClientSite *oleClientSite, IStorage 
     if (m_stgmed.hGlobal)
     {
         result = OleCreateStaticFromData(this, IID_IOleObject, OLERENDER_DRAW,
-            &m_format, oleClientSite, storage, reinterpret_cast<void **>(&oleObject));
+            &m_format, oleClientSite, storage, reinterpret_cast<void**>(&oleObject));
 
         if (FAILED(result))
         {

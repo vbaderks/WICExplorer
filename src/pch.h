@@ -55,7 +55,7 @@
 
 extern IWICImagingFactoryPtr g_imagingFactory;
 
-#define IFC(c) do { result = (c); if (FAILED(result)) return result; } while(0);
+#define IFC(c) do { result = (c); if (FAILED(result)) return result; } while(false)
 
 #define READ_WIC_STRING(f, out) do {                                    \
     UINT strLen = 0;                                                    \
