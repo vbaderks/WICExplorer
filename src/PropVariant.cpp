@@ -92,12 +92,12 @@ template<> LPCWSTR GetTypeName<INT>()
     return L"INT";
 }
 
-template<> void WriteValue<UINT>(const UINT &val, CString &out)
+template<> void WriteValue<uint32_t>(const uint32_t &val, CString &out)
 {
     out.Format(L"%u", static_cast<unsigned>(val));
 }
 
-template<> LPCWSTR GetTypeName<UINT>()
+template<> LPCWSTR GetTypeName<uint32_t>()
 {
     return L"UINT";
 }
@@ -194,7 +194,7 @@ template<> void WriteValue<BLOB>(const BLOB &val, CString &out)
     CString b;
 
     out.Format(L"%u bytes = { ", val.cbSize);
-    for (UINT i = 0; i < std::min(MAX_BYTES, val.cbSize); i++)
+    for (uint32_t i = 0; i < std::min(MAX_BYTES, val.cbSize); i++)
     {
         b.Format(L"0x%.2X ", val.pBlobData[i]);
         out += b;

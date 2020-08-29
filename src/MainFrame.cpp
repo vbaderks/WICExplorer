@@ -56,7 +56,7 @@ namespace
 
 }
 
-LRESULT CMainFrame::OnCreate(UINT, WPARAM, LPARAM, BOOL&)
+LRESULT CMainFrame::OnCreate(uint32_t, WPARAM, LPARAM, BOOL&)
 {
     const HWND hWndToolBar = CreateSimpleToolBarCtrl(m_hWnd, IDR_MAINFRAME, false, ATL_SIMPLE_TOOLBAR_PANE_STYLE | TBSTYLE_TRANSPARENT | TBSTYLE_LIST | TBSTYLE_FLAT | CCS_NORESIZE | CCS_TOP);
 
@@ -128,7 +128,7 @@ HWND CMainFrame::CreateClient()
     return m_mainSplit.m_hWnd;
 }
 
-LRESULT CMainFrame::OnPaneClose(WORD, WORD, const HWND hWndCtl, BOOL&) const
+LRESULT CMainFrame::OnPaneClose(uint16_t, uint16_t, const HWND hWndCtl, BOOL&) const
 {
     // hide the container whose Close button was clicked. Use
     // DestroyWindow(hWndCtl) instead if you want to totally
@@ -219,7 +219,7 @@ HTREEITEM CMainFrame::BuildTree(CInfoElement* elem, const HTREEITEM hParent)
     if (elem)
     {
         const int image = GetElementTreeImage(elem);
-        const UINT state = (nullptr == hParent) ? TVIS_BOLD : 0;
+        const uint32_t state = (nullptr == hParent) ? TVIS_BOLD : 0;
 
         const HTREEITEM hItem = m_mainTree.InsertItem(TVIF_TEXT | TVIF_STATE | TVIF_IMAGE | TVIF_SELECTEDIMAGE,
                                                       elem->Name(), image, image, state, state, 0, hParent, nullptr);
@@ -430,7 +430,7 @@ HRESULT CMainFrame::Load(const LPCWSTR* filenames, const int count)
 }
 
 
-LRESULT CMainFrame::OnFileOpen(WORD, WORD, const HWND hParentWnd, BOOL&)
+LRESULT CMainFrame::OnFileOpen(uint16_t, uint16_t, const HWND hParentWnd, BOOL&)
 {
     CSimpleFileDialog fileDlg(true, nullptr, nullptr, OFN_HIDEREADONLY | OFN_FILEMUSTEXIST | OFN_ALLOWMULTISELECT,
         L"All Files (*.*)\0*.*\0\0", hParentWnd);
@@ -553,7 +553,7 @@ HRESULT CMainFrame::OpenDirectory(const LPCWSTR directory, DWORD& attempted, DWO
     return hr;
 }
 
-LRESULT CMainFrame::OnFileOpenDir(WORD /*code*/, WORD /*item*/, const HWND hSender, BOOL& handled)
+LRESULT CMainFrame::OnFileOpenDir(uint16_t /*code*/, uint16_t /*item*/, const HWND hSender, BOOL& handled)
 {
     CFolderDialog fileDlg(hSender,
         L"Select directory with *.jpg, *.png, *.gif, *.bmp, *.tif, *.ico, or *.dds",
@@ -692,7 +692,7 @@ BOOL CMainFrame::DoElementContextMenu(const HWND hWnd, CInfoElement& element, co
     return true;
 }
 
-LRESULT CMainFrame::OnFileSave(WORD, WORD, HWND, BOOL&)
+LRESULT CMainFrame::OnFileSave(uint16_t, uint16_t, HWND, BOOL&)
 {
     // Get the currently selected tree node.
     const HTREEITEM hItem = m_mainTree.GetSelectedItem();
@@ -799,14 +799,14 @@ HRESULT CMainFrame::SaveElementAsImage(CInfoElement& element)
     return result;
 }
 
-LRESULT CMainFrame::OnAppExit(WORD, WORD, HWND, BOOL&)
+LRESULT CMainFrame::OnAppExit(uint16_t, uint16_t, HWND, BOOL&)
 {
     PostMessage(WM_CLOSE);
 
     return 0;
 }
 
-LRESULT CMainFrame::OnAppAbout(WORD, WORD, HWND, BOOL&)
+LRESULT CMainFrame::OnAppAbout(uint16_t, uint16_t, HWND, BOOL&)
 {
     CAboutDlg dlg;
     dlg.DoModal();
@@ -861,7 +861,7 @@ namespace {
             }
 
             STDMETHOD(GetWriterByIndex)(
-                UINT /*nIndex*/,
+                uint32_t /*nIndex*/,
                 IWICMetadataWriter** ppIMetadataWriter
                 ) override
             {
@@ -882,7 +882,7 @@ namespace {
             }
 
             STDMETHOD(SetWriterByIndex)(
-                UINT /*nIndex*/,
+                uint32_t /*nIndex*/,
                 IWICMetadataWriter* /*pIMetadataWriter*/
                 ) override
             {
@@ -890,7 +890,7 @@ namespace {
             }
 
             STDMETHOD(RemoveWriterByIndex)(
-                UINT /*nIndex*/) override
+                uint32_t /*nIndex*/) override
             {
                 return CO_E_NOT_SUPPORTED;
             }
@@ -903,7 +903,7 @@ namespace {
             }
 
             STDMETHOD(GetCount)(
-                UINT* pcCount
+                uint32_t* pcCount
                 ) override
             {
                 *pcCount = 0;
@@ -911,7 +911,7 @@ namespace {
             }
 
             STDMETHOD(GetReaderByIndex)(
-                UINT /*nIndex*/,
+                uint32_t /*nIndex*/,
                 IWICMetadataReader** ppIMetadataReader
                 ) override
             {
@@ -965,13 +965,10 @@ namespace {
 
 }
 
-LRESULT CMainFrame::OnShowViewPane(WORD /*code*/, const WORD item, HWND /*hSender*/, BOOL& handled)
+LRESULT CMainFrame::OnShowViewPane(uint16_t /*code*/, const uint16_t item, HWND /*hSender*/, BOOL& handled)
 {
-    MENUITEMINFO currentState{};
-    currentState.cbSize = sizeof(MENUITEMINFO);
-    currentState.fMask = MIIM_STATE;
     const HMENU menu = GetMenu();
-
+    MENUITEMINFO currentState{.cbSize = sizeof currentState, .fMask = MIIM_STATE };
     GetMenuItemInfo(menu, item, false, &currentState);
 
     if ((currentState.fState & MFS_CHECKED) == MFS_CHECKED)
@@ -992,13 +989,10 @@ LRESULT CMainFrame::OnShowViewPane(WORD /*code*/, const WORD item, HWND /*hSende
     return 0;
 }
 
-LRESULT CMainFrame::OnShowAlpha(WORD /*code*/, const WORD item, HWND /*hSender*/, BOOL& handled)
+LRESULT CMainFrame::OnShowAlpha(uint16_t /*code*/, const uint16_t item, HWND /*hSender*/, BOOL& handled)
 {
-    MENUITEMINFO currentState;
-    memset(&currentState, 0, sizeof(currentState));
-    currentState.cbSize = sizeof(MENUITEMINFO);
-    currentState.fMask = MIIM_STATE;
     const HMENU menu = GetMenu();
+    MENUITEMINFO currentState{ .cbSize = sizeof currentState, .fMask = MIIM_STATE };
 
     GetMenuItemInfo(menu, item, false, &currentState);
     if ((currentState.fState & MFS_CHECKED) == MFS_CHECKED)
@@ -1023,7 +1017,7 @@ LRESULT CMainFrame::OnShowAlpha(WORD /*code*/, const WORD item, HWND /*hSender*/
     return 0;
 }
 
-LRESULT CMainFrame::OnContextClick(WORD /*code*/, const WORD item, HWND /*hSender*/, BOOL& handled)
+LRESULT CMainFrame::OnContextClick(const uint16_t /*code*/, const uint16_t item, HWND /*hSender*/, BOOL& handled)
 {
     handled = true;
     const HTREEITEM hItem = m_mainTree.GetSelectedItem();
@@ -1085,7 +1079,7 @@ HRESULT CMainFrame::QueryMetadata(CInfoElement* elem)
             COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
         END_MSG_MAP()
 
-        LRESULT OnCloseCmd(WORD /*wNotifyCode*/, const WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+        LRESULT OnCloseCmd(uint16_t /*wNotifyCode*/, const uint16_t wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
         {
             GetDlgItemText(IDC_QLPATH, m_path);
             EndDialog(wID);

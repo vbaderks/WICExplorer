@@ -58,7 +58,7 @@ extern IWICImagingFactoryPtr g_imagingFactory;
 #define IFC(c) do { result = (c); if (FAILED(result)) return result; } while(false)
 
 #define READ_WIC_STRING(f, out) do {                                    \
-    UINT strLen = 0;                                                    \
+    uint32_t strLen = 0;                                                    \
     result = f(0, 0, &strLen);                                          \
     if (SUCCEEDED(result) && (strLen > 0)) {                            \
         result = f(strLen, out.GetBufferSetLength(strLen), &strLen);    \

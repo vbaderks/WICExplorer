@@ -63,18 +63,18 @@ private:
     void DrawElement(CInfoElement &element);
     HRESULT QueryMetadata(CInfoElement* elem);
 
-    LRESULT OnCreate(UINT, WPARAM, LPARAM, BOOL&);
+    LRESULT OnCreate(uint32_t, WPARAM, LPARAM, BOOL&);
     LRESULT OnNMRClick(int , LPNMHDR pnmh, BOOL&);
     LRESULT OnTreeViewSelChanged(WPARAM wParam, LPNMHDR lpNmHdr, BOOL &bHandled);
-    LRESULT OnPaneClose(WORD, WORD, HWND hWndCtl, BOOL&) const;
-    LRESULT OnFileOpen(WORD, WORD, HWND, BOOL&);
-    LRESULT OnFileOpenDir(WORD code, WORD item, HWND hSender, BOOL& handled);
-    LRESULT OnFileSave(WORD, WORD, HWND, BOOL&);
-    LRESULT OnAppExit(WORD, WORD, HWND, BOOL&);
-    static LRESULT OnAppAbout(WORD, WORD, HWND, BOOL&);
-    LRESULT OnShowViewPane(WORD code, WORD item, HWND hSender, BOOL& handled);
-    LRESULT OnShowAlpha(WORD code, WORD item, HWND hSender, BOOL& handled);
-    LRESULT OnContextClick(WORD code, WORD item, HWND hSender, BOOL& handled);
+    LRESULT OnPaneClose(uint16_t, uint16_t, HWND hWndCtl, BOOL&) const;
+    LRESULT OnFileOpen(uint16_t, uint16_t, HWND, BOOL&);
+    LRESULT OnFileOpenDir(uint16_t code, uint16_t item, HWND hSender, BOOL& handled);
+    LRESULT OnFileSave(uint16_t, uint16_t, HWND, BOOL&);
+    LRESULT OnAppExit(uint16_t, uint16_t, HWND, BOOL&);
+    static LRESULT OnAppAbout(uint16_t, uint16_t, HWND, BOOL&);
+    LRESULT OnShowViewPane(uint16_t code, uint16_t item, HWND hSender, BOOL& handled);
+    LRESULT OnShowAlpha(uint16_t code, uint16_t item, HWND hSender, BOOL& handled);
+    LRESULT OnContextClick(uint16_t code, uint16_t item, HWND hSender, BOOL& handled);
 
     CSplitterWindow m_mainSplit;
     CHorSplitterWindow m_infoSplit;

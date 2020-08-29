@@ -33,7 +33,7 @@ bool HasAlpha(REFWICPixelFormatGUID pGuid)
 }
 
 
-HRESULT GetPixelFormatName(WCHAR* dest, UINT chars, const WICPixelFormatGUID guid)
+HRESULT GetPixelFormatName(WCHAR* dest, uint32_t chars, const WICPixelFormatGUID guid)
 {
     HRESULT result;
     if (guid == GUID_WICPixelFormatDontCare)
@@ -113,8 +113,8 @@ public:
     }
 
     STDMETHOD(GetSize)(
-        UINT* puiWidth,
-        UINT* puiHeight
+        uint32_t* puiWidth,
+        uint32_t* puiHeight
         ) override
     {
         return m_source->GetSize(puiWidth, puiHeight);
@@ -144,23 +144,23 @@ public:
 
     STDMETHOD(CopyPixels)(
         const WICRect* prc,
-        const UINT cbStride,
-        const UINT cbBufferSize,
+        const uint32_t cbStride,
+        const uint32_t cbBufferSize,
         BYTE* pbBuffer
         ) override
     {
         HRESULT result;
 
-        IFC(m_prog->SetCurrentLevel(static_cast<UINT>(m_level)));
+        IFC(m_prog->SetCurrentLevel(static_cast<uint32_t>(m_level)));
         IFC(m_source->CopyPixels(prc, cbStride, cbBufferSize, pbBuffer));
-        IFC(m_prog->SetCurrentLevel(static_cast<UINT>(m_max)));
+        IFC(m_prog->SetCurrentLevel(static_cast<uint32_t>(m_max)));
 
         return result;
     }
 
 private:
     int m_level{};
-    UINT m_max{};
+    uint32_t m_max{};
     IWICBitmapSource* m_source{};
     IWICProgressiveLevelControl* m_prog{};
     uint32_t m_ref{};
@@ -326,7 +326,7 @@ HRESULT CBitmapDecoderElement::Load(ICodeGenerator& codeGen)
     IFC(g_imagingFactory->CreateDecoderFromFilename(m_filename, nullptr, GENERIC_READ, WICDecodeMetadataCacheOnDemand, &m_decoder));
 
     // For each of the frames, create an element
-    UINT frameCount = 0;
+    uint32_t frameCount = 0;
 
     codeGen.CallFunction(L"decoder->GetFrameCount(&frameCount)");
     IFC(m_decoder->GetFrameCount(&frameCount));
@@ -340,7 +340,7 @@ HRESULT CBitmapDecoderElement::Load(ICodeGenerator& codeGen)
         lastFailResult = E_FAIL;
     }
 
-    for (UINT i = 0; i < frameCount; i++)
+    for (uint32_t i = 0; i < frameCount; i++)
     {
         codeGen.BeginVariableScope(L"IWICBitmapFrameDecode*", L"frameDecode", L"nullptr");
         IWICBitmapFrameDecodePtr frameDecode;
@@ -419,7 +419,7 @@ HRESULT CElementManager::CreateDecoderAndChildElements(const LPCWSTR filename, I
     return result;
 }
 
-HRESULT CElementManager::CreateFrameAndChildElements(CInfoElement* parent, const UINT index, IWICBitmapFrameDecode* frameDecode, ICodeGenerator& codeGen)
+HRESULT CElementManager::CreateFrameAndChildElements(CInfoElement* parent, const uint32_t index, IWICBitmapFrameDecode* frameDecode, ICodeGenerator& codeGen)
 {
     // Add the frame itself
     CInfoElement* frameElem = new CBitmapFrameDecodeElement(index, frameDecode);
@@ -443,7 +443,7 @@ HRESULT CElementManager::CreateFrameAndChildElements(CInfoElement* parent, const
 
     if (SUCCEEDED(result))
     {
-        UINT count = 0;
+        uint32_t count{};
         result = prog->GetLevelCount(&count);
         if (count > 1)
         {
@@ -480,12 +480,12 @@ HRESULT CElementManager::CreateMetadataElementsFromBlock(CInfoElement* parent, I
 {
     HRESULT result;
 
-    UINT blockCount = 0;
+    uint32_t blockCount = 0;
 
     codeGen.CallFunction(L"blockReader->GetCount(&count)");
     IFC(blockReader->GetCount(&blockCount));
 
-    for (UINT i = 0; i < blockCount; i++)
+    for (uint32_t i = 0; i < blockCount; i++)
     {
         codeGen.BeginVariableScope(L"IWICMetadataReader*", L"reader", L"nullptr");
         IWICMetadataReaderPtr reader;
@@ -501,7 +501,7 @@ HRESULT CElementManager::CreateMetadataElementsFromBlock(CInfoElement* parent, I
     return result;
 }
 
-HRESULT CElementManager::CreateMetadataElements(CInfoElement* parent, UINT childIdx, IWICMetadataReader* reader, ICodeGenerator& codeGen)
+HRESULT CElementManager::CreateMetadataElements(CInfoElement* parent, uint32_t childIdx, IWICMetadataReader* reader, ICodeGenerator& codeGen)
 {
     HRESULT result = S_OK;
 
@@ -511,12 +511,12 @@ HRESULT CElementManager::CreateMetadataElements(CInfoElement* parent, UINT child
     AddChildToElement(parent, readerElem);
 
     // Search for any embedded readers
-    UINT numValues = 0;
+    uint32_t numValues = 0;
 
     codeGen.CallFunction(L"reader->GetCount(&count)");
     IFC(reader->GetCount(&numValues));
 
-    for (UINT i = 0; i < numValues; i++)
+    for (uint32_t i = 0; i < numValues; i++)
     {
         PROPVARIANT id, value;
 
@@ -886,7 +886,7 @@ HRESULT CBitmapDecoderElement::OutputView(IOutputDevice& output, const InfoEleme
         output.AddKeyValue(L"Filename", m_filename);
 
         // Get the number of frames
-        UINT numFrames = 0;
+        uint32_t numFrames = 0;
         m_decoder->GetFrameCount(&numFrames);
         CString value;
         value.Format(L"%u", numFrames);
@@ -991,8 +991,8 @@ HRESULT CBitmapSourceElement::OutputView(IOutputDevice& output, const InfoElemen
     if (m_source)
     {
         // First, some info
-        UINT width;
-        UINT height;
+        uint32_t width;
+        uint32_t height;
         IFC(m_source->GetSize(&width, &height));
 
         double dpiX;
@@ -1038,7 +1038,7 @@ HRESULT CBitmapSourceElement::OutputView(IOutputDevice& output, const InfoElemen
             IWICColorContextPtr colorContextDst;
             IWICColorTransformPtr colorTransform;
             WCHAR wzFilename[_MAX_PATH + 1];
-            UINT cActual = 0;
+            uint32_t cActual = 0;
 
             result = m_source->QueryInterface(IID_PPV_ARGS(&frame));
 
@@ -1161,8 +1161,8 @@ HRESULT CBitmapSourceElement::CreateDibFromBitmapSource(IWICBitmapSource* source
         return E_INVALIDARG;
 
     HRESULT result = S_OK;
-    UINT width = 0, height = 0;
-    UINT stride = 0;
+    uint32_t width = 0, height = 0;
+    uint32_t stride = 0;
 
     WICPixelFormatGUID pFormatGuid;
     IFC(source->GetPixelFormat(&pFormatGuid));
@@ -1353,7 +1353,7 @@ HRESULT CBitmapFrameDecodeElement::OutputInfo(IOutputDevice& /*output*/)
 // METADATA READER ELEMENT
 //----------------------------------------------------------------------------------------
 
-CMetadataReaderElement::CMetadataReaderElement(CInfoElement* parent, const UINT idx, IWICMetadataReader* reader)
+CMetadataReaderElement::CMetadataReaderElement(CInfoElement* parent, const uint32_t idx, IWICMetadataReader* reader)
     : CComponentInfoElement(L"")
     , m_reader(reader)
 {
@@ -1363,7 +1363,7 @@ CMetadataReaderElement::CMetadataReaderElement(CInfoElement* parent, const UINT 
     }
 }
 
-HRESULT CMetadataReaderElement::SetNiceName(CInfoElement* parent, const UINT idx)
+HRESULT CMetadataReaderElement::SetNiceName(CInfoElement* parent, const uint32_t idx)
 {
     HRESULT result = S_OK;
 
@@ -1436,10 +1436,10 @@ HRESULT CMetadataReaderElement::OutputView(IOutputDevice& output, const InfoElem
     {
         output.BeginKeyValues(L"Metadata Values");
 
-        UINT numValues = 0;
+        uint32_t numValues = 0;
         IFC(m_reader->GetCount(&numValues));
 
-        for (UINT i = 0; i < numValues; i++)
+        for (uint32_t i = 0; i < numValues; i++)
         {
             PROPVARIANT id, schema, value;
 

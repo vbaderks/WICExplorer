@@ -20,7 +20,7 @@ GUID CEncoderSelectionDlg::GetPixelFormat()
     return m_formats[m_formatSel];
 }
 
-LRESULT CEncoderSelectionDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+LRESULT CEncoderSelectionDlg::OnInitDialog(uint32_t /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
     CenterWindow(GetParent());
 
@@ -102,7 +102,7 @@ LRESULT CEncoderSelectionDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPA
     return 1;
 }
 
-LRESULT CEncoderSelectionDlg::OnCloseCmd(WORD /*wNotifyCode*/, const WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+LRESULT CEncoderSelectionDlg::OnCloseCmd(uint16_t /*wNotifyCode*/, const uint16_t wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
     // If selecting OK, validate that something is selected
     if (IDOK == wID)

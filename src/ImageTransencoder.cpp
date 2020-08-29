@@ -13,7 +13,7 @@
 namespace
 {
 
-    UINT NumPaletteColorsRequiredByFormat(REFGUID pf)
+    uint32_t NumPaletteColorsRequiredByFormat(REFGUID pf)
     {
         if (GUID_WICPixelFormat1bppIndexed == pf)
         {
@@ -194,8 +194,8 @@ HRESULT CImageTransencoder::CreateFrameEncode(IWICBitmapSource* bitmapSource, IW
     IFC(frameEncode->Initialize(nullptr));
 
     // Set the Size
-    UINT width;
-    UINT height;
+    uint32_t width;
+    uint32_t height;
     m_codeGen->CallFunction(L"source->GetSize(&width, &height)");
     IFC(bitmapSource->GetSize(&width, &height));
 
@@ -236,7 +236,7 @@ HRESULT CImageTransencoder::CreateFrameEncode(IWICBitmapSource* bitmapSource, IW
     // If the format that we will encode to requires a palette, then we need to
     // retrieve one. First we will try the palette of the BitmapSource itself.
     // If that fails, we will generate a palette from the BitmapSource.
-    const UINT numPaletteColors = NumPaletteColorsRequiredByFormat(supportedPixelFormat);
+    const uint32_t numPaletteColors = NumPaletteColorsRequiredByFormat(supportedPixelFormat);
     if (numPaletteColors > 0)
     {
         // Create the palette
@@ -278,13 +278,13 @@ HRESULT CImageTransencoder::CreateFrameEncode(IWICBitmapSource* bitmapSource, IW
 
     // Copy the color profile, if there is one.
     IWICBitmapFrameDecodePtr frame = bitmapSource;
-    UINT colorContextCount = 0;
+    uint32_t colorContextCount = 0;
     if (frame &&
         SUCCEEDED(frame->GetColorContexts(0, nullptr, &colorContextCount)) &&
         colorContextCount > 0)
     {
         auto** contexts = new IWICColorContext*[colorContextCount];
-        for (UINT i = 0; i < colorContextCount; i++)
+        for (uint32_t i = 0; i < colorContextCount; i++)
         {
             IFC(g_imagingFactory->CreateColorContext(&contexts[i]));
         }
@@ -294,7 +294,7 @@ HRESULT CImageTransencoder::CreateFrameEncode(IWICBitmapSource* bitmapSource, IW
         {
             ::MessageBox(nullptr, L"Unable to copy color contexts", L"Warning", MB_OK);
         }
-        for(UINT i = 0; i < colorContextCount; i++)
+        for(uint32_t i = 0; i < colorContextCount; i++)
         {
             if(contexts[i] != nullptr)
             {

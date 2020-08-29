@@ -22,13 +22,13 @@ public:
         COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
     END_MSG_MAP()
 
-    LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+    LRESULT OnInitDialog(uint32_t /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
     {
         CenterWindow(GetParent());
         return 1;
     }
 
-    LRESULT OnCloseCmd(WORD /*wNotifyCode*/, const WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+    LRESULT OnCloseCmd(const uint16_t /*wNotifyCode*/, const uint16_t wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
     {
         EndDialog(wID);
         return 0;

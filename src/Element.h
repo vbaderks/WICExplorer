@@ -11,7 +11,7 @@
 #include "ImageTransencoder.h"
 #include "OutputDevice.h"
 
-HRESULT GetPixelFormatName(WCHAR* dest, UINT chars, WICPixelFormatGUID guid);
+HRESULT GetPixelFormatName(WCHAR* dest, uint32_t chars, WICPixelFormatGUID guid);
 
 struct InfoElementViewContext
 {
@@ -148,9 +148,9 @@ public:
 
     static HRESULT SaveElementAsImage(CInfoElement &element, REFGUID containerFormat, WICPixelFormatGUID &format, LPCWSTR filename, ICodeGenerator &codeGen);
     static HRESULT CreateDecoderAndChildElements(LPCWSTR filename, ICodeGenerator &codeGen, CInfoElement *&decElem);
-    static HRESULT CreateFrameAndChildElements(CInfoElement *parent, UINT index, IWICBitmapFrameDecode* frameDecode, ICodeGenerator &codeGen);
+    static HRESULT CreateFrameAndChildElements(CInfoElement *parent, uint32_t index, IWICBitmapFrameDecode* frameDecode, ICodeGenerator &codeGen);
     static HRESULT CreateMetadataElementsFromBlock(CInfoElement *parent, IWICMetadataBlockReader* blockReader, ICodeGenerator &codeGen);
-    static HRESULT CreateMetadataElements(CInfoElement *parent, UINT childIdx, IWICMetadataReader* reader, ICodeGenerator &codeGen);
+    static HRESULT CreateMetadataElements(CInfoElement *parent, uint32_t childIdx, IWICMetadataReader* reader, ICodeGenerator &codeGen);
 
     static CString queryKey;
     static CString queryValue;
@@ -245,7 +245,7 @@ private:
 class CBitmapFrameDecodeElement final : public CBitmapSourceElement
 {
 public:
-    CBitmapFrameDecodeElement(const UINT index, IWICBitmapFrameDecode* frameDecode)
+    CBitmapFrameDecodeElement(const uint32_t index, IWICBitmapFrameDecode* frameDecode)
         : CBitmapSourceElement(L"", frameDecode)
         , m_frameDecode(frameDecode)
     {
@@ -269,7 +269,7 @@ private:
 class CMetadataReaderElement final : public CComponentInfoElement
 {
 public:
-    CMetadataReaderElement(CInfoElement *parent, UINT idx, IWICMetadataReader* reader);
+    CMetadataReaderElement(CInfoElement *parent, uint32_t idx, IWICMetadataReader* reader);
 
     HRESULT OutputView(IOutputDevice &output, const InfoElementViewContext& context) override;
     HRESULT OutputInfo(IOutputDevice &output) override;
@@ -285,7 +285,7 @@ public:
 private:
     HRESULT TranslateValueID(PROPVARIANT *pv, unsigned options, CString &out) const;
     static HRESULT TrimQuotesFromName(CString &out);
-    HRESULT SetNiceName(CInfoElement *parent, UINT idx);
+    HRESULT SetNiceName(CInfoElement *parent, uint32_t idx);
 
     IWICMetadataReaderPtr m_reader;
 };

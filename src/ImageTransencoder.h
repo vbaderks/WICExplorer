@@ -39,6 +39,6 @@ private:
     IWICStreamPtr         m_stream;
     IWICBitmapEncoderPtr  m_encoder;
     bool                  m_encoding{};
-    UINT                  m_numPalettedFrames{};
+    uint32_t              m_numPalettedFrames{};
 };
 
