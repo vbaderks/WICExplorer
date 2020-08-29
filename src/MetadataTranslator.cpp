@@ -100,7 +100,7 @@ HRESULT CMetadataTranslator::LoadFormat(MSXML2::IXMLDOMNodePtr formatNode)
     // Get the format
     _bstr_t formatGuidStr;
     const MSXML2::IXMLDOMNodePtr formatGuidNode = formatNode->attributes->getNamedItem(TEXT("guid"));
-    if (NULL != formatGuidNode)
+    if (formatGuidNode)
     {
         formatGuidStr = formatGuidNode->nodeValue;
     }
@@ -117,10 +117,10 @@ HRESULT CMetadataTranslator::LoadFormat(MSXML2::IXMLDOMNodePtr formatNode)
     {
         if (_wcsicmp(entryNodes->item[ei]->nodeName, TEXT("entry")) == 0)
         {
-            MSXML2::IXMLDOMNodePtr entryIdNode = entryNodes->item[ei]->attributes->getNamedItem(TEXT("id"));
-            MSXML2::IXMLDOMNodePtr entryValueNode = entryNodes->item[ei]->attributes->getNamedItem(TEXT("value"));
+            const MSXML2::IXMLDOMNodePtr entryIdNode = entryNodes->item[ei]->attributes->getNamedItem(TEXT("id"));
+            const MSXML2::IXMLDOMNodePtr entryValueNode = entryNodes->item[ei]->attributes->getNamedItem(TEXT("value"));
 
-            if ((NULL != entryIdNode) && (NULL != entryValueNode))
+            if (entryIdNode && entryValueNode)
             {
                 _bstr_t idStr{ entryIdNode->nodeValue };
                 _bstr_t valueStr{ entryValueNode->nodeValue };

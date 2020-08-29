@@ -32,7 +32,7 @@ CRichEditDevice::CRichEditDevice(CRichEditCtrl &richEditCtrl)
 void CRichEditDevice::SetBackgroundColor(const COLORREF color)
 {
     m_richEditCtrl.SendMessage(EM_SETBKGNDCOLOR, 0, color);
-    InvalidateRect(m_richEditCtrl.GetParent(), nullptr, TRUE);
+    InvalidateRect(m_richEditCtrl.GetParent(), nullptr, true);
 }
 
 COLORREF CRichEditDevice::SetTextColor(const COLORREF color)

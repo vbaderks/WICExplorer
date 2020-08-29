@@ -194,11 +194,11 @@ int WINAPI wWinMain(const HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, cons
 
     // Initialize the RichEdit library
     const HINSTANCE hInstRich = ::LoadLibrary(CRichEditCtrl::GetLibraryName());
-    ATLASSERT(NULL != hInstRich);
+    ATLASSERT(hInstRich);
 
     // Start running
     int result = 0;
-    if (SUCCEEDED(hr) && (nullptr != hInstRich))
+    if (SUCCEEDED(hr) && hInstRich)
     {
         ::DefWindowProc(nullptr, 0, 0, 0L);
 

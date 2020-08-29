@@ -34,7 +34,7 @@ HRESULT CBitmapDataObject::InsertDib(HWND /*hWnd*/, IRichEditOle* pRichEditOle, 
     // Initialize a Storage Object
     if (SUCCEEDED(result))
     {
-        result = CreateILockBytesOnHGlobal(nullptr, TRUE, &lockBytes);
+        result = CreateILockBytesOnHGlobal(nullptr, true, &lockBytes);
         ATLASSERT(lockBytes);
     }
 
@@ -49,7 +49,7 @@ HRESULT CBitmapDataObject::InsertDib(HWND /*hWnd*/, IRichEditOle* pRichEditOle, 
     if (SUCCEEDED(result))
     {
         result = bitmapDataObject->GetOleObject(oleClientSite, storage, oleObject);
-        OleSetContainedObject(oleObject, TRUE);
+        OleSetContainedObject(oleObject, true);
     }
 
     // Add the object to the RichEdit
@@ -209,19 +209,10 @@ void CBitmapDataObject::SetDib(const HGLOBAL hGlobal)
 
     if (hGlobal)
     {
-        STGMEDIUM stgm;
-        stgm.tymed = TYMED_HGLOBAL;
-        stgm.hGlobal = hGlobal;
-        stgm.pUnkForRelease = nullptr;
+        STGMEDIUM stgm{ .tymed = TYMED_HGLOBAL, .hGlobal = hGlobal };
+        FORMATETC fm { .dwAspect = DVASPECT_CONTENT, .lindex = -1, .tymed = TYMED_NULL };
 
-        FORMATETC fm;
-        fm.cfFormat = 0;
-        fm.ptd = nullptr;
-        fm.dwAspect = DVASPECT_CONTENT;
-        fm.lindex = -1;
-        fm.tymed = TYMED_NULL;
-
-        SetData(&fm, &stgm, TRUE);
+        SetData(&fm, &stgm, true);
     }
 }
 

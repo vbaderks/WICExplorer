@@ -143,7 +143,7 @@ LRESULT CMainFrame::OnPaneClose(WORD, WORD, const HWND hWndCtl, BOOL&) const
 #pragma warning( default : 4312 ) // TODO: fix with push/pop
 
     // take the container that was Closed out of the splitter.
-    // Use SetSplitterPane(nPane, NULL) if you want to stay in
+    // Use SetSplitterPane(nPane, nullptr) if you want to stay in
     // multipane mode instead of changing to single pane mode
     const int nCount = pWnd->m_nPanesCount;
     for (int nPane = 0; nPane < nCount; nPane++)
@@ -306,7 +306,7 @@ HRESULT CMainFrame::OpenFile(const LPCWSTR filename, bool& updateElements)
         codeGen->GenerateCode(code);
         msg += code;
 
-        if (m_suppressMessageBox == FALSE)
+        if (!m_suppressMessageBox)
         {
             MessageBoxW(msg, L"Error Opening File", MB_OK | MB_ICONWARNING);
         }
@@ -354,7 +354,7 @@ HRESULT CMainFrame::OpenWildcard(const LPCWSTR search, DWORD& attempted, DWORD& 
 
     if (hf == INVALID_HANDLE_VALUE)
     {
-        if (m_suppressMessageBox == FALSE)
+        if (!m_suppressMessageBox)
         {
             MessageBox(L"Could not open " + CString(search), L"Error opening expression", MB_OK);
         }
@@ -400,11 +400,11 @@ HRESULT CMainFrame::Load(const LPCWSTR* filenames, const int count)
     {
         if (quiet.CompareNoCase(filenames[i]) == 0)
         {
-            m_suppressMessageBox = TRUE;
+            m_suppressMessageBox = true;
         }
         else
         {
-            bool thisNeedsUpdate = false;
+            bool thisNeedsUpdate{};
             result = OpenWildcard(filenames[i], attempted, opened, thisNeedsUpdate);
             needsUpdate = needsUpdate || thisNeedsUpdate;
         }
@@ -420,7 +420,7 @@ HRESULT CMainFrame::Load(const LPCWSTR* filenames, const int count)
         WCHAR buffer[60];
         swprintf_s(buffer, 60, L"Successfully opened %lu out of %lu image files", opened, attempted);
 
-        if (m_suppressMessageBox == FALSE)
+        if (!m_suppressMessageBox)
         {
             MessageBox(buffer, L"Done", MB_OK);
         }
@@ -432,7 +432,7 @@ HRESULT CMainFrame::Load(const LPCWSTR* filenames, const int count)
 
 LRESULT CMainFrame::OnFileOpen(WORD, WORD, const HWND hParentWnd, BOOL&)
 {
-    CSimpleFileDialog fileDlg(TRUE, nullptr, nullptr, OFN_HIDEREADONLY | OFN_FILEMUSTEXIST | OFN_ALLOWMULTISELECT,
+    CSimpleFileDialog fileDlg(true, nullptr, nullptr, OFN_HIDEREADONLY | OFN_FILEMUSTEXIST | OFN_ALLOWMULTISELECT,
         L"All Files (*.*)\0*.*\0\0", hParentWnd);
 
     // Create a large buffer to hold the result of the filenames.
@@ -502,7 +502,7 @@ HRESULT CMainFrame::OpenDirectory(const LPCWSTR directory, DWORD& attempted, DWO
 
     if (hf == INVALID_HANDLE_VALUE)
     {
-        if (m_suppressMessageBox == FALSE)
+        if (!m_suppressMessageBox)
         {
             MessageBox(L"Could not open " + CString(directory), L"Error opening directory", MB_OK);
         }
@@ -575,7 +575,7 @@ LRESULT CMainFrame::OnFileOpenDir(WORD /*code*/, WORD /*item*/, const HWND hSend
     WCHAR buffer[60];
     swprintf_s(buffer, 60, L"Successfully opened %lu out of %lu image files", opened, attempted);
 
-    if (m_suppressMessageBox == FALSE)
+    if (!m_suppressMessageBox)
     {
         MessageBox(buffer, L"Done", MB_OK);
     }
@@ -683,13 +683,13 @@ BOOL CMainFrame::DoElementContextMenu(const HWND hWnd, CInfoElement& element, co
     const HMENU hMenu = CreateElementContextMenu(element);
     if (!hMenu)
     {
-        return FALSE;
+        return false;
     }
 
     TrackPopupMenu(hMenu, TPM_LEFTALIGN | TPM_RIGHTBUTTON, point.x, point.y, 0, hWnd, nullptr);
     DestroyMenu(hMenu);
 
-    return TRUE;
+    return true;
 }
 
 LRESULT CMainFrame::OnFileSave(WORD, WORD, HWND, BOOL&)
@@ -729,17 +729,17 @@ HRESULT CMainFrame::SaveElementAsImage(CInfoElement& element)
         if (IDOK == id)
         {
             // Now that we know what kind of encoder they want to use, let's get a filename from them
-            CSimpleFileDialog fileDlg(FALSE, nullptr, nullptr, OFN_HIDEREADONLY,
+            CSimpleFileDialog fileDlg(false, nullptr, nullptr, OFN_HIDEREADONLY,
                 L"All Files (*.*)\0*.*\0\0", m_hWnd);
             id = fileDlg.DoModal();
 
             if (IDOK == id)
             {
                 // Now we have a filename and an encoder, let's go
-                ICodeGenerator* codeGen = new CSimpleCodeGenerator();
+                CSimpleCodeGenerator codeGen;
 
                 WICPixelFormatGUID format = dlg.GetPixelFormat();
-                result = CElementManager::SaveElementAsImage(element, dlg.GetContainerFormat(), format, fileDlg.m_szFileName, *codeGen);
+                result = CElementManager::SaveElementAsImage(element, dlg.GetContainerFormat(), format, fileDlg.m_szFileName, codeGen);
 
                 if (FAILED(result))
                 {
@@ -748,10 +748,10 @@ HRESULT CMainFrame::SaveElementAsImage(CInfoElement& element)
                         element.Name().GetString(), fileDlg.m_szFileName, GetHresultString(result).GetString());
 
                     CString code;
-                    codeGen->GenerateCode(code);
+                    codeGen.GenerateCode(code);
                     msg += code;
 
-                    if (m_suppressMessageBox == FALSE)
+                    if (!m_suppressMessageBox)
                     {
                         MessageBoxW(msg, L"Error Encoding Image", MB_OK | MB_ICONERROR);
                     }
@@ -773,13 +773,11 @@ HRESULT CMainFrame::SaveElementAsImage(CInfoElement& element)
                     }
                     msg.Format(L"You specified '%s' as the pixel format and WIC used '%s'", picked, actual);
 
-                    if (m_suppressMessageBox == FALSE)
+                    if (!m_suppressMessageBox)
                     {
                         MessageBoxW(msg, L"Different format picked", MB_OK);
                     }
                 }
-
-                delete codeGen;
             }
         }
         else
@@ -792,7 +790,7 @@ HRESULT CMainFrame::SaveElementAsImage(CInfoElement& element)
         CString msg;
         msg.Format(L"The selected element '%s' cannot be saved as an Image.", element.Name().GetString());
 
-        if (m_suppressMessageBox == FALSE)
+        if (!m_suppressMessageBox)
         {
             ::MessageBox(nullptr, msg, L"Cannot Save Element", MB_OK | MB_ICONERROR);
         }
@@ -974,7 +972,7 @@ LRESULT CMainFrame::OnShowViewPane(WORD /*code*/, const WORD item, HWND /*hSende
     currentState.fMask = MIIM_STATE;
     const HMENU menu = GetMenu();
 
-    GetMenuItemInfo(menu, item, FALSE, &currentState);
+    GetMenuItemInfo(menu, item, false, &currentState);
 
     if ((currentState.fState & MFS_CHECKED) == MFS_CHECKED)
     {
@@ -1002,15 +1000,15 @@ LRESULT CMainFrame::OnShowAlpha(WORD /*code*/, const WORD item, HWND /*hSender*/
     currentState.fMask = MIIM_STATE;
     const HMENU menu = GetMenu();
 
-    GetMenuItemInfo(menu, item, FALSE, &currentState);
+    GetMenuItemInfo(menu, item, false, &currentState);
     if ((currentState.fState & MFS_CHECKED) == MFS_CHECKED)
     {
-        m_viewcontext.bIsAlphaEnable = FALSE;
+        m_viewcontext.bIsAlphaEnable = false;
         CheckMenuItem(menu, item, MF_UNCHECKED | MF_BYCOMMAND);
     }
     else
     {
-        m_viewcontext.bIsAlphaEnable = TRUE;
+        m_viewcontext.bIsAlphaEnable = true;
         CheckMenuItem(menu, item, MF_CHECKED | MF_BYCOMMAND);
         handled = 1;
     }
@@ -1058,13 +1056,15 @@ LRESULT CMainFrame::OnContextClick(WORD /*code*/, const WORD item, HWND /*hSende
             CString msg;
             msg.Format(L"Unable find metadata. The error is: %s.", GetHresultString(result).GetString());
 
-            if (m_suppressMessageBox == FALSE)
+            if (!m_suppressMessageBox)
             {
                 MessageBoxW(msg, L"Error Finding Metadata", MB_OK | MB_ICONWARNING);
             }
         }
     }
     break;
+    default:
+        break; // do nothing
     }
 
     return 0;
@@ -1124,6 +1124,8 @@ HRESULT CMainFrame::QueryMetadata(CInfoElement* elem)
                 lastSlash = pos;
             }
             break;
+        default:
+            break; // do nothing
         }
     }
 

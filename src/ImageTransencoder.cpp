@@ -61,7 +61,7 @@ HRESULT CImageTransencoder::Begin(REFGUID containerFormat, const LPCWSTR filenam
     m_codeGen = &codeGen;
 
     // Get a writable stream
-    m_codeGen->BeginVariableScope(L"IWICStream*", L"stream", L"NULL");
+    m_codeGen->BeginVariableScope(L"IWICStream*", L"stream", L"nullptr");
 
     m_codeGen->CallFunction(L"imagingFactory->CreateStream(&stream)");
     IFC(g_imagingFactory->CreateStream(&m_stream));
@@ -70,12 +70,12 @@ HRESULT CImageTransencoder::Begin(REFGUID containerFormat, const LPCWSTR filenam
     IFC(m_stream->InitializeFromFilename(filename, GENERIC_WRITE));
 
     // Create the encoder
-    m_codeGen->BeginVariableScope(L"IWICBitmapEncoder*", L"encoder", L"NULL");
+    m_codeGen->BeginVariableScope(L"IWICBitmapEncoder*", L"encoder", L"nullptr");
 
-    m_codeGen->CallFunction(L"imagingFactory->CreateEncoder(containerFormat, NULL, &encoder)");
-    IFC(g_imagingFactory->CreateEncoder(containerFormat, NULL, &m_encoder));
+    m_codeGen->CallFunction(L"imagingFactory->CreateEncoder(containerFormat, nullptr, &encoder)");
+    IFC(g_imagingFactory->CreateEncoder(containerFormat, nullptr, &m_encoder));
 
-    if (NULL != m_encoder)
+    if (m_encoder)
     {
         // Initialize it
         m_codeGen->CallFunction(L"encoder->Initialize(stream, WICBitmapEncoderCacheInMemory)");
@@ -185,17 +185,17 @@ HRESULT CImageTransencoder::CreateFrameEncode(IWICBitmapSource* bitmapSource, IW
     HRESULT result = S_OK;
 
     // Try to add a frame encode to the encoder
-    m_codeGen->BeginVariableScope(L"IWICBitmapFrameEncode*", L"frame", L"NULL");
-    m_codeGen->CallFunction(L"encoder->CreateNewFrame(&frame, NULL)");
-    IFC(m_encoder->CreateNewFrame(&frameEncode, NULL));
+    m_codeGen->BeginVariableScope(L"IWICBitmapFrameEncode*", L"frame", L"nullptr");
+    m_codeGen->CallFunction(L"encoder->CreateNewFrame(&frame, nullptr)");
+    IFC(m_encoder->CreateNewFrame(&frameEncode, nullptr));
 
     // Initialize it
-    m_codeGen->CallFunction(L"frame->Initialize(NULL)");
-    IFC(frameEncode->Initialize(NULL));
+    m_codeGen->CallFunction(L"frame->Initialize(nullptr)");
+    IFC(frameEncode->Initialize(nullptr));
 
     // Set the Size
-    UINT width = 0, height = 0;
-
+    UINT width;
+    UINT height;
     m_codeGen->CallFunction(L"source->GetSize(&width, &height)");
     IFC(bitmapSource->GetSize(&width, &height));
 
@@ -203,8 +203,8 @@ HRESULT CImageTransencoder::CreateFrameEncode(IWICBitmapSource* bitmapSource, IW
     IFC(frameEncode->SetSize(width, height));
 
     // Set the Resolution
-    double dpiX = 0, dpiY = 0;
-
+    double dpiX;
+    double dpiY;
     m_codeGen->CallFunction(L"source->GetResolution(&dpiX, &dpiY)");
     IFC(bitmapSource->GetResolution(&dpiX, &dpiY));
 
@@ -240,7 +240,7 @@ HRESULT CImageTransencoder::CreateFrameEncode(IWICBitmapSource* bitmapSource, IW
     if (numPaletteColors > 0)
     {
         // Create the palette
-        m_codeGen->BeginVariableScope(L"IWICPalette*", L"palette", L"NULL");
+        m_codeGen->BeginVariableScope(L"IWICPalette*", L"palette", L"nullptr");
         IWICPalettePtr palette;
 
         m_codeGen->CallFunction(L"imagingFactory->CreatePalette(&palette)");
@@ -256,8 +256,8 @@ HRESULT CImageTransencoder::CreateFrameEncode(IWICBitmapSource* bitmapSource, IW
             // so let's try to generate one from the source's data
             result = S_OK;
 
-            m_codeGen->CallFunction(L"palette->InitializeFromBitmap(source, %u, FALSE)", numPaletteColors);
-            IFC(palette->InitializeFromBitmap(bitmapSource, numPaletteColors, FALSE));
+            m_codeGen->CallFunction(L"palette->InitializeFromBitmap(source, %u, false)", numPaletteColors);
+            IFC(palette->InitializeFromBitmap(bitmapSource, numPaletteColors, false));
         }
 
         // Set the palette
@@ -279,7 +279,7 @@ HRESULT CImageTransencoder::CreateFrameEncode(IWICBitmapSource* bitmapSource, IW
     // Copy the color profile, if there is one.
     IWICBitmapFrameDecodePtr frame = bitmapSource;
     UINT colorContextCount = 0;
-    if ( frame != NULL &&
+    if (frame &&
         SUCCEEDED(frame->GetColorContexts(0, nullptr, &colorContextCount)) &&
         colorContextCount > 0)
     {
@@ -337,7 +337,7 @@ HRESULT CImageTransencoder::AddBitmapFrameDecode(IWICBitmapFrameDecode* frame)
     IFC(CreateFrameEncode(frame, frameEncode));
 
     // Output Thumbnail
-    m_codeGen->BeginVariableScope(L"IWICBitmapSource*", L"thumb", L"NULL");
+    m_codeGen->BeginVariableScope(L"IWICBitmapSource*", L"thumb", L"nullptr");
     IWICBitmapSourcePtr thumb;
 
     m_codeGen->CallFunction(L"source->GetThumbnail(&thumb)");

@@ -14,7 +14,7 @@
 class CMainFrame final : public CFrameWindowImpl<CMainFrame>
 {
 public:
-    DECLARE_FRAME_WND_CLASS(NULL, IDR_MAINFRAME)
+    DECLARE_FRAME_WND_CLASS(nullptr, IDR_MAINFRAME)
 
     BEGIN_MSG_MAP(CMainFrame)
         MESSAGE_HANDLER(WM_CREATE, OnCreate)

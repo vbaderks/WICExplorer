@@ -313,7 +313,7 @@ void CBitmapDecoderElement::Unload()
     }
 
     RemoveChildren();
-    m_loaded = FALSE;
+    m_loaded = false;
 }
 
 HRESULT CBitmapDecoderElement::Load(ICodeGenerator& codeGen)
@@ -321,9 +321,9 @@ HRESULT CBitmapDecoderElement::Load(ICodeGenerator& codeGen)
     HRESULT result = S_OK;
 
     Unload();
-    codeGen.BeginVariableScope(L"IWICBitmapDecoder*", L"decoder", L"NULL");
-    codeGen.CallFunction(L"imagingFactory->CreateDecoderFromFilename(\"%s\", NULL, GENERIC_READ, WICDecodeMetadataCacheOnDemand, &decoder)", m_filename.GetString());
-    IFC(g_imagingFactory->CreateDecoderFromFilename(m_filename, NULL, GENERIC_READ, WICDecodeMetadataCacheOnDemand, &m_decoder));
+    codeGen.BeginVariableScope(L"IWICBitmapDecoder*", L"decoder", L"nullptr");
+    codeGen.CallFunction(L"imagingFactory->CreateDecoderFromFilename(\"%s\", nullptr, GENERIC_READ, WICDecodeMetadataCacheOnDemand, &decoder)", m_filename.GetString());
+    IFC(g_imagingFactory->CreateDecoderFromFilename(m_filename, nullptr, GENERIC_READ, WICDecodeMetadataCacheOnDemand, &m_decoder));
 
     // For each of the frames, create an element
     UINT frameCount = 0;
@@ -342,8 +342,8 @@ HRESULT CBitmapDecoderElement::Load(ICodeGenerator& codeGen)
 
     for (UINT i = 0; i < frameCount; i++)
     {
-        codeGen.BeginVariableScope(L"IWICBitmapFrameDecode*", L"frameDecode", L"NULL");
-        IWICBitmapFrameDecodePtr frameDecode = NULL;
+        codeGen.BeginVariableScope(L"IWICBitmapFrameDecode*", L"frameDecode", L"nullptr");
+        IWICBitmapFrameDecodePtr frameDecode;
 
         codeGen.CallFunction(L"decoder->GetFrame(%d, &frameDecode)", i);
         HRESULT frameResult = m_decoder->GetFrame(i, &frameDecode);
@@ -456,7 +456,7 @@ HRESULT CElementManager::CreateFrameAndChildElements(CInfoElement* parent, const
     }
 
     // For each of the MetadataReaders attached to the frame, create an element
-    codeGen.BeginVariableScope(L"IWICMetadataBlockReader*", L"blockReader", L"NULL");
+    codeGen.BeginVariableScope(L"IWICMetadataBlockReader*", L"blockReader", L"nullptr");
     IWICMetadataBlockReaderPtr blockReader;
 
     codeGen.CallFunction(L"frameDecode->QueryInterface(IID_IWICMetadataBlockReader, (void**)&blockReader)");
@@ -487,7 +487,7 @@ HRESULT CElementManager::CreateMetadataElementsFromBlock(CInfoElement* parent, I
 
     for (UINT i = 0; i < blockCount; i++)
     {
-        codeGen.BeginVariableScope(L"IWICMetadataReader*", L"reader", L"NULL");
+        codeGen.BeginVariableScope(L"IWICMetadataReader*", L"reader", L"nullptr");
         IWICMetadataReaderPtr reader;
 
         codeGen.CallFunction(L"blockReader->GetReaderByIndex(%d, &reader)", i);
@@ -523,13 +523,13 @@ HRESULT CElementManager::CreateMetadataElements(CInfoElement* parent, UINT child
         PropVariantInit(&id);
         PropVariantInit(&value);
 
-        codeGen.CallFunction(L"reader->GetValueByIndex(%d, NULL, &id, &value)", i);
-        IFC(reader->GetValueByIndex(i, NULL, &id, &value));
+        codeGen.CallFunction(L"reader->GetValueByIndex(%d, nullptr, &id, &value)", i);
+        IFC(reader->GetValueByIndex(i, nullptr, &id, &value));
 
         if (VT_UNKNOWN == value.vt)
         {
             // Attempt to QI for a BlockReader
-            codeGen.BeginVariableScope(L"IWICMetadataReader*", L"embReader", L"NULL");
+            codeGen.BeginVariableScope(L"IWICMetadataReader*", L"embReader", L"nullptr");
             IWICMetadataReaderPtr embReader;
 
             codeGen.CallFunction(L"value.punkVal->QueryInterface(IID_IWICMetadataReader, (void**)&embReader)");
@@ -573,9 +573,9 @@ void CElementManager::ClearAllElements()
 
 void CElementManager::AddSiblingToElement(CInfoElement* element, CInfoElement* sib)
 {
-    ATLASSERT(NULL != element);
+    ATLASSERT(element);
 
-    if (nullptr != element)
+    if (element)
     {
         // Find the end of the sibling chain
         CInfoElement* curr = element;
@@ -591,9 +591,9 @@ void CElementManager::AddSiblingToElement(CInfoElement* element, CInfoElement* s
 
 void CElementManager::AddChildToElement(CInfoElement* element, CInfoElement* child)
 {
-    ATLASSERT(NULL != element);
+    ATLASSERT(element);
 
-    if (nullptr != element)
+    if (element)
     {
         element->AddChild(child);
     }
@@ -794,7 +794,7 @@ void CBitmapDecoderElement::FillContextMenu(const HMENU context)
     {
         itemInfo.wID = ID_FILE_SAVE;
         itemInfo.dwTypeData = const_cast<LPWSTR>(L"Save As Image...");
-        InsertMenuItem(context, GetMenuItemCount(context), TRUE, &itemInfo);
+        InsertMenuItem(context, GetMenuItemCount(context), true, &itemInfo);
 
         itemInfo.wID = ID_FILE_UNLOAD;
         itemInfo.dwTypeData = const_cast<LPWSTR>(L"Unload");
@@ -804,11 +804,11 @@ void CBitmapDecoderElement::FillContextMenu(const HMENU context)
         itemInfo.wID = ID_FILE_LOAD;
         itemInfo.dwTypeData = const_cast<LPWSTR>(L"Load");
     }
-    InsertMenuItem(context, GetMenuItemCount(context), TRUE, &itemInfo);
+    InsertMenuItem(context, GetMenuItemCount(context), true, &itemInfo);
 
     itemInfo.wID = ID_FILE_CLOSE;
     itemInfo.dwTypeData = const_cast<LPWSTR>(L"Close");
-    InsertMenuItem(context, GetMenuItemCount(context), TRUE, &itemInfo);
+    InsertMenuItem(context, GetMenuItemCount(context), true, &itemInfo);
 }
 
 HRESULT CBitmapDecoderElement::SaveAsImage(CImageTransencoder& trans, ICodeGenerator& codeGen)
@@ -833,13 +833,13 @@ HRESULT CBitmapDecoderElement::SaveAsImage(CImageTransencoder& trans, ICodeGener
     }
 
     // Output Thumbnail
-    codeGen.BeginVariableScope(L"IWICBitmapSource*", L"thumb", L"NULL");
+    codeGen.BeginVariableScope(L"IWICBitmapSource*", L"thumb", L"nullptr");
     IWICBitmapSourcePtr thumb;
 
     codeGen.CallFunction(L"decoder->GetThumbnail(&thumb)");
     m_decoder->GetThumbnail(&thumb);
 
-    if (NULL != thumb)
+    if (thumb)
     {
         IFC(trans.SetThumbnail(thumb));
     }
@@ -847,7 +847,7 @@ HRESULT CBitmapDecoderElement::SaveAsImage(CImageTransencoder& trans, ICodeGener
     codeGen.EndVariableScope();
 
     // Output Preview
-    codeGen.BeginVariableScope(L"IWICBitmapSource*", L"preview", L"NULL");
+    codeGen.BeginVariableScope(L"IWICBitmapSource*", L"preview", L"nullptr");
     IWICBitmapSourcePtr preview;
 
     codeGen.CallFunction(L"decoder->GetPreview(&preview)");
@@ -877,9 +877,9 @@ HRESULT CBitmapDecoderElement::OutputView(IOutputDevice& output, const InfoEleme
         return S_OK;
     }
 
-    ATLASSERT(NULL != m_decoder);
+    ATLASSERT(m_decoder);
 
-    if (NULL != m_decoder)
+    if (m_decoder)
     {
         output.BeginKeyValues(L"");
 
@@ -968,7 +968,7 @@ void CBitmapSourceElement::FillContextMenu(const HMENU context)
         .dwTypeData = const_cast<LPWSTR>(L"Save As Image...")
     };
 
-    InsertMenuItem(context, GetMenuItemCount(context), TRUE, &itemInfo);
+    InsertMenuItem(context, GetMenuItemCount(context), true, &itemInfo);
 }
 
 HRESULT CBitmapSourceElement::SaveAsImage(CImageTransencoder& trans, ICodeGenerator& /*codeGen*/)
@@ -985,16 +985,18 @@ HRESULT CBitmapSourceElement::OutputView(IOutputDevice& output, const InfoElemen
 {
     HRESULT result;
 
-    ATLASSERT(NULL != m_source);
+    ATLASSERT(m_source);
 
     IFC(CInfoElement::OutputView(output, context));
-    if (NULL != m_source)
+    if (m_source)
     {
         // First, some info
-        UINT width = 0, height = 0;
+        UINT width;
+        UINT height;
         IFC(m_source->GetSize(&width, &height));
 
-        double dpiX = 0, dpiY = 0;
+        double dpiX;
+        double dpiY;
         IFC(m_source->GetResolution(&dpiX, &dpiY));
 
         WICPixelFormatGUID pixelFormat{};
@@ -1029,7 +1031,7 @@ HRESULT CBitmapSourceElement::OutputView(IOutputDevice& output, const InfoElemen
         HGLOBAL hAlpha = nullptr;
         IWICBitmapSourcePtr source;
 
-        if (m_colorTransform == NULL)
+        if (!m_colorTransform)
         {
             IWICBitmapFrameDecodePtr frame;
             IWICColorContextPtr colorContextSrc;
@@ -1173,7 +1175,7 @@ HRESULT CBitmapSourceElement::CreateDibFromBitmapSource(IWICBitmapSource* source
 
     // Init the format converter to output Bgra32
     IFC(formatConverter->Initialize(source, GUID_WICPixelFormat32bppBGRA,
-        WICBitmapDitherTypeNone, NULL, 0.0, WICBitmapPaletteTypeCustom));
+        WICBitmapDitherTypeNone, nullptr, 0.0, WICBitmapPaletteTypeCustom));
 
     // Create a FlipRotator because windows requires the bitmap to be bottom-up
     IWICBitmapFlipRotatorPtr flipper;
@@ -1234,7 +1236,7 @@ HRESULT CBitmapSourceElement::CreateDibFromBitmapSource(IWICBitmapSource* source
     if (bAlphaEnabled)
     {
         *phAlpha = GlobalAlloc(GMEM_MOVEABLE, dibSize);
-        ATLASSERT(NULL != *phAlpha);
+        ATLASSERT(*phAlpha);
         if (nullptr == hGlobal)
         {
             return E_OUTOFMEMORY;
@@ -1315,7 +1317,7 @@ void CBitmapFrameDecodeElement::FillContextMenu(const HMENU context)
         .dwTypeData = const_cast<LPWSTR>(L"Find metadata by Query Language")
     };
 
-    InsertMenuItem(context, GetMenuItemCount(context), TRUE, &itemInfo);
+    InsertMenuItem(context, GetMenuItemCount(context), true, &itemInfo);
 }
 
 HRESULT CBitmapFrameDecodeElement::SaveAsImage(CImageTransencoder& trans, ICodeGenerator& /*codeGen*/)
@@ -1331,9 +1333,9 @@ HRESULT CBitmapFrameDecodeElement::OutputView(IOutputDevice& output, const InfoE
 {
     HRESULT result = S_OK;
 
-    ATLASSERT(NULL != m_frameDecode);
+    ATLASSERT(m_frameDecode);
 
-    if (NULL != m_frameDecode)
+    if (m_frameDecode)
     {
         IFC(CBitmapSourceElement::OutputView(output, context));
     }
@@ -1426,11 +1428,11 @@ HRESULT CMetadataReaderElement::OutputView(IOutputDevice& output, const InfoElem
 {
     HRESULT result = S_OK;
 
-    ATLASSERT(NULL != m_reader);
+    ATLASSERT(m_reader);
 
     IFC(CComponentInfoElement::OutputView(output, context));
 
-    if (NULL != m_reader)
+    if (m_reader)
     {
         output.BeginKeyValues(L"Metadata Values");
 

@@ -32,8 +32,8 @@ class CSimpleCodeGenerator final : public ICodeGenerator
 public:
     CSimpleCodeGenerator()
     {
-        BeginVariable(L"IWICImagingFactory*", L"imagingFactory", L"NULL");
-        CallFunction(L"CoCreateInstance(CLSID_WICImagingFactory, NULL, CLSCTX_INPROC_SERVER, IID_IWICImagingFactory, (LPVOID*) &imagingFactory)");
+        BeginVariable(L"IWICImagingFactory*", L"imagingFactory", L"nullptr");
+        CallFunction(L"CoCreateInstance(CLSID_WICImagingFactory, nullptr, CLSCTX_INPROC_SERVER, IID_IWICImagingFactory, (LPVOID*) &imagingFactory)");
     }
 
     void BeginVariableScope(const LPCWSTR varType, const LPCWSTR varBaseName, const LPCWSTR varInitValue) override
