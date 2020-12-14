@@ -9,6 +9,9 @@
 #include "pch.h"
 
 #include "BitmapDataObject.h"
+#include "Macros.h"
+
+#include <memory>
 
 HRESULT CBitmapDataObject::InsertDib(HWND /*hWnd*/, IRichEditOle* pRichEditOle, const HGLOBAL hGlobal)
 {
@@ -18,11 +21,9 @@ HRESULT CBitmapDataObject::InsertDib(HWND /*hWnd*/, IRichEditOle* pRichEditOle, 
     IDataObject* dataObject{};
     IStorage* storage{};
     ILockBytes* lockBytes{};
-    IOleObject* oleObject{};
 
-    // Get the bitmap's DataObject
-    auto* bitmapDataObject = new CBitmapDataObject;
-    bitmapDataObject->QueryInterface(IID_PPV_ARGS(&dataObject));
+    auto bitmapDataObject{ std::make_unique<CBitmapDataObject>() };
+    ATLVERIFY(SUCCEEDED(bitmapDataObject->QueryInterface(IID_PPV_ARGS(&dataObject))));
     bitmapDataObject->SetDib(hGlobal);
 
     // Get the RichEdit container site
@@ -46,6 +47,7 @@ HRESULT CBitmapDataObject::InsertDib(HWND /*hWnd*/, IRichEditOle* pRichEditOle, 
     }
 
     // Get the ole object which will be inserted in the richedit control
+    IOleObject* oleObject{};
     if (SUCCEEDED(result))
     {
         result = bitmapDataObject->GetOleObject(oleClientSite, storage, oleObject);
@@ -53,7 +55,7 @@ HRESULT CBitmapDataObject::InsertDib(HWND /*hWnd*/, IRichEditOle* pRichEditOle, 
     }
 
     // Add the object to the RichEdit
-    if (SUCCEEDED(result))
+    if (SUCCEEDED(result) && oleObject)
     {
         CLSID clsid;
         oleObject->GetUserClassID(&clsid);
@@ -73,6 +75,8 @@ HRESULT CBitmapDataObject::InsertDib(HWND /*hWnd*/, IRichEditOle* pRichEditOle, 
     }
 
     // Cleanup
+    static_cast<void>(bitmapDataObject.release()); // To prevent delete twice.
+
     if (oleObject)
     {
         oleObject->Release();
@@ -97,10 +101,6 @@ HRESULT CBitmapDataObject::InsertDib(HWND /*hWnd*/, IRichEditOle* pRichEditOle, 
     return result;
 }
 
-CBitmapDataObject::~CBitmapDataObject()
-{
-    ReleaseStgMedium(&m_stgmed);
-}
 
 HRESULT STDMETHODCALLTYPE CBitmapDataObject::QueryInterface(REFIID iid, void** ppvObject) noexcept
 {
@@ -203,12 +203,13 @@ HRESULT STDMETHODCALLTYPE CBitmapDataObject::EnumDAdvise(IEnumSTATDATA** ppenumA
     return OLE_E_ADVISENOTSUPPORTED;
 }
 
-void CBitmapDataObject::SetDib(const HGLOBAL hGlobal)
+void CBitmapDataObject::SetDib(const HGLOBAL hGlobal) noexcept
 {
     ATLASSERT(hGlobal);
 
     if (hGlobal)
     {
+        WARNING_SUPPRESS_NEXT_LINE(26476) // : Expression / symbol '{(HGLOBAL)hGlobal}' uses a naked union 'union ' with multiple type pointers : Use variant instead(type.7).
         STGMEDIUM stgm{ .tymed = TYMED_HGLOBAL, .hGlobal = hGlobal };
         FORMATETC fm { .dwAspect = DVASPECT_CONTENT, .lindex = -1, .tymed = TYMED_NULL };
 
@@ -216,7 +217,7 @@ void CBitmapDataObject::SetDib(const HGLOBAL hGlobal)
     }
 }
 
-HRESULT CBitmapDataObject::GetOleObject(IOleClientSite* oleClientSite, IStorage* storage, IOleObject*& oleObject)
+HRESULT CBitmapDataObject::GetOleObject(IOleClientSite* oleClientSite, IStorage* storage, IOleObject*& oleObject) noexcept
 {
     HRESULT result = E_UNEXPECTED;
 

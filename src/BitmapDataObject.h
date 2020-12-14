@@ -14,7 +14,11 @@ public:
     static HRESULT InsertDib(HWND hWnd, IRichEditOle *pRichEditOle, HGLOBAL hGlobal);
 
     CBitmapDataObject() = default;
-    ~CBitmapDataObject();
+
+    virtual ~CBitmapDataObject()
+    {
+        ReleaseStgMedium(&m_stgmed);
+    }
 
     CBitmapDataObject(const CBitmapDataObject&) = delete;
     CBitmapDataObject(CBitmapDataObject&&) = delete;
@@ -22,24 +26,24 @@ public:
     CBitmapDataObject& operator=(CBitmapDataObject&&) = delete;
 
     // IUnknown Interface
-    STDMETHOD(QueryInterface)(REFIID iid, void **ppvObject) noexcept override;
-    STDMETHOD_(ULONG, AddRef)() noexcept override;
-    STDMETHOD_(ULONG, Release)() noexcept override;
+    HRESULT STDMETHODCALLTYPE QueryInterface(REFIID iid, void **ppvObject) noexcept override;
+    ULONG STDMETHODCALLTYPE AddRef() noexcept override;
+    ULONG STDMETHODCALLTYPE Release() noexcept override;
 
     // IDataObject Interface
-    STDMETHOD(GetData)(FORMATETC *pformatetcIn, STGMEDIUM *pmedium) noexcept override;
-    STDMETHOD(GetDataHere)(FORMATETC *pformatetc, STGMEDIUM *pmedium) noexcept override;
-    STDMETHOD(QueryGetData)(FORMATETC *pformatetc ) noexcept override;
-    STDMETHOD(GetCanonicalFormatEtc)(FORMATETC *pformatectIn, FORMATETC* pformatetcOut) noexcept override;
-    STDMETHOD(SetData)(FORMATETC *pformatetc, STGMEDIUM *pmedium, BOOL fRelease) noexcept override;
-    STDMETHOD(EnumFormatEtc)(DWORD dwDirection, IEnumFORMATETC **ppenumFormatEtc) noexcept override;
-    STDMETHOD(DAdvise)(FORMATETC *pformatetc, DWORD advf, IAdviseSink *pAdvSink, DWORD *pdwConnection) noexcept override;
-    STDMETHOD(DUnadvise)(DWORD dwConnection) noexcept override;
-    STDMETHOD(EnumDAdvise)(IEnumSTATDATA **ppenumAdvise) noexcept override;
+    HRESULT STDMETHODCALLTYPE GetData(FORMATETC *pformatetcIn, STGMEDIUM *pmedium) noexcept override;
+    HRESULT STDMETHODCALLTYPE GetDataHere(FORMATETC *pformatetc, STGMEDIUM *pmedium) noexcept override;
+    HRESULT STDMETHODCALLTYPE QueryGetData(FORMATETC *pformatetc ) noexcept override;
+    HRESULT STDMETHODCALLTYPE GetCanonicalFormatEtc(FORMATETC *pformatectIn, FORMATETC* pformatetcOut) noexcept override;
+    HRESULT STDMETHODCALLTYPE SetData(FORMATETC *pformatetc, STGMEDIUM *pmedium, BOOL fRelease) noexcept override;
+    HRESULT STDMETHODCALLTYPE EnumFormatEtc(DWORD dwDirection, IEnumFORMATETC **ppenumFormatEtc) noexcept override;
+    HRESULT STDMETHODCALLTYPE DAdvise(FORMATETC *pformatetc, DWORD advf, IAdviseSink *pAdvSink, DWORD *pdwConnection) noexcept override;
+    HRESULT STDMETHODCALLTYPE DUnadvise(DWORD dwConnection) noexcept override;
+    HRESULT STDMETHODCALLTYPE EnumDAdvise(IEnumSTATDATA **ppenumAdvise) noexcept override;
 
 private:
-    void SetDib(HGLOBAL hGlobal);
-    HRESULT GetOleObject(IOleClientSite *oleClientSite, IStorage *storage, IOleObject *&oleObject);
+    void SetDib(HGLOBAL hGlobal) noexcept;
+    HRESULT GetOleObject(IOleClientSite *oleClientSite, IStorage *storage, IOleObject *&oleObject) noexcept;
 
     ULONG m_numReferences{};
 

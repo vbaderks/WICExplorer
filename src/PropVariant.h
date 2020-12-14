@@ -1,4 +1,4 @@
-//----------------------------------------------------------------------------------------
+﻿//----------------------------------------------------------------------------------------
 // THIS CODE AND INFORMATION IS PROVIDED "AS-IS" WITHOUT WARRANTY OF
 // ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 // THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
@@ -8,7 +8,7 @@
 //----------------------------------------------------------------------------------------
 #pragma once
 
-const unsigned PVTSOPTION_IncludeType = 0x01;
+constexpr unsigned PVTSOPTION_IncludeType = 0x01;
 
 HRESULT PropVariantToString(PROPVARIANT *pv, unsigned options, CString &out);
 HRESULT VariantTypeToString(VARTYPE vt, CString &out);

@@ -19,11 +19,11 @@ public:
     IOutputDevice& operator=(const IOutputDevice&) = default;
     IOutputDevice& operator=(IOutputDevice&&) = default;
 
-    virtual void SetBackgroundColor(COLORREF color) = 0;
+    virtual void SetBackgroundColor(COLORREF color) noexcept(false) = 0;
     virtual COLORREF SetTextColor(COLORREF color) = 0;
-    virtual void SetHighlightColor(COLORREF color) = 0;
+    virtual void SetHighlightColor(COLORREF color) noexcept(false) = 0 ;
 
-    virtual void SetFontName(LPCWSTR name) = 0;
+    virtual void SetFontName(LPCWSTR name) noexcept(false) = 0;
     virtual int SetFontSize(int pointSize) = 0;
 
     virtual void BeginSection(LPCWSTR name) = 0;
@@ -41,11 +41,11 @@ class CRichEditDevice final : public IOutputDevice
 public:
     explicit CRichEditDevice(CRichEditCtrl &richEditCtrl);
 
-    void SetBackgroundColor(COLORREF color) override;
+    void SetBackgroundColor(COLORREF color)  noexcept(false) override;
     COLORREF SetTextColor(COLORREF color) override;
-    void SetHighlightColor(COLORREF color) override;
+    void SetHighlightColor(COLORREF color) noexcept(false) override;
 
-    void SetFontName(LPCWSTR name) override;
+    void SetFontName(LPCWSTR name) noexcept(false) override;
     int SetFontSize(int pointSize) override;
 
     void BeginSection(LPCWSTR name) override;

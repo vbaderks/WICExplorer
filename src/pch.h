@@ -24,6 +24,9 @@
 #pragma warning(push)
 #pragma warning(disable: 4471) // enum forward without type
 #pragma warning(disable: 5204) // class has virtual functions, but its trivial destructor is not virtual;
+#pragma warning(disable: 26496) // The variable '_hr' is assigned only once, mark it as const (con.4).
+#pragma warning(disable: 26812) // Enum type is unscoped.
+#pragma warning(disable: 33005) // VARIANT '&allotemp.2' was provided as an _In_ or _InOut_ parameter but was not initialized(expression 'allotemp.2').
 #import "msxml2.tlb" named_guids
 #pragma warning(pop)
 
@@ -42,6 +45,8 @@
 #pragma warning(push)
 #pragma warning(disable: 4127) // conditional expression is constant
 #pragma warning(disable: 5204) // class has virtual functions, but its trivial destructor is not virtual;
+#pragma warning(disable: 26493) // Don't use C-style casts (type.4).
+#pragma warning(disable: 26440) // Function '' can be declared 'noexcept' (f.6).
 #include <atlapp.h>
 #include <atlframe.h>
 #include <atlctrls.h>

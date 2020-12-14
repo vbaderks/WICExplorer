@@ -10,10 +10,12 @@
 
 #include "ImageTransencoder.h"
 
+#include <vector>
+
 namespace
 {
 
-    uint32_t NumPaletteColorsRequiredByFormat(REFGUID pf)
+    uint32_t NumPaletteColorsRequiredByFormat(const GUID& pf) noexcept
     {
         if (GUID_WICPixelFormat1bppIndexed == pf)
         {
@@ -38,12 +40,12 @@ namespace
 }
 
 
-CImageTransencoder::~CImageTransencoder()
+CImageTransencoder::~CImageTransencoder() noexcept(false)
 {
     End();
 }
 
-void CImageTransencoder::Clear()
+void CImageTransencoder::Clear() noexcept
 {
     m_codeGen           = nullptr;
     m_stream            = nullptr;
@@ -283,25 +285,27 @@ HRESULT CImageTransencoder::CreateFrameEncode(IWICBitmapSource* bitmapSource, IW
         SUCCEEDED(frame->GetColorContexts(0, nullptr, &colorContextCount)) &&
         colorContextCount > 0)
     {
-        auto** contexts = new IWICColorContext*[colorContextCount];
+        std::vector<IWICColorContext*> contexts(colorContextCount);
+
         for (uint32_t i = 0; i < colorContextCount; i++)
         {
             IFC(g_imagingFactory->CreateColorContext(&contexts[i]));
         }
-        IFC(frame->GetColorContexts(colorContextCount, contexts, &colorContextCount));
 
-        if(FAILED(frameEncode->SetColorContexts(colorContextCount, contexts)))
+        IFC(frame->GetColorContexts(colorContextCount, contexts.data(), &colorContextCount));
+
+        if(FAILED(frameEncode->SetColorContexts(colorContextCount, contexts.data())))
         {
             ::MessageBox(nullptr, L"Unable to copy color contexts", L"Warning", MB_OK);
         }
-        for(uint32_t i = 0; i < colorContextCount; i++)
+
+        for (size_t i{}; i < contexts.size(); ++i)
         {
             if(contexts[i] != nullptr)
             {
                 contexts[i]->Release();
             }
         }
-        delete[] contexts;
     }
 
     // Finally, write the actual BitmapSource

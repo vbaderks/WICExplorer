@@ -9,14 +9,16 @@
 #pragma once
 
 #include "resource.h"
+#include "Macros.h"
 
 class CEncoderSelectionDlg final : public CDialogImpl<CEncoderSelectionDlg>
 {
 public:
     enum { IDD = IDD_ENCODER_SELECTION };
 
-    CEncoderSelectionDlg() = default;
+    //CEncoderSelectionDlg() = default;
 
+    WARNING_SUPPRESS_NEXT_LINE(26433) //  Function 'ProcessWindowMessage' should be marked with 'override' (c.128).
     BEGIN_MSG_MAP(CEncoderSelectionDlg)
         MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
         COMMAND_ID_HANDLER(IDOK, OnCloseCmd)

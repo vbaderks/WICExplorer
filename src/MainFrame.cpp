@@ -14,6 +14,9 @@
 #include "AboutDlg.h"
 #include "PropVariant.h"
 
+#include <vector>
+#include <memory>
+
 namespace
 {
     CString GetFullPath(const CString& directory, const CString& file)
@@ -192,19 +195,19 @@ HTREEITEM CMainFrame::FindTreeItem(const HTREEITEM start, CInfoElement* element)
     return FindTreeItem(m_mainTree.GetNextSiblingItem(start), element);
 }
 
-int CMainFrame::GetElementTreeImage(CInfoElement* elem)
+int CMainFrame::GetElementTreeImage(const CInfoElement* elem) noexcept
 {
-    if (dynamic_cast<CBitmapDecoderElement*>(elem))
+    if (dynamic_cast<const CBitmapDecoderElement*>(elem))
     {
         return 151;
     }
 
-    if (dynamic_cast<CBitmapFrameDecodeElement*>(elem))
+    if (dynamic_cast<const CBitmapFrameDecodeElement*>(elem))
     {
         return 160;
     }
 
-    if (dynamic_cast<CMetadataReaderElement*>(elem))
+    if (dynamic_cast<const CMetadataReaderElement*>(elem))
     {
         return 7;
     }
@@ -212,7 +215,7 @@ int CMainFrame::GetElementTreeImage(CInfoElement* elem)
     return 85;
 }
 
-HTREEITEM CMainFrame::BuildTree(CInfoElement* elem, const HTREEITEM hParent)
+HTREEITEM CMainFrame::BuildTree(const CInfoElement* elem, const HTREEITEM hParent)
 {
     ATLASSERT(elem);
 
@@ -253,7 +256,7 @@ void CMainFrame::UpdateTreeView(const bool selectLastRoot)
     // This method simply destroys the entire tree, then re-creates it from scratch.
     m_mainTree.DeleteAllItems();
 
-    CInfoElement* root = CElementManager::GetRootElement();
+    const CInfoElement* root = CElementManager::GetRootElement();
     HTREEITEM rootItem = nullptr;
     if (root->FirstChild())
     {
@@ -274,7 +277,7 @@ HRESULT CMainFrame::OpenFile(const LPCWSTR filename, bool& updateElements)
     updateElements = false;
 
     CInfoElement* newRoot = nullptr;
-    ICodeGenerator* codeGen = new CSimpleCodeGenerator();
+    auto codeGen = std::make_unique<CSimpleCodeGenerator>();
 
     const HRESULT result = CElementManager::OpenFile(filename, *codeGen, newRoot);
 
@@ -312,8 +315,6 @@ HRESULT CMainFrame::OpenFile(const LPCWSTR filename, bool& updateElements)
         }
     }
 
-    delete codeGen;
-
     return result;
 }
 
@@ -329,8 +330,8 @@ HRESULT CMainFrame::OpenWildcard(const LPCWSTR search, DWORD& attempted, DWORD& 
     // from the search string, and then cFileName has to be concatonated to the
     // directory.
     WCHAR directoryPrefix[MAX_PATH * 2] = { 0 };
-    auto* lastSlash = const_cast<WCHAR*>(wcsrchr(search, L'\\'));
-    auto* lastSlash2 = const_cast<WCHAR*>(wcsrchr(search, L'/'));
+    const auto* lastSlash = wcsrchr(search, L'\\');
+    const auto* lastSlash2 = wcsrchr(search, L'/');
 
     if (lastSlash2 > lastSlash)
     {
@@ -349,7 +350,7 @@ HRESULT CMainFrame::OpenWildcard(const LPCWSTR search, DWORD& attempted, DWORD& 
             return E_INVALIDARG;
         }
 
-        wcsncpy_s(directoryPrefix, ARRAYSIZE(directoryPrefix), search, directorySize);
+        VERIFY(wcsncpy_s(directoryPrefix, ARRAYSIZE(directoryPrefix), search, directorySize) == 0);
     }
 
     if (hf == INVALID_HANDLE_VALUE)
@@ -367,9 +368,9 @@ HRESULT CMainFrame::OpenWildcard(const LPCWSTR search, DWORD& attempted, DWORD& 
         bool updateThis{};
 
         // Concat the filename onto the directory.
-        wcscpy_s(directoryPrefix + directorySize,
+        VERIFY(wcscpy_s(directoryPrefix + directorySize,
             ARRAYSIZE(directoryPrefix) - directorySize,
-            fdata.cFileName);
+            fdata.cFileName) == 0);
 
         if (SUCCEEDED(temp = OpenFile(directoryPrefix, updateThis)))
         {
@@ -436,14 +437,9 @@ LRESULT CMainFrame::OnFileOpen(uint16_t, uint16_t, const HWND hParentWnd, BOOL&)
         L"All Files (*.*)\0*.*\0\0", hParentWnd);
 
     // Create a large buffer to hold the result of the filenames.
-    const int BUFFER_SIZE = 16 * 1024;
-    auto* filenameBuffer = new WCHAR[BUFFER_SIZE];
-    if (nullptr != filenameBuffer)
-    {
-        filenameBuffer[0] = L'\0';
-        fileDlg.m_ofn.lpstrFile = filenameBuffer;
-        fileDlg.m_ofn.nMaxFile = BUFFER_SIZE;
-    }
+    std::vector<WCHAR> filenameBuffer(16 * 1024);
+    fileDlg.m_ofn.lpstrFile = filenameBuffer.data();
+    fileDlg.m_ofn.nMaxFile = static_cast<DWORD>(filenameBuffer.size());
 
     // Bring up the dialog
     const INT_PTR res = fileDlg.DoModal();
@@ -488,8 +484,6 @@ LRESULT CMainFrame::OnFileOpen(uint16_t, uint16_t, const HWND hParentWnd, BOOL&)
             UpdateTreeView(true);
         }
     }
-
-    delete[] filenameBuffer;
 
     return 0;
 }
@@ -615,11 +609,11 @@ void CMainFrame::DrawElement(CInfoElement& element)
     m_infoEdit.SetSel(0, 0);
 }
 
-LRESULT CMainFrame::OnTreeViewSelChanged(WPARAM /*wParam*/, const LPNMHDR lpNmHdr, BOOL& bHandled)
+LRESULT CMainFrame::OnTreeViewSelChanged(WPARAM /*wParam*/, const NMHDR* lpNmHdr, BOOL& bHandled)
 {
     bHandled = true;
 
-    const auto* lpNmTreeView = reinterpret_cast<LPNMTREEVIEW>(lpNmHdr);
+    const auto* lpNmTreeView = reinterpret_cast<const NMTREEVIEWW*>(lpNmHdr);
 
     CInfoElement* elem = GetElementFromTreeItem(lpNmTreeView->itemNew.hItem);
 
@@ -664,21 +658,19 @@ LRESULT CMainFrame::OnNMRClick(int, const LPNMHDR pnmh, BOOL&)
     return 0;
 }
 
-HMENU CMainFrame::CreateElementContextMenu(CInfoElement& element)
+HMENU CMainFrame::CreateElementContextMenu(CInfoElement& element) noexcept
 {
     const HMENU result = CreatePopupMenu();
 
-    MENUITEMINFO itemInfo{};
-    itemInfo.cbSize = sizeof(MENUITEMINFO);
-    itemInfo.fMask = MIIM_FTYPE | MIIM_ID | MIIM_STATE | MIIM_STRING;
-    itemInfo.fType = MFT_STRING;
+    // TODO: why is this MENUITEMINFO  not used?
+    //MENUITEMINFO itemInfo{ .cbSize = sizeof itemInfo, .fMask = MIIM_FTYPE | MIIM_ID | MIIM_STATE | MIIM_STRING, .fType = MFT_STRING };
 
     element.FillContextMenu(result);
 
     return result;
 }
 
-BOOL CMainFrame::DoElementContextMenu(const HWND hWnd, CInfoElement& element, const POINT point)
+BOOL CMainFrame::DoElementContextMenu(const HWND hWnd, CInfoElement& element, const POINT point) noexcept
 {
     const HMENU hMenu = CreateElementContextMenu(element);
     if (!hMenu)
@@ -709,10 +701,10 @@ LRESULT CMainFrame::OnFileSave(uint16_t, uint16_t, HWND, BOOL&)
     return 0;
 }
 
-bool CMainFrame::ElementCanBeSavedAsImage(CInfoElement& element)
+bool CMainFrame::ElementCanBeSavedAsImage(const CInfoElement& element) noexcept
 {
-    return ((nullptr != dynamic_cast<CBitmapDecoderElement*>(&element)) ||
-        (nullptr != dynamic_cast<CBitmapSourceElement*>(&element)));
+    return ((nullptr != dynamic_cast<const CBitmapDecoderElement*>(&element)) ||
+        (nullptr != dynamic_cast<const CBitmapSourceElement*>(&element)));
 }
 
 
@@ -762,14 +754,15 @@ HRESULT CMainFrame::SaveElementAsImage(CInfoElement& element)
                     // The user cares about the pixel format, and WIC actually used
                     // a different one than what the user picked.
                     CString msg;
-                    WCHAR picked[30], actual[30];
+                    WCHAR picked[30];
+                    WCHAR actual[30];
                     if (FAILED(GetPixelFormatName(picked, ARRAYSIZE(picked), dlg.GetPixelFormat())))
                     {
-                        wcscpy_s(picked, ARRAYSIZE(picked), L"Unknown");
+                        VERIFY(wcscpy_s(picked, ARRAYSIZE(picked), L"Unknown") == 0);
                     }
                     if (FAILED(GetPixelFormatName(actual, ARRAYSIZE(actual), format)))
                     {
-                        wcscpy_s(actual, ARRAYSIZE(actual), L"Unknown");
+                        VERIFY(wcscpy_s(actual, ARRAYSIZE(actual), L"Unknown") == 0);
                     }
                     msg.Format(L"You specified '%s' as the pixel format and WIC used '%s'", picked, actual);
 
@@ -799,7 +792,7 @@ HRESULT CMainFrame::SaveElementAsImage(CInfoElement& element)
     return result;
 }
 
-LRESULT CMainFrame::OnAppExit(uint16_t, uint16_t, HWND, BOOL&)
+LRESULT CMainFrame::OnAppExit(uint16_t, uint16_t, HWND, BOOL&) noexcept
 {
     PostMessage(WM_CLOSE);
 
@@ -831,19 +824,19 @@ namespace {
             IWICMetadataWriterPtr writer;
             IWICMetadataBlockReaderPtr blockReader;
 
-            ULONG STDMETHODCALLTYPE AddRef() override
+            ULONG STDMETHODCALLTYPE AddRef() noexcept override
             {
                 return 0;
             }
 
-            ULONG STDMETHODCALLTYPE Release() override
+            ULONG STDMETHODCALLTYPE Release() noexcept override
             {
                 return 0;
             }
 
-            HRESULT STDMETHODCALLTYPE QueryInterface(const IID& id, void** dest) override
+            HRESULT __stdcall QueryInterface(const IID& id, void** dest) noexcept override
             {
-                if (id == IID_IWICMetadataBlockWriter || id == IID_IWICMetadataBlockReader || id == IID_IWICMetadataBlockReader)
+                if (id == IID_IWICMetadataBlockWriter || id == IID_IWICMetadataBlockReader)
                 {
                     *dest = this;
                     return S_OK;
@@ -852,26 +845,19 @@ namespace {
                 return E_NOINTERFACE;
             }
 
-            STDMETHOD(InitializeFromBlockReader)(
-                IWICMetadataBlockReader* pIMDBlockReader
-                ) override
+            HRESULT __stdcall InitializeFromBlockReader(IWICMetadataBlockReader* pIMDBlockReader) noexcept override
             {
                 blockReader = pIMDBlockReader;
                 return S_OK;
             }
 
-            STDMETHOD(GetWriterByIndex)(
-                uint32_t /*nIndex*/,
-                IWICMetadataWriter** ppIMetadataWriter
-                ) override
+            HRESULT __stdcall GetWriterByIndex(uint32_t /*nIndex*/, IWICMetadataWriter** ppIMetadataWriter) noexcept override
             {
                 *ppIMetadataWriter = nullptr;
                 return CO_E_NOT_SUPPORTED;
             }
 
-            STDMETHOD(AddWriter)(
-                IWICMetadataWriter* pIMetadataWriter
-                ) override
+            HRESULT __stdcall AddWriter(IWICMetadataWriter* pIMetadataWriter) noexcept override
             {
                 if (writer)
                 {
@@ -881,47 +867,34 @@ namespace {
                 return S_OK;
             }
 
-            STDMETHOD(SetWriterByIndex)(
-                uint32_t /*nIndex*/,
-                IWICMetadataWriter* /*pIMetadataWriter*/
-                ) override
+            HRESULT __stdcall SetWriterByIndex(uint32_t /*nIndex*/, IWICMetadataWriter* /*pIMetadataWriter*/) noexcept override
             {
                 return CO_E_NOT_SUPPORTED;
             }
 
-            STDMETHOD(RemoveWriterByIndex)(
-                uint32_t /*nIndex*/) override
+            HRESULT __stdcall RemoveWriterByIndex(uint32_t /*nIndex*/) noexcept override
             {
                 return CO_E_NOT_SUPPORTED;
             }
 
-            STDMETHOD(GetContainerFormat)(
-                GUID* /*pguidContainerFormat*/
-                ) override
+            HRESULT __stdcall GetContainerFormat(GUID* /*pguidContainerFormat*/) noexcept override
             {
                 return CO_E_NOT_SUPPORTED;
             }
 
-            STDMETHOD(GetCount)(
-                uint32_t* pcCount
-                ) override
+            HRESULT __stdcall GetCount(uint32_t* pcCount) noexcept override
             {
                 *pcCount = 0;
                 return CO_E_NOT_SUPPORTED;
             }
 
-            STDMETHOD(GetReaderByIndex)(
-                uint32_t /*nIndex*/,
-                IWICMetadataReader** ppIMetadataReader
-                ) override
+            HRESULT __stdcall GetReaderByIndex(uint32_t /*nIndex*/, IWICMetadataReader** ppIMetadataReader) noexcept override
             {
                 *ppIMetadataReader = nullptr;
                 return CO_E_NOT_SUPPORTED;
             }
 
-            STDMETHOD(GetEnumerator)(
-                IEnumUnknown** ppIEnumMetadata
-                ) override
+            HRESULT __stdcall GetEnumerator(IEnumUnknown** ppIEnumMetadata) noexcept override
             {
                 *ppIEnumMetadata = nullptr;
                 return CO_E_NOT_SUPPORTED;
@@ -962,7 +935,6 @@ namespace {
 
         return result;
     }
-
 }
 
 LRESULT CMainFrame::OnShowViewPane(uint16_t /*code*/, const uint16_t item, HWND /*hSender*/, BOOL& handled)
@@ -1074,7 +1046,8 @@ HRESULT CMainFrame::QueryMetadata(CInfoElement* elem)
         CAtlString m_path;
         enum { IDD = IDD_QLPATH };
 
-        BEGIN_MSG_MAP(CAboutDlg)
+        WARNING_SUPPRESS_NEXT_LINE(26433) //  Function 'ProcessWindowMessage' should be marked with 'override' (c.128).
+        BEGIN_MSG_MAP(CAboutDlg) // TODO: CAboutDlg doesn't seem right.
             COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
             COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
         END_MSG_MAP()

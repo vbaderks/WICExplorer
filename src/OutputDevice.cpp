@@ -52,13 +52,13 @@ COLORREF CRichEditDevice::SetTextColor(const COLORREF color)
     return result;
 }
 
-void CRichEditDevice::SetHighlightColor(const COLORREF color)
+void CRichEditDevice::SetHighlightColor(const COLORREF color) noexcept(false)
 {
     CHARFORMAT2 cf{{.cbSize = sizeof cf, .dwMask = CFM_BACKCOLOR}, 0, 0, color};
     m_richEditCtrl.SendMessage(EM_SETCHARFORMAT, SCF_SELECTION | SCF_WORD, reinterpret_cast<LPARAM>(&cf));
 }
 
-void CRichEditDevice::SetFontName(const LPCWSTR name)
+void CRichEditDevice::SetFontName(const LPCWSTR name) noexcept(false)
 {
     CHARFORMAT2 cf{{.cbSize = sizeof cf}, FW_NORMAL};
 

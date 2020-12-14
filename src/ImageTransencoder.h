@@ -14,7 +14,7 @@ class CImageTransencoder final
 {
 public:
     CImageTransencoder() = default;
-    ~CImageTransencoder();
+    ~CImageTransencoder() noexcept(false);
 
     CImageTransencoder(const CImageTransencoder&) = default;
     CImageTransencoder(CImageTransencoder&&) = default;
@@ -30,7 +30,7 @@ public:
     WICPixelFormatGUID     m_format{GUID_WICPixelFormatDontCare};
 
 private:
-    void Clear();
+    void Clear() noexcept;
     HRESULT AddBitmapSource(IWICBitmapSource* bitmapSource);
     HRESULT AddBitmapFrameDecode(IWICBitmapFrameDecode* frame);
     HRESULT CreateFrameEncode(IWICBitmapSource* bitmapSource, IWICBitmapFrameEncodePtr &frameEncode);

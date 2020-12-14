@@ -11,21 +11,20 @@
 class CStopwatch final
 {
 public:
-    CStopwatch()
+    CStopwatch() noexcept
     {
-        QueryPerformanceFrequency(&m_frequency);
-        m_startTime.QuadPart = 0;
+        ATLVERIFY(QueryPerformanceFrequency(&m_frequency));
     }
 
-    void Start()
+    void Start() noexcept
     {
-        QueryPerformanceCounter(&m_startTime);
+        ATLVERIFY(QueryPerformanceCounter(&m_startTime));
     }
 
-    [[nodiscard]] DWORD GetTimeMS() const
+    [[nodiscard]] DWORD GetTimeMS() const noexcept
     {
         LARGE_INTEGER now;
-        QueryPerformanceCounter(&now);
+        ATLVERIFY(QueryPerformanceCounter(&now));
 
         const LONGLONG timeMS = (now.QuadPart - m_startTime.QuadPart) * static_cast<LONGLONG>(1000) / m_frequency.QuadPart;
 

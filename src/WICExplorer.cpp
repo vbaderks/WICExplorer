@@ -75,7 +75,7 @@ namespace
         pair{ WINCODEC_ERR_INVALIDQUERYCHARACTER, L"WINCODEC_ERR_INVALIDQUERYCHARACTER"} };
 
 
-int Run(CAppModule& appModule, const LPWSTR lpCmdLine, const int nCmdShow)
+int Run(CAppModule& appModule, const LPCWSTR lpCmdLine, const int nCmdShow)
 {
     CMessageLoop msgLoop;
     appModule.AddMessageLoop(&msgLoop);
@@ -125,7 +125,7 @@ CString GetHresultString(HRESULT hr)
         return knownError->second;
     }
 
-    const DWORD MAX_MsgLength = 256;
+    constexpr DWORD MAX_MsgLength = 256;
 
     WCHAR msg[MAX_MsgLength];
 
@@ -159,7 +159,8 @@ CString GetHresultString(HRESULT hr)
     return msg;
 }
 
-
+WARNING_SUPPRESS_NEXT_LINE(26461) // The pointer argument 'lpCmdLine' for function 'wWinMain' can be marked as a pointer to const (con.3).
+_Use_decl_annotations_
 int WINAPI wWinMain(const HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, const LPWSTR lpCmdLine, const int nShowCmd)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);

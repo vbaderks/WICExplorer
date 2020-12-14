@@ -9,6 +9,7 @@
 #include "pch.h"
 
 #include "PropVariant.h"
+#include "Macros.h"
 
 #include <algorithm>
 
@@ -27,7 +28,7 @@ template<> void WriteValue<CHAR>(const CHAR &val, CString &out)
     out.Format(L"%d", static_cast<int>(val));
 }
 
-template<> LPCWSTR GetTypeName<CHAR>()
+template<> PCWSTR GetTypeName<CHAR>() noexcept
 {
     return L"CHAR";
 }
@@ -37,7 +38,7 @@ template<> void WriteValue<UCHAR>(const UCHAR &val, CString &out)
     out.Format(L"%u", static_cast<unsigned>(val));
 }
 
-template<> LPCWSTR GetTypeName<UCHAR>()
+template<> PCWSTR GetTypeName<UCHAR>() noexcept
 {
     return L"UCHAR";
 }
@@ -47,7 +48,7 @@ template<> void WriteValue<SHORT>(const SHORT &val, CString &out)
     out.Format(L"%d", static_cast<int>(val));
 }
 
-template<> LPCWSTR GetTypeName<SHORT>()
+template<> PCWSTR GetTypeName<SHORT>() noexcept
 {
     return L"SHORT";
 }
@@ -57,7 +58,7 @@ template<> void WriteValue<USHORT>(const USHORT &val, CString &out)
     out.Format(L"%u", static_cast<unsigned>(val));
 }
 
-template<> LPCWSTR GetTypeName<USHORT>()
+template<> PCWSTR GetTypeName<USHORT>() noexcept
 {
     return L"USHORT";
 }
@@ -67,7 +68,7 @@ template<> void WriteValue<LONG>(const LONG &val, CString &out)
     out.Format(L"%d", static_cast<int>(val));
 }
 
-template<> LPCWSTR GetTypeName<LONG>()
+template<> PCWSTR GetTypeName<LONG>() noexcept
 {
     return L"LONG";
 }
@@ -77,7 +78,7 @@ template<> void WriteValue<ULONG>(const ULONG &val, CString &out)
     out.Format(L"%u", static_cast<unsigned>(val));
 }
 
-template<> LPCWSTR GetTypeName<ULONG>()
+template<> PCWSTR GetTypeName<ULONG>() noexcept
 {
     return L"ULONG";
 }
@@ -87,7 +88,7 @@ template<> void WriteValue<INT>(const INT &val, CString &out)
     out.Format(L"%d", static_cast<int>(val));
 }
 
-template<> LPCWSTR GetTypeName<INT>()
+template<> PCWSTR GetTypeName<INT>() noexcept
 {
     return L"INT";
 }
@@ -97,7 +98,7 @@ template<> void WriteValue<uint32_t>(const uint32_t &val, CString &out)
     out.Format(L"%u", static_cast<unsigned>(val));
 }
 
-template<> LPCWSTR GetTypeName<uint32_t>()
+template<> PCWSTR GetTypeName<uint32_t>() noexcept
 {
     return L"UINT";
 }
@@ -108,16 +109,16 @@ template<> void WriteValue<LARGE_INTEGER>(const LARGE_INTEGER &val, CString &out
     if (0 != val.HighPart)
     {
         WCHAR str[64];
-        StringCchPrintfW(str, 64, L"%d / %d (%g)", val.LowPart, val.HighPart, static_cast<double>(val.LowPart) / static_cast<double>(val.HighPart));
+        StringCchPrintfW(str, 64, L"%ul / %dl (%g)", val.LowPart, val.HighPart, static_cast<double>(val.LowPart) / static_cast<double>(val.HighPart));
         out = str;
     }
     else
     {
-        out.Format(L"%d / %d", val.LowPart, val.HighPart);
+        out.Format(L"%ul / %dl", val.LowPart, val.HighPart);
     }
 }
 
-template<> LPCWSTR GetTypeName<LARGE_INTEGER>()
+template<> PCWSTR GetTypeName<LARGE_INTEGER>() noexcept
 {
     return L"LARGE_INTEGER";
 }
@@ -137,7 +138,7 @@ template<> void WriteValue<ULARGE_INTEGER>(const ULARGE_INTEGER &val, CString &o
     }
 }
 
-template<> LPCWSTR GetTypeName<ULARGE_INTEGER>()
+template<> PCWSTR GetTypeName<ULARGE_INTEGER>() noexcept
 {
     return L"ULARGE_INTEGER";
 }
@@ -149,7 +150,7 @@ template<> void WriteValue<FLOAT>(const FLOAT &val, CString &out)
     out = str;
 }
 
-template<> LPCWSTR GetTypeName<FLOAT>()
+template<> PCWSTR GetTypeName<FLOAT>() noexcept
 {
     return L"FLOAT";
 }
@@ -161,7 +162,7 @@ template<> void WriteValue<DOUBLE>(const DOUBLE &val, CString &out)
     out = str;
 }
 
-template<> LPCWSTR GetTypeName<DOUBLE>()
+template<> PCWSTR GetTypeName<DOUBLE>() noexcept
 {
     return L"DOUBLE";
 }
@@ -171,7 +172,7 @@ template<> void WriteValue<CY>(const CY &val, CString &out)
     out.Format(L"%g", static_cast<double>(val.int64) / 10000.0);
 }
 
-template<> LPCWSTR GetTypeName<CY>()
+template<> PCWSTR GetTypeName<CY>() noexcept
 {
     return L"CY";
 }
@@ -179,18 +180,18 @@ template<> LPCWSTR GetTypeName<CY>()
 template<> void WriteValue<CLSID>(const CLSID &val, CString &out)
 {
     WCHAR str[64];
-    StringFromGUID2(val, str, 64);
+    VERIFY(StringFromGUID2(val, str, 64) != 0);
     out = str;
 }
 
-template<> LPCWSTR GetTypeName<CLSID>()
+template<> PCWSTR GetTypeName<CLSID>() noexcept
 {
     return L"CLSID";
 }
 
 template<> void WriteValue<BLOB>(const BLOB &val, CString &out)
 {
-    const ULONG MAX_BYTES = 10;
+    constexpr ULONG MAX_BYTES = 10;
     CString b;
 
     out.Format(L"%u bytes = { ", val.cbSize);
@@ -208,19 +209,19 @@ template<> void WriteValue<BLOB>(const BLOB &val, CString &out)
     out += L"}";
 }
 
-template<> LPCWSTR GetTypeName<BLOB>()
+template<> PCWSTR GetTypeName<BLOB>() noexcept
 {
     return L"BLOB";
 }
 
-template<> void WriteValue<LPSTR>(const LPSTR &val, CString &out)
+template<> void WriteValue<PSTR>(const PSTR &val, CString &out)
 {
     out = L"\"" + CString(val) + L"\"";
 }
 
-template<> LPCWSTR GetTypeName<LPSTR>()
+template<> PCWSTR GetTypeName<PSTR>() noexcept
 {
-    return L"LPSTR";
+    return L"PSTR";
 }
 
 template<> void WriteValue<LPWSTR>(const LPWSTR &val, CString &out)
@@ -228,9 +229,9 @@ template<> void WriteValue<LPWSTR>(const LPWSTR &val, CString &out)
     out = L"\"" + CString(val) + L"\"";
 }
 
-template<> LPCWSTR GetTypeName<LPWSTR>()
+template<> PCWSTR GetTypeName<PWSTR>() noexcept
 {
-    return L"LPWSTR";
+    return L"PWSTR";
 }
 
 template<> void WriteValue<IUnknown>(const IUnknown &val, CString &out)
@@ -238,14 +239,14 @@ template<> void WriteValue<IUnknown>(const IUnknown &val, CString &out)
     out.Format(L"IUnknown * = %p", &val);
 }
 
-template<> LPCWSTR GetTypeName<IUnknown>()
+template<> PCWSTR GetTypeName<IUnknown>() noexcept
 {
     return L"IUnknown*";
 }
 
 template<typename T> void WriteValues(const ULONG count, T *vals, const VARTYPE type, const unsigned options, CString &out)
 {
-    const ULONG MAX_VALUES = 10;
+    constexpr ULONG MAX_VALUES = 10;
     CString b;
 
     if (options & PVTSOPTION_IncludeType)

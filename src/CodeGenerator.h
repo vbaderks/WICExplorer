@@ -8,6 +8,8 @@
 //----------------------------------------------------------------------------------------
 #pragma once
 
+#include "Macros.h"
+
 struct ICodeGenerator
 {
     virtual ~ICodeGenerator() = default;
@@ -22,7 +24,7 @@ struct ICodeGenerator
     virtual void EndVariableScope() = 0;
     virtual void CallFunction(LPCWSTR func, ...) = 0;
 
-    virtual LPCWSTR GetLastVariableName() = 0;
+    virtual LPCWSTR GetLastVariableName() noexcept = 0;
 
     virtual void GenerateCode(CString &out) = 0;
 };
@@ -30,7 +32,7 @@ struct ICodeGenerator
 class CSimpleCodeGenerator final : public ICodeGenerator
 {
 public:
-    CSimpleCodeGenerator()
+    CSimpleCodeGenerator() noexcept(false)
     {
         BeginVariable(L"IWICImagingFactory*", L"imagingFactory", L"nullptr");
         CallFunction(L"CoCreateInstance(CLSID_WICImagingFactory, nullptr, CLSCTX_INPROC_SERVER, IID_IWICImagingFactory, (LPVOID*) &imagingFactory)");
@@ -57,10 +59,12 @@ public:
 
     void CallFunction(LPCWSTR func, ...) override
     {
-        const size_t maxCallLength = 1024;
+        constexpr size_t maxCallLength = 1024;
         WCHAR call[maxCallLength];
 
         va_list args;
+
+        WARNING_SUPPRESS_NEXT_LINE(26492) // Don't use const_cast to cast away const or volatile (type.3).
         va_start(args, func);
 
         StringCchVPrintf(call, maxCallLength, func, args);
@@ -72,7 +76,7 @@ public:
         AddLine(call);
     }
 
-    LPCWSTR GetLastVariableName() override
+    LPCWSTR GetLastVariableName() noexcept override
     {
         return m_lastVarName;
     }

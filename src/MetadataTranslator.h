@@ -32,21 +32,21 @@ public:
 private:
     struct Key final
     {
-        Key(LPCWSTR guidStr, LPCWSTR idStr);
+        Key(PCWSTR guidStr, PCWSTR idStr) noexcept;
         Key() = default;
 
         GUID m_format{};
         int m_id{};
 
-        bool operator == (const Key &other) const
+        bool operator == (const Key &other) const noexcept
         {
             return other.m_id == m_id && other.m_format == m_format;
         }
     };
 
-    CMetadataTranslator() = default;
+    CMetadataTranslator() noexcept = default;
 
-    static HRESULT ReadPropVariantInteger(PROPVARIANT *pv, int &out);
+    static HRESULT ReadPropVariantInteger(PROPVARIANT *pv, int &out) noexcept;
     HRESULT LoadFormat(MSXML2::IXMLDOMNodePtr formatNode);
     HRESULT LoadTranslations();
 

@@ -9,14 +9,15 @@
 #include "pch.h"
 
 #include "MetadataTranslator.h"
+#include "Macros.h"
 
-CMetadataTranslator::Key::Key(const LPCWSTR guidStr, const LPCWSTR idStr)
+CMetadataTranslator::Key::Key(const PCWSTR guidStr, const PCWSTR idStr) noexcept :
+    m_id{_wtoi(idStr)}
 {
-    CLSIDFromString(guidStr, &m_format);
-    m_id = _wtoi(idStr);
+    VERIFY(SUCCEEDED(CLSIDFromString(guidStr, &m_format)));
 }
 
-HRESULT CMetadataTranslator::ReadPropVariantInteger(PROPVARIANT *pv, int &out)
+HRESULT CMetadataTranslator::ReadPropVariantInteger(PROPVARIANT *pv, int &out) noexcept
 {
     HRESULT result{E_INVALIDARG};
 
@@ -68,7 +69,7 @@ HRESULT CMetadataTranslator::ReadPropVariantInteger(PROPVARIANT *pv, int &out)
 
 HRESULT CMetadataTranslator::Translate(const GUID &format, PROPVARIANT *pv, CString &out) const
 {
-    HRESULT result = S_OK;
+    HRESULT result;
 
     int id = 0;
 
@@ -99,9 +100,10 @@ HRESULT CMetadataTranslator::LoadFormat(MSXML2::IXMLDOMNodePtr formatNode)
 {
     // Get the format
     _bstr_t formatGuidStr;
-    const MSXML2::IXMLDOMNodePtr formatGuidNode = formatNode->attributes->getNamedItem(TEXT("guid"));
+    const MSXML2::IXMLDOMNodePtr formatGuidNode = formatNode->attributes->getNamedItem(L"guid");
     if (formatGuidNode)
     {
+        WARNING_SUPPRESS_NEXT_LINE(33005) // VARIANT '' was provided as an _In_ or _InOut_ parameter but was not initialized(expression '&allotemp.4').
         formatGuidStr = formatGuidNode->nodeValue;
     }
 
@@ -117,12 +119,15 @@ HRESULT CMetadataTranslator::LoadFormat(MSXML2::IXMLDOMNodePtr formatNode)
     {
         if (_wcsicmp(entryNodes->item[ei]->nodeName, TEXT("entry")) == 0)
         {
-            const MSXML2::IXMLDOMNodePtr entryIdNode = entryNodes->item[ei]->attributes->getNamedItem(TEXT("id"));
-            const MSXML2::IXMLDOMNodePtr entryValueNode = entryNodes->item[ei]->attributes->getNamedItem(TEXT("value"));
+            const MSXML2::IXMLDOMNodePtr entryIdNode = entryNodes->item[ei]->attributes->getNamedItem(L"id");
+            const MSXML2::IXMLDOMNodePtr entryValueNode = entryNodes->item[ei]->attributes->getNamedItem(L"value");
 
             if (entryIdNode && entryValueNode)
             {
+                WARNING_SUPPRESS_NEXT_LINE(33005) // VARIANT '' was provided as an _In_ or _InOut_ parameter but was not initialized(expression '&allotemp.4').
                 _bstr_t idStr{ entryIdNode->nodeValue };
+
+                WARNING_SUPPRESS_NEXT_LINE(33005) // VARIANT '' was provided as an _In_ or _InOut_ parameter but was not initialized(expression '&allotemp.4').
                 _bstr_t valueStr{ entryValueNode->nodeValue };
 
                 // Finally, we can add this entry
