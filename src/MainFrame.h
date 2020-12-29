@@ -29,6 +29,7 @@ public:
         COMMAND_ID_HANDLER(ID_APP_ABOUT, OnAppAbout)
         COMMAND_ID_HANDLER(ID_SHOW_VIEWPANE, OnShowViewPane)
         COMMAND_ID_HANDLER(ID_SHOW_ALPHA, OnShowAlpha)
+        COMMAND_ID_HANDLER(ID_SHOW_INSTALLED_CODECS, OnShowInstalledCodecs)
         COMMAND_ID_HANDLER(ID_FILE_LOAD, OnContextClick)
         COMMAND_ID_HANDLER(ID_FILE_UNLOAD, OnContextClick)
         COMMAND_ID_HANDLER(ID_FILE_CLOSE, OnContextClick)
@@ -79,6 +80,7 @@ private:
     static LRESULT OnAppAbout(uint16_t, uint16_t, HWND, BOOL&);
     LRESULT OnShowViewPane(uint16_t code, uint16_t item, HWND hSender, BOOL& handled);
     LRESULT OnShowAlpha(uint16_t code, uint16_t item, HWND hSender, BOOL& handled);
+    LRESULT OnShowInstalledCodecs(uint16_t, uint16_t, HWND, BOOL&);
     LRESULT OnContextClick(uint16_t code, uint16_t item, HWND hSender, BOOL& handled);
 
     CSplitterWindow m_mainSplit;

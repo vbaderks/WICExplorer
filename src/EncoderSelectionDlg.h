@@ -38,4 +38,3 @@ private:
     CSimpleArray<GUID> m_formats;
     int m_formatSel{-1};
 };
-

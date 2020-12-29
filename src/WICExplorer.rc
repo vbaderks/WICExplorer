@@ -13,13 +13,11 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// English (U.S.) resources
+// English (United States) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
-#ifdef _WIN32
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 #pragma code_page(1252)
-#endif //_WIN32
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -27,18 +25,18 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE
+1 TEXTINCLUDE 
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE
+2 TEXTINCLUDE 
 BEGIN
-    "#include "<atlres.h>"\r\n"
+    "#include <atlres.h>\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE
+3 TEXTINCLUDE 
 BEGIN
     "\0"
 END
@@ -51,7 +49,7 @@ END
 // Toolbar
 //
 
-IDR_MAINFRAME TOOLBAR  16, 16
+IDR_MAINFRAME TOOLBAR 16, 16
 BEGIN
     BUTTON      ID_FILE_OPEN
     BUTTON      ID_FILE_OPEN_DIR
@@ -66,7 +64,9 @@ END
 //
 
 IDR_MAINFRAME           BITMAP                  "Toolbar.bmp"
+
 IDB_MAINTREE            BITMAP                  "MainTree.bmp"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -86,7 +86,9 @@ BEGIN
     POPUP "&View"
     BEGIN
         MENUITEM "Show &View Pane",             ID_SHOW_VIEWPANE, CHECKED
-        MENUITEM "Show Alpha",                      ID_SHOW_ALPHA, CHECKED
+        MENUITEM "Show Alpha",                  ID_SHOW_ALPHA, CHECKED
+        MENUITEM SEPARATOR
+        MENUITEM "Installed WIC Codecs",        ID_SHOW_INSTALLED_CODECS
     END
     POPUP "&Help"
     BEGIN
@@ -103,6 +105,7 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDR_MAINFRAME           ICON                    "WICExplorer.ico"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -142,6 +145,15 @@ BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,221,24,50,14
 END
 
+IDD_VIEW_INSTALLED_CODECS DIALOGEX 0, 0, 369, 187
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Dialog"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,313,166,50,14
+    CONTROL         "",IDC_LIST_CODECS,"SysListView32",LVS_REPORT | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,12,15,350,126
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -173,6 +185,12 @@ BEGIN
         RIGHTMARGIN, 271
         TOPMARGIN, 7
         BOTTOMMARGIN, 39
+    END
+
+    IDD_VIEW_INSTALLED_CODECS, DIALOG
+    BEGIN
+        RIGHTMARGIN, 362
+        BOTTOMMARGIN, 180
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -219,6 +237,22 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 //
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_DIALOG2 AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_VIEW_INSTALLED_CODECS AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
 // String Table
 //
 
@@ -249,16 +283,7 @@ BEGIN
     ID_FILE_OPEN_DIR        "Recursively open all the images in a directory\nOpen Folder Recursive"
 END
 
-#endif    // English (U.S.) resources
+#endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
-
-#ifndef APSTUDIO_INVOKED
-/////////////////////////////////////////////////////////////////////////////
-//
-// Generated from the TEXTINCLUDE 3 resource.
-//
-
-/////////////////////////////////////////////////////////////////////////////
-#endif    // not APSTUDIO_INVOKED

@@ -134,6 +134,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BitmapDataObject.cpp" />
+    <ClCompile Include="ViewInstalledCodecsDlg.cpp" />
     <ClCompile Include="Element.cpp" />
     <ClCompile Include="EncoderSelectionDlg.cpp" />
     <ClCompile Include="ImageTransencoder.cpp" />
@@ -150,6 +151,8 @@
     <ClInclude Include="AboutDlg.h" />
     <ClInclude Include="BitmapDataObject.h" />
     <ClInclude Include="CodeGenerator.h" />
+    <ClInclude Include="Util.h" />
+    <ClInclude Include="ViewInstalledCodecsDlg.h" />
     <ClInclude Include="Element.h" />
     <ClInclude Include="EncoderSelectionDlg.h" />
     <ClInclude Include="ImageTransencoder.h" />

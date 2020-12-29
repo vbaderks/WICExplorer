@@ -12,6 +12,7 @@
 
 #include "EncoderSelectionDlg.h"
 #include "AboutDlg.h"
+#include "ViewInstalledCodecsDlg.h"
 #include "PropVariant.h"
 
 #include <vector>
@@ -985,6 +986,14 @@ LRESULT CMainFrame::OnShowAlpha(uint16_t /*code*/, const uint16_t item, HWND /*h
     {
         DrawElement(*elem);
     }
+
+    return 0;
+}
+
+LRESULT CMainFrame::OnShowInstalledCodecs(uint16_t, uint16_t, HWND, BOOL&)
+{
+    CViewInstalledCodecsDlg dlg;
+    dlg.DoModal();
 
     return 0;
 }

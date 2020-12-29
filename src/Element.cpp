@@ -10,15 +10,16 @@
 
 #include "Element.h"
 
-#include <memory>
-
-
+#include "Util.h"
 #include "Stopwatch.h"
 #include "PropVariant.h"
 #include "MetadataTranslator.h"
 #include "resource.h"
 
-namespace 
+#include <memory>
+
+
+namespace
 {
 
 // Just hardcoded for now
@@ -41,7 +42,7 @@ HRESULT GetPixelFormatName(WCHAR* dest, uint32_t chars, const WICPixelFormatGUID
     HRESULT result;
     if (guid == GUID_WICPixelFormatDontCare)
     {
-        ATLASSERT(wcscpy_s(dest, chars, L"Don't Care") == 0);
+        VERIFY(wcscpy_s(dest, chars, L"Don't Care") == 0);
         return S_OK;
     }
     IWICComponentInfoPtr info;
@@ -64,7 +65,7 @@ public:
         m_max--;
     }
 
-    virtual ~CProgressiveBitmapSource()
+    ~CProgressiveBitmapSource()
     {
         WARNING_SUPPRESS_NEXT_LINE(26447) // The function is declared 'noexcept' but calls function 'Release()' which may throw exceptions (f.6).
         m_source->Release();
@@ -639,14 +640,12 @@ HRESULT CComponentInfoElement::OutputMetadataHandlerInfo(IOutputDevice& output, 
     HRESULT result;
 
     CString str;
-    WCHAR guidString[64];
     GUID guid{};
 
     output.BeginKeyValues(L"MetadataHandlerInfo");
 
     IFC(metaInfo->GetMetadataFormat(&guid));
-    ATLASSERT(StringFromGUID2(guid, guidString, 64) != 0);
-    output.AddKeyValue(L"MetadataFormat", guidString);
+    output.AddKeyValue(L"MetadataFormat", guid_to_string(guid).c_str());
 
     READ_WIC_STRING(metaInfo->GetDeviceManufacturer, str)
     if (SUCCEEDED(result))
@@ -682,14 +681,12 @@ HRESULT CComponentInfoElement::OutputCodecInfo(IOutputDevice& output, IWICBitmap
 
     BOOL b;
     CString str;
-    WCHAR guidString[64];
     GUID guid{};
 
     output.BeginKeyValues(L"CodecInfo");
 
     IFC(codecInfo->GetContainerFormat(&guid));
-    ATLASSERT(StringFromGUID2(guid, guidString, 64) != 0);
-    output.AddKeyValue(L"ContainerFormat", guidString);
+    output.AddKeyValue(L"ContainerFormat", guid_to_string(guid).c_str());
 
     READ_WIC_STRING(codecInfo->GetColorManagementVersion, str)
     if (SUCCEEDED(result))
@@ -739,14 +736,12 @@ HRESULT CComponentInfoElement::OutputComponentInfo(IOutputDevice& output, IWICCo
     HRESULT result = S_OK;
 
     CString str;
-    WCHAR guidString[64];
     GUID guid{};
 
     output.BeginKeyValues(L"ComponentInfo");
 
     IFC(compInfo->GetCLSID(&guid));
-    ATLASSERT(StringFromGUID2(guid, guidString, 64) != 0);
-    output.AddKeyValue(L"ClassID", guidString);
+    output.AddKeyValue(L"ClassID", guid_to_string(guid).c_str());
 
     READ_WIC_STRING(compInfo->GetAuthor, str)
     if (SUCCEEDED(result))
@@ -755,8 +750,7 @@ HRESULT CComponentInfoElement::OutputComponentInfo(IOutputDevice& output, IWICCo
     }
 
     IFC(compInfo->GetVendorGUID(&guid));
-    ATLASSERT(StringFromGUID2(guid, guidString, 64) != 0);
-    output.AddKeyValue(L"VendorGUID", guidString);
+    output.AddKeyValue(L"VendorGUID", guid_to_string(guid).c_str());
 
     READ_WIC_STRING(compInfo->GetVersion, str)
     if (SUCCEEDED(result))
@@ -802,7 +796,7 @@ void CBitmapDecoderElement::FillContextMenu(const HMENU context) noexcept
         itemInfo.wID = ID_FILE_SAVE;
         WARNING_SUPPRESS_NEXT_LINE(26465) // Don't use const_cast to cast away const or volatile.
         itemInfo.dwTypeData = const_cast<LPWSTR>(L"Save As Image...");
-        ATLASSERT(InsertMenuItem(context, GetMenuItemCount(context), true, &itemInfo));
+        VERIFY(InsertMenuItem(context, GetMenuItemCount(context), true, &itemInfo));
 
         itemInfo.wID = ID_FILE_UNLOAD;
         WARNING_SUPPRESS_NEXT_LINE(26465) // Don't use const_cast to cast away const or volatile.
@@ -814,12 +808,12 @@ void CBitmapDecoderElement::FillContextMenu(const HMENU context) noexcept
         WARNING_SUPPRESS_NEXT_LINE(26465) // Don't use const_cast to cast away const or volatile.
         itemInfo.dwTypeData = const_cast<LPWSTR>(L"Load");
     }
-    ATLASSERT(InsertMenuItem(context, GetMenuItemCount(context), true, &itemInfo));
+    VERIFY(InsertMenuItem(context, GetMenuItemCount(context), true, &itemInfo));
 
     itemInfo.wID = ID_FILE_CLOSE;
     WARNING_SUPPRESS_NEXT_LINE(26465) // Don't use const_cast to cast away const or volatile.
     itemInfo.dwTypeData = const_cast<LPWSTR>(L"Close");
-    ATLASSERT(InsertMenuItem(context, GetMenuItemCount(context), true, &itemInfo));
+    VERIFY(InsertMenuItem(context, GetMenuItemCount(context), true, &itemInfo));
 }
 
 HRESULT CBitmapDecoderElement::SaveAsImage(CImageTransencoder& trans, ICodeGenerator& codeGen) noexcept(false)
@@ -1028,11 +1022,11 @@ HRESULT CBitmapSourceElement::OutputView(IOutputDevice& output, const InfoElemen
         output.AddKeyValue(L"DpiY", v);
         if (FAILED(GetPixelFormatName(v, ARRAYSIZE(v), pixelFormat)))
         {
-            ATLASSERT(wcscpy_s(v, ARRAYSIZE(v), L"Unknown ") == 0);
+            VERIFY(wcscpy_s(v, ARRAYSIZE(v), L"Unknown ") == 0);
         }
-        ATLASSERT(wcscat_s(v, ARRAYSIZE(v), L" ") == 0);
+        VERIFY(wcscat_s(v, ARRAYSIZE(v), L" ") == 0);
         const size_t len = wcslen(v);
-        ATLASSERT(StringFromGUID2(pixelFormat, v + len, static_cast<int>(ARRAYSIZE(v) - len)) != 0);
+        VERIFY(StringFromGUID2(pixelFormat, v + len, static_cast<int>(ARRAYSIZE(v) - len)) != 0);
         output.AddKeyValue(L"Format", v);
 
         // Now, the bitmap itself
