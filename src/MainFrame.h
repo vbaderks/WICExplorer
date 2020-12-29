@@ -80,7 +80,7 @@ private:
     static LRESULT OnAppAbout(uint16_t, uint16_t, HWND, BOOL&);
     LRESULT OnShowViewPane(uint16_t code, uint16_t item, HWND hSender, BOOL& handled);
     LRESULT OnShowAlpha(uint16_t code, uint16_t item, HWND hSender, BOOL& handled);
-    LRESULT OnShowInstalledCodecs(uint16_t, uint16_t, HWND, BOOL&);
+    static LRESULT OnShowInstalledCodecs(uint16_t, uint16_t, HWND, BOOL&);
     LRESULT OnContextClick(uint16_t code, uint16_t item, HWND hSender, BOOL& handled);
 
     CSplitterWindow m_mainSplit;

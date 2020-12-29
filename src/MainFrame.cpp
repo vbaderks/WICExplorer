@@ -511,8 +511,8 @@ HRESULT CMainFrame::OpenDirectory(const LPCWSTR directory, DWORD& attempted, DWO
         HRESULT temp;
 
         if ((fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY &&
-            wcscmp(fdata.cFileName, L".") &&
-            wcscmp(fdata.cFileName, L".."))
+            wcscmp(fdata.cFileName, L".") != 0 &&
+            wcscmp(fdata.cFileName, L"..") != 0)
         {
             if (FAILED(temp = OpenDirectory(path, attempted, opened)))
             {

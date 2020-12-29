@@ -27,7 +27,11 @@ LRESULT CViewInstalledCodecsDlg::OnInitDialog(uint32_t /*uMsg*/, WPARAM /*wParam
                 // Get the name of the container
                 READ_WIC_STRING(encoderInfo->GetFriendlyName, friendlyName)
 
-                codecListView.InsertItem(0, friendlyName);
+                const int id = codecListView.InsertItem(0, friendlyName);
+
+                GUID classId;
+                encoderInfo->GetCLSID(&classId);
+                codecListView.AddItem(id, 1, guid_to_string(classId).c_str());
             }
         }
     }
