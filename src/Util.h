@@ -6,7 +6,7 @@
 
 #include <combaseapi.h>
 
-inline [[nodiscard]] std::wstring guid_to_string(const GUID& guid)
+[[nodiscard]] inline std::wstring guid_to_string(const GUID& guid)
 {
     std::wstring guid_text;
 

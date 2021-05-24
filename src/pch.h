@@ -8,6 +8,11 @@
 //----------------------------------------------------------------------------------------
 #pragma once
 
+#pragma warning(push)
+#pragma warning(disable: 28252) //  Inconsistent annotation for 'sprintf'
+#include <cstdio>
+#pragma warning(pop)
+
 #include <array>
 #include <algorithm>
 #include <utility>

@@ -277,10 +277,10 @@ HRESULT CMainFrame::OpenFile(const LPCWSTR filename, bool& updateElements)
 {
     updateElements = false;
 
-    CInfoElement* newRoot = nullptr;
-    auto codeGen = std::make_unique<CSimpleCodeGenerator>();
+    CInfoElement* newRoot{};
+    CSimpleCodeGenerator codeGen;
 
-    const HRESULT result = CElementManager::OpenFile(filename, *codeGen, newRoot);
+    const HRESULT result = CElementManager::OpenFile(filename, codeGen, newRoot);
 
     if (SUCCEEDED(result))
     {
@@ -307,7 +307,7 @@ HRESULT CMainFrame::OpenFile(const LPCWSTR filename, bool& updateElements)
         }
 
         CString code;
-        codeGen->GenerateCode(code);
+        codeGen.GenerateCode(code);
         msg += code;
 
         if (!m_suppressMessageBox)
