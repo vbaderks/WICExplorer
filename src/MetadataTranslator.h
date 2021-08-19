@@ -47,7 +47,7 @@ private:
     CMetadataTranslator() noexcept = default;
 
     static HRESULT ReadPropVariantInteger(PROPVARIANT *pv, int &out) noexcept;
-    HRESULT LoadFormat(MSXML2::IXMLDOMNodePtr formatNode);
+    HRESULT LoadFormat(MSXML2::IXMLDOMNode* formatNodeArg);
     HRESULT LoadTranslations();
 
     CSimpleMap<Key, CString> m_dictionary;

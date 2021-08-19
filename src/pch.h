@@ -8,11 +8,7 @@
 //----------------------------------------------------------------------------------------
 #pragma once
 
-#pragma warning(push)
-#pragma warning(disable: 28252) //  Inconsistent annotation for 'sprintf'
 #include <cstdio>
-#pragma warning(pop)
-
 #include <array>
 #include <algorithm>
 #include <utility>
@@ -37,14 +33,9 @@
 
 #include <strsafe.h>
 
-#pragma warning(push)
-#pragma warning(disable: 4986) // exception specs
-#pragma warning(disable: 4755) // conversin rules, inline
-#pragma warning(disable: 5204) // class has virtual functions, but its trivial destructor is not virtual;
 #include <atlbase.h>
 #include <atlstr.h>
 #include <atlwin.h>
-#pragma warning(pop)
 
 //The Windows Template Library (WTL) is required for this project
 #pragma warning(push)

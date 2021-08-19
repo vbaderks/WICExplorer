@@ -1045,6 +1045,8 @@ LRESULT CMainFrame::OnContextClick(const uint16_t /*code*/, const uint16_t item,
     return 0;
 }
 
+#pragma warning(push)
+#pragma warning(disable: 26430) // Symbol 'elem' is not tested for nullness on all paths(f.23).
 HRESULT CMainFrame::QueryMetadata(CInfoElement* elem)
 {
     HRESULT result = S_OK;
@@ -1201,3 +1203,4 @@ HRESULT CMainFrame::QueryMetadata(CInfoElement* elem)
     }
     return result;
 }
+#pragma warning(pop)

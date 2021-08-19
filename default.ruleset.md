@@ -14,9 +14,6 @@ Most of these rules\warning are based on the C++ Core Guidelines.
 - C26429: Use a not_null to indicate that "null" is not a valid value  
 **Rationale**: Prefast attributes (\_In_, etc.) are better than gsl::not_null.
 
-- C26436:  The type '' with a virtual function needs either public virtual or protected non-virtual destructor (c.35).
-**Rationale**: false warnings (VS 2019 16.9.0 Preview 2)
-
 - C26446: Prefer to use gsl::at() instead of unchecked subscript operator.  
 **Rationale**: gsl:at() cannot be used as gsl project is by design not included. MSVC STL in debug mode already checks access.
 

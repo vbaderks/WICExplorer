@@ -96,10 +96,11 @@ HRESULT CMetadataTranslator::Translate(const GUID &format, PROPVARIANT *pv, CStr
     return result;
 }
 
-HRESULT CMetadataTranslator::LoadFormat(MSXML2::IXMLDOMNodePtr formatNode)
+HRESULT CMetadataTranslator::LoadFormat(MSXML2::IXMLDOMNode* formatNodeArg)
 {
     // Get the format
     _bstr_t formatGuidStr;
+    MSXML2::IXMLDOMNodePtr formatNode{formatNodeArg};
     const MSXML2::IXMLDOMNodePtr formatGuidNode = formatNode->attributes->getNamedItem(L"guid");
     if (formatGuidNode)
     {
