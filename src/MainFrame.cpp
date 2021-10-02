@@ -82,7 +82,7 @@ HWND CMainFrame::CreateClient()
     CRect clientRect;
     GetClientRect(&clientRect);
 
-    ATLVERIFY(m_mainSplit.Create(m_hWnd, clientRect, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN));
+    ATLVERIFY(m_mainSplit.Create(m_hWnd, clientRect, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_COMPOSITED));
 
     m_mainSplit.m_cxyMin = 35;                           // Minimum sizes
     m_mainSplit.SetSplitterExtendedStyle(0);             // Extend right pane when resizing main window
