@@ -62,13 +62,16 @@ public:
         constexpr size_t maxCallLength = 1024;
         WCHAR call[maxCallLength];
 
+        WARNING_SUPPRESS_NEXT_LINE(26826) //  Don't use C-style variable arguments (f.55).
         va_list args;
 
+        WARNING_SUPPRESS_NEXT_LINE(26826) //  Don't use C-style variable arguments (f.55).
         WARNING_SUPPRESS_NEXT_LINE(26492) // Don't use const_cast to cast away const or volatile (type.3).
         va_start(args, func);
 
         StringCchVPrintf(call, maxCallLength, func, args);
 
+        WARNING_SUPPRESS_NEXT_LINE(26826) //  Don't use C-style variable arguments (f.55).
         va_end(args);
 
         StringCchCatW(call, maxCallLength, L";");
