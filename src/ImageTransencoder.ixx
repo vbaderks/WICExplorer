@@ -6,11 +6,20 @@
 //
 // Copyright (c) Microsoft Corporation. All rights reserved.
 //----------------------------------------------------------------------------------------
-#pragma once
+module;
 
-#include "CodeGenerator.h"
+#include "Interfaces.h"
 
-class CImageTransencoder final
+#include <winerror.h>
+#include <combaseapi.h>
+#include <wincodec.h>
+
+export module ImageTransencoder;
+
+import CodeGenerator;
+
+
+export class CImageTransencoder final
 {
 public:
     CImageTransencoder() = default;

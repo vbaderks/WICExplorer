@@ -6,9 +6,13 @@
 //
 // Copyright (c) Microsoft Corporation. All rights reserved.
 //----------------------------------------------------------------------------------------
-#pragma once
+module;
 
-class CStopwatch final
+#include <atlbase.h>
+
+export module Stopwatch;
+
+export class CStopwatch final
 {
 public:
     CStopwatch() noexcept

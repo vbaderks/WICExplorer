@@ -6,12 +6,17 @@
 //
 // Copyright (c) Microsoft Corporation. All rights reserved.
 //----------------------------------------------------------------------------------------
+module;
+
 #include "pch.h"
 
-#include "BitmapDataObject.h"
 #include "Macros.h"
 
 #include <memory>
+
+module BitmapDataObject;
+
+
 
 HRESULT CBitmapDataObject::InsertDib(HWND /*hWnd*/, IRichEditOle* pRichEditOle, const HGLOBAL hGlobal)
 {

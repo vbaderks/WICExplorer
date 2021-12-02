@@ -6,9 +6,17 @@
 //
 // Copyright (c) Microsoft Corporation. All rights reserved.
 //----------------------------------------------------------------------------------------
-#pragma once
+module;
 
-class CMetadataTranslator final
+#include <Windows.h>
+#include <combaseapi.h>
+#include "ImportMsXml2.h"
+
+#include <atlstr.h>
+
+export module MetadataTranslator;
+
+export class CMetadataTranslator final
 {
 public:
     static CMetadataTranslator &Inst()

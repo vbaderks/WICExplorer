@@ -6,9 +6,14 @@
 //
 // Copyright (c) Microsoft Corporation. All rights reserved.
 //----------------------------------------------------------------------------------------
-#include "pch.h"
 
-#include "EncoderSelectionDlg.h"
+module;
+
+#include "pch.h"
+#include "resource.h"
+
+module EncoderSelectionDlg;
+
 
 GUID CEncoderSelectionDlg::GetContainerFormat()
 {

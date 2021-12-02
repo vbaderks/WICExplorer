@@ -6,12 +6,18 @@
 //
 // Copyright (c) Microsoft Corporation. All rights reserved.
 //----------------------------------------------------------------------------------------
-#pragma once
+module;
 
 #include "resource.h"
 #include "Macros.h"
 
-class CEncoderSelectionDlg final : public CDialogImpl<CEncoderSelectionDlg>
+#include <atlbase.h>
+#include <atlwin.h>
+
+export module EncoderSelectionDlg;
+
+
+export class CEncoderSelectionDlg final : public CDialogImpl<CEncoderSelectionDlg>
 {
 public:
     enum { IDD = IDD_ENCODER_SELECTION };

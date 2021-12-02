@@ -6,12 +6,24 @@
 //
 // Copyright (c) Microsoft Corporation. All rights reserved.
 //----------------------------------------------------------------------------------------
-#pragma once
+module;
 
-#include "Element.h"
 #include "resource.h"
+#include "Macros.h"
 
-class CMainFrame final : public CFrameWindowImpl<CMainFrame>
+#include <atlbase.h>
+#include <atlwin.h>
+#include <atlapp.h>
+#include <atlframe.h>
+#include <atlsplit.h>
+#include <atlctrls.h>
+#include <atlctrlx.h>
+
+export module MainFrame;
+
+import Element;
+
+export class CMainFrame final : public CFrameWindowImpl<CMainFrame>
 {
 public:
     WARNING_SUPPRESS_NEXT_LINE(26440) // Function 'CMainFrame::GetWndClassInfo' can be declared 'noexcept' (f.6).

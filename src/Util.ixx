@@ -1,12 +1,16 @@
-﻿#pragma once
+﻿module;
 
 #include "Macros.h"
 
 #include <string>
+#include <cassert>
 
 #include <combaseapi.h>
 
-[[nodiscard]] inline std::wstring guid_to_string(const GUID& guid)
+export module Util;
+
+
+export [[nodiscard]] inline std::wstring guid_to_string(const GUID& guid)
 {
     std::wstring guid_text;
 

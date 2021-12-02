@@ -6,10 +6,15 @@
 //
 // Copyright (c) Microsoft Corporation. All rights reserved.
 //----------------------------------------------------------------------------------------
+
+module;
+
 #include "pch.h"
 
-#include "MetadataTranslator.h"
 #include "Macros.h"
+
+module MetadataTranslator;
+
 
 CMetadataTranslator::Key::Key(const PCWSTR guidStr, const PCWSTR idStr) noexcept :
     m_id{_wtoi(idStr)}

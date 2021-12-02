@@ -6,9 +6,18 @@
 //
 // Copyright (c) Microsoft Corporation. All rights reserved.
 //----------------------------------------------------------------------------------------
-#pragma once
+module;
 
-class IOutputDevice
+#include <Windows.h>
+
+#include <atlbase.h>
+#include <atlstr.h>
+#include <atlapp.h>
+#include <atlctrls.h>
+
+export module OutputDevice;
+
+export class IOutputDevice
 {
 public:
     IOutputDevice() = default;
@@ -36,7 +45,7 @@ public:
     virtual void EndSection() = 0;
 };
 
-class CRichEditDevice final : public IOutputDevice
+export class CRichEditDevice final : public IOutputDevice
 {
 public:
     explicit CRichEditDevice(CRichEditCtrl &richEditCtrl);

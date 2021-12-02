@@ -1,8 +1,13 @@
-﻿#include "pch.h"
+﻿module;
 
-#include "ViewInstalledCodecsDlg.h"
+#include "pch.h"
 
-#include "Util.h"
+#include "Macros.h"
+#include "resource.h"
+
+module ViewInstalledCodecsDlg;
+
+import Util;
 
 
 LRESULT CViewInstalledCodecsDlg::OnInitDialog(uint32_t /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/) const

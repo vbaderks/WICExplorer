@@ -6,9 +6,16 @@
 //
 // Copyright (c) Microsoft Corporation. All rights reserved.
 //----------------------------------------------------------------------------------------
-#pragma once
+module;
 
-class CBitmapDataObject final : IDataObject
+#include <objidl.h>
+#include <Richedit.h>
+#include <RichOle.h>
+
+export module BitmapDataObject;
+
+
+export class CBitmapDataObject final : IDataObject
 {
 public:
     static HRESULT InsertDib(HWND hWnd, IRichEditOle *pRichEditOle, HGLOBAL hGlobal);

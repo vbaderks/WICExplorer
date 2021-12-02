@@ -6,10 +6,13 @@
 //
 // Copyright (c) Microsoft Corporation. All rights reserved.
 //----------------------------------------------------------------------------------------
+module;
+
 #include "pch.h"
 
-#include "OutputDevice.h"
-#include "BitmapDataObject.h"
+module OutputDevice;
+
+import BitmapDataObject;
 
 namespace 
 {

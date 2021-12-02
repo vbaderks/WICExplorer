@@ -6,17 +6,23 @@
 //
 // Copyright (c) Microsoft Corporation. All rights reserved.
 //----------------------------------------------------------------------------------------
+module;
+
 #include "pch.h"
-
-#include "MainFrame.h"
-
-#include "EncoderSelectionDlg.h"
-#include "AboutDlg.h"
-#include "ViewInstalledCodecsDlg.h"
-#include "PropVariant.h"
+#include "Macros.h"
+#include "resource.h"
 
 #include <vector>
 #include <memory>
+
+module MainFrame;
+
+import AboutDlg;
+import OutputDevice;
+import PropVariant;
+import EncoderSelectionDlg;
+import ViewInstalledCodecsDlg;
+
 
 namespace
 {

@@ -8,11 +8,13 @@
 //----------------------------------------------------------------------------------------
 #include "pch.h"
 
-#include "MainFrame.h"
+#include "Macros.h"
 
 #include <array>
 #include <algorithm>
 #include <utility>
+
+import MainFrame;
 
 
 #ifndef _UNICODE

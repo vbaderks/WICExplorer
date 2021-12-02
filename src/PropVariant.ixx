@@ -6,9 +6,21 @@
 //
 // Copyright (c) Microsoft Corporation. All rights reserved.
 //----------------------------------------------------------------------------------------
-#pragma once
+module;
 
-constexpr unsigned PVTSOPTION_IncludeType = 0x01;
+#include <Windows.h>
+#include <combaseapi.h>
 
-HRESULT PropVariantToString(PROPVARIANT *pv, unsigned options, CString &out);
-HRESULT VariantTypeToString(VARTYPE vt, CString &out);
+#include <atlstr.h>
+
+export module PropVariant;
+
+export
+{
+
+constexpr inline unsigned PVTSOPTION_IncludeType = 0x01;
+
+HRESULT PropVariantToString(PROPVARIANT* pv, unsigned options, CString& out);
+HRESULT VariantTypeToString(VARTYPE vt, CString& out);
+
+}

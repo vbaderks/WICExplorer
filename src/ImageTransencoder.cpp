@@ -6,11 +6,14 @@
 //
 // Copyright (c) Microsoft Corporation. All rights reserved.
 //----------------------------------------------------------------------------------------
+module;
+
 #include "pch.h"
 
-#include "ImageTransencoder.h"
-
 #include <vector>
+
+module ImageTransencoder;
+
 
 namespace
 {

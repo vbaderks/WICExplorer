@@ -6,11 +6,21 @@
 //
 // Copyright (c) Microsoft Corporation. All rights reserved.
 //----------------------------------------------------------------------------------------
-#pragma once
+module;
 
 #include "Macros.h"
 
-struct ICodeGenerator
+#include <Windows.h>
+
+#include <strsafe.h>
+
+#include <atlstr.h>
+
+
+export module CodeGenerator;
+
+
+export struct ICodeGenerator
 {
     virtual ~ICodeGenerator() = default;
 
@@ -29,7 +39,7 @@ struct ICodeGenerator
     virtual void GenerateCode(CString &out) = 0;
 };
 
-class CSimpleCodeGenerator final : public ICodeGenerator
+export class CSimpleCodeGenerator final : public ICodeGenerator
 {
 public:
     CSimpleCodeGenerator() noexcept(false)

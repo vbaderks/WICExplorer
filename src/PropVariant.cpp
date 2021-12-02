@@ -6,12 +6,17 @@
 //
 // Copyright (c) Microsoft Corporation. All rights reserved.
 //----------------------------------------------------------------------------------------
+module;
+
 #include "pch.h"
 
-#include "PropVariant.h"
 #include "Macros.h"
 
 #include <algorithm>
+
+module PropVariant;
+
+
 
 template<class T> static void WriteValue(const T & /*val*/, CString &out)
 {

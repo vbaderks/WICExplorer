@@ -6,19 +6,33 @@
 //
 // Copyright (c) Microsoft Corporation. All rights reserved.
 //----------------------------------------------------------------------------------------
-#pragma once
+module;
 
-#include "ImageTransencoder.h"
-#include "OutputDevice.h"
+#include "Interfaces.h"
 
-HRESULT GetPixelFormatName(WCHAR* dest, uint32_t chars, WICPixelFormatGUID guid);
+#include <cstdint>
 
-struct InfoElementViewContext
+#include <winerror.h>
+#include <wtypes.h>
+#include <wincodec.h>
+#include <wincodecsdk.h>
+
+#include <atlstr.h>
+
+export module Element;
+
+import ImageTransencoder;
+import OutputDevice;
+import CodeGenerator;
+
+export HRESULT GetPixelFormatName(WCHAR* dest, uint32_t chars, WICPixelFormatGUID guid);
+
+export struct InfoElementViewContext
 {
     bool bIsAlphaEnable;
 };
 
-class CInfoElement
+export class CInfoElement
 {
 public:
     explicit CInfoElement(LPCWSTR name);
@@ -138,7 +152,7 @@ private:
     CInfoElement *m_firstChild{};
 };
 
-class CElementManager
+export class CElementManager
 {
 public:
     static HRESULT OpenFile(LPCWSTR filename, ICodeGenerator &codeGen, CInfoElement *&decElem);
@@ -178,7 +192,7 @@ public:
     static HRESULT OutputComponentInfo(IOutputDevice &output, IWICComponentInfo* compInfo);
 };
 
-class CBitmapDecoderElement final : public CComponentInfoElement
+export class CBitmapDecoderElement final : public CComponentInfoElement
 {
 public:
     explicit CBitmapDecoderElement(const LPCWSTR filename)
@@ -220,7 +234,7 @@ private:
     bool                 m_loaded{};
 };
 
-class CBitmapSourceElement : public CInfoElement
+export class CBitmapSourceElement : public CInfoElement
 {
 public:
     CBitmapSourceElement(const LPCWSTR name, IWICBitmapSource* source)
@@ -246,8 +260,7 @@ private:
 };
 
 
-
-class CBitmapFrameDecodeElement final : public CBitmapSourceElement
+export class CBitmapFrameDecodeElement final : public CBitmapSourceElement
 {
 public:
     CBitmapFrameDecodeElement(const uint32_t index, IWICBitmapFrameDecode* frameDecode)
@@ -271,7 +284,7 @@ private:
     IWICBitmapFrameDecodePtr m_frameDecode;
 };
 
-class CMetadataReaderElement final : public CComponentInfoElement
+export class CMetadataReaderElement final : public CComponentInfoElement
 {
 public:
     CMetadataReaderElement(CInfoElement *parent, uint32_t idx, IWICMetadataReader* reader);

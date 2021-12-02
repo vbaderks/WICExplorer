@@ -6,12 +6,18 @@
 //
 // Copyright (c) Microsoft Corporation. All rights reserved.
 //----------------------------------------------------------------------------------------
-#pragma once
+module;
 
 #include "resource.h"
+#include "Macros.h"
+
+#include <atlbase.h>
 #include <atlwin.h>
 
-class CAboutDlg final : public CDialogImpl<CAboutDlg>
+export module AboutDlg;
+
+
+export class CAboutDlg final : public CDialogImpl<CAboutDlg>
 {
 public:
     enum { IDD = IDD_ABOUTBOX };

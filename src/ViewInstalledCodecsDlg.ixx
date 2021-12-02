@@ -1,11 +1,14 @@
-﻿#pragma once
+﻿module;
 
 #include "resource.h"
 #include "Macros.h"
 
+#include <atlbase.h>
 #include <atlwin.h>
 
-class CViewInstalledCodecsDlg final : public CDialogImpl<CViewInstalledCodecsDlg>
+export module ViewInstalledCodecsDlg;
+
+export class CViewInstalledCodecsDlg final : public CDialogImpl<CViewInstalledCodecsDlg>
 {
 public:
     enum { IDD = IDD_VIEW_INSTALLED_CODECS };

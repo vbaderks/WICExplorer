@@ -8,6 +8,11 @@
 //----------------------------------------------------------------------------------------
 #pragma once
 
+#include <wincodec.h>
+#include <wincodecsdk.h>
+
+#include <comip.h>
+
 #define MP(i) typedef _com_ptr_t<_com_IIID<i, &IID_##i> > i##Ptr;
 
 MP(IWICBitmapScaler)

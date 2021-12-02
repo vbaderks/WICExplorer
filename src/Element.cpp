@@ -6,17 +6,20 @@
 //
 // Copyright (c) Microsoft Corporation. All rights reserved.
 //----------------------------------------------------------------------------------------
+module;
+
 #include "pch.h"
-
-#include "Element.h"
-
-#include "Util.h"
-#include "Stopwatch.h"
-#include "PropVariant.h"
-#include "MetadataTranslator.h"
+#include "Macros.h"
 #include "resource.h"
 
 #include <memory>
+
+module Element;
+
+import MetadataTranslator;
+import Stopwatch;
+import Util;
+import PropVariant;
 
 
 namespace
