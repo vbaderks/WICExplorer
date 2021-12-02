@@ -10,14 +10,11 @@ module;
 
 #include "Macros.h"
 
-#include <Windows.h>
-
-#include <strsafe.h>
-
 #include <atlstr.h>
 
-
 export module CodeGenerator;
+
+import "pch.h";
 
 
 export struct ICodeGenerator

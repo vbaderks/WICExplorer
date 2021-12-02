@@ -8,12 +8,11 @@
 //----------------------------------------------------------------------------------------
 module;
 
-#include <Windows.h>
-#include <combaseapi.h>
-
 #include <atlstr.h>
 
 export module PropVariant;
+
+import "pch.h";
 
 export
 {

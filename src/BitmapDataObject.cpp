@@ -8,14 +8,15 @@
 //----------------------------------------------------------------------------------------
 module;
 
-#include "pch.h"
-
 #include "Macros.h"
 
-#include <memory>
+#include <RichEdit.h>
+#include <RichOle.h>
 
 module BitmapDataObject;
 
+import "pch.h";
+import <memory>;
 
 
 HRESULT CBitmapDataObject::InsertDib(HWND /*hWnd*/, IRichEditOle* pRichEditOle, const HGLOBAL hGlobal)
@@ -28,7 +29,7 @@ HRESULT CBitmapDataObject::InsertDib(HWND /*hWnd*/, IRichEditOle* pRichEditOle, 
     ILockBytes* lockBytes{};
 
     auto bitmapDataObject{ std::make_unique<CBitmapDataObject>() };
-    ATLVERIFY(SUCCEEDED(bitmapDataObject->QueryInterface(IID_PPV_ARGS(&dataObject))));
+    VERIFY(SUCCEEDED(bitmapDataObject->QueryInterface(IID_PPV_ARGS(&dataObject))));
     bitmapDataObject->SetDib(hGlobal);
 
     // Get the RichEdit container site
@@ -41,14 +42,14 @@ HRESULT CBitmapDataObject::InsertDib(HWND /*hWnd*/, IRichEditOle* pRichEditOle, 
     if (SUCCEEDED(result))
     {
         result = CreateILockBytesOnHGlobal(nullptr, true, &lockBytes);
-        ATLASSERT(lockBytes);
+        ASSERT(lockBytes);
     }
 
     if (SUCCEEDED(result))
     {
         result = StgCreateDocfileOnILockBytes(lockBytes,
             STGM_SHARE_EXCLUSIVE | STGM_CREATE | STGM_READWRITE, 0, &storage);
-        ATLASSERT(storage);
+        ASSERT(storage);
     }
 
     // Get the ole object which will be inserted in the richedit control
@@ -210,7 +211,7 @@ HRESULT STDMETHODCALLTYPE CBitmapDataObject::EnumDAdvise(IEnumSTATDATA** ppenumA
 
 void CBitmapDataObject::SetDib(const HGLOBAL hGlobal) noexcept
 {
-    ATLASSERT(hGlobal);
+    ASSERT(hGlobal);
 
     if (hGlobal)
     {
@@ -228,7 +229,7 @@ HRESULT CBitmapDataObject::GetOleObject(IOleClientSite* oleClientSite, IStorage*
 
     oleObject = nullptr;
 
-    ATLASSERT(m_stgmed.hGlobal);
+    ASSERT(m_stgmed.hGlobal);
 
     if (m_stgmed.hGlobal)
     {

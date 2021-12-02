@@ -8,15 +8,6 @@
 //----------------------------------------------------------------------------------------
 module;
 
-#include "Interfaces.h"
-
-#include <cstdint>
-
-#include <winerror.h>
-#include <wtypes.h>
-#include <wincodec.h>
-#include <wincodecsdk.h>
-
 #include <atlstr.h>
 
 export module Element;
@@ -25,7 +16,19 @@ import ImageTransencoder;
 import OutputDevice;
 import CodeGenerator;
 
+import <cstdint>;
+import "pch.h";
+
 export HRESULT GetPixelFormatName(WCHAR* dest, uint32_t chars, WICPixelFormatGUID guid);
+
+_COM_SMARTPTR_TYPEDEF(IWICImagingFactory, __uuidof(IWICImagingFactory));
+_COM_SMARTPTR_TYPEDEF(IWICBitmapDecoder, __uuidof(IWICBitmapDecoder));
+_COM_SMARTPTR_TYPEDEF(IWICBitmapSource, __uuidof(IWICBitmapSource));
+_COM_SMARTPTR_TYPEDEF(IWICBitmapFrameDecode, __uuidof(IWICBitmapFrameDecode));
+_COM_SMARTPTR_TYPEDEF(IWICMetadataReader, __uuidof(IWICMetadataReader));
+
+
+export extern IWICImagingFactoryPtr g_imagingFactory;
 
 export struct InfoElementViewContext
 {
@@ -44,7 +47,7 @@ public:
     CInfoElement& operator=(const CInfoElement&) = default;
     CInfoElement& operator=(CInfoElement&&) = default;
 
-    [[nodiscard]] const CString& Name() const noexcept
+    [[nodiscard]] const ATL::CString& Name() const noexcept
     {
         return m_name;
     }
@@ -137,11 +140,11 @@ public:
         return E_NOTIMPL;
     }
 
-    CString m_queryKey;
-    CString m_queryValue;
+    ATL::CString m_queryKey;
+    ATL::CString m_queryValue;
 
 protected:
-    CString   m_name;
+    ATL::CString   m_name;
 
 private:
     void Unlink() noexcept;
@@ -171,8 +174,8 @@ public:
     static HRESULT CreateMetadataElementsFromBlock(CInfoElement *parent, IWICMetadataBlockReader* blockReader, ICodeGenerator &codeGen);
     static HRESULT CreateMetadataElements(CInfoElement *parent, uint32_t childIdx, IWICMetadataReader* reader, ICodeGenerator &codeGen);
 
-    static CString queryKey;
-    static CString queryValue;
+    static ATL::CString queryKey;
+    static ATL::CString queryValue;
 
 private:
     static CInfoElement root;
@@ -227,10 +230,10 @@ public:
     void FillContextMenu(HMENU context) noexcept override;
 
 private:
-    CString              m_filename;
+    ATL::CString              m_filename;
     IWICBitmapDecoderPtr m_decoder;
     DWORD                m_creationTime{};
-    CString              m_creationCode;
+    ATL::CString              m_creationCode;
     bool                 m_loaded{};
 };
 
@@ -301,8 +304,8 @@ public:
     }
 
 private:
-    HRESULT TranslateValueID(PROPVARIANT *pv, unsigned options, CString &out) const;
-    static HRESULT TrimQuotesFromName(CString &out);
+    HRESULT TranslateValueID(PROPVARIANT *pv, unsigned options, ATL::CString &out) const;
+    static HRESULT TrimQuotesFromName(ATL::CString &out);
     HRESULT SetNiceName(const CInfoElement *parent, uint32_t idx);
 
     IWICMetadataReaderPtr m_reader;

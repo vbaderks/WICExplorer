@@ -8,11 +8,18 @@
 //----------------------------------------------------------------------------------------
 module;
 
-#include "pch.h"
-
-#include <vector>
+#include "Macros.h"
 
 module ImageTransencoder;
+
+import Element;
+import <vector>;
+import "pch.h";
+
+_COM_SMARTPTR_TYPEDEF(IWICBitmapFrameDecode, __uuidof(IWICBitmapFrameDecode));
+_COM_SMARTPTR_TYPEDEF(IWICBitmapFrameEncode, __uuidof(IWICBitmapFrameEncode));
+_COM_SMARTPTR_TYPEDEF(IWICPalette, __uuidof(IWICPalette));
+_COM_SMARTPTR_TYPEDEF(IWICBitmapSource, __uuidof(IWICBitmapSource));
 
 
 namespace
@@ -98,14 +105,14 @@ HRESULT CImageTransencoder::AddFrame(IWICBitmapSource* bitmapSource)
     HRESULT result = S_OK;
 
     // Check the params
-    ATLASSERT(bitmapSource);
+    ASSERT(bitmapSource);
     if (!bitmapSource)
     {
         return E_INVALIDARG;
     }
 
     // Check the state of the object
-    ATLASSERT(m_encoding);
+    ASSERT(m_encoding);
     if (!m_encoding)
     {
         return E_UNEXPECTED;
@@ -132,7 +139,7 @@ HRESULT CImageTransencoder::AddFrame(IWICBitmapSource* bitmapSource)
 HRESULT CImageTransencoder::SetThumbnail(IWICBitmapSource* thumb) const
 {
     // Check the state of the object
-    ATLASSERT(m_encoding);
+    ASSERT(m_encoding);
     if (!m_encoding)
     {
         return E_UNEXPECTED;
@@ -150,7 +157,7 @@ HRESULT CImageTransencoder::SetThumbnail(IWICBitmapSource* thumb) const
 HRESULT CImageTransencoder::SetPreview(IWICBitmapSource* preview) const
 {
     // Check the state of the object
-    ATLASSERT(m_encoding);
+    ASSERT(m_encoding);
     if (!m_encoding)
     {
         return E_UNEXPECTED;

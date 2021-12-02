@@ -9,9 +9,10 @@
 
 module;
 
-#include "pch.h"
+#include <atlstr.h>
 
 #include "Macros.h"
+#include "ImportMsXml2.h"
 
 module MetadataTranslator;
 
@@ -26,7 +27,7 @@ HRESULT CMetadataTranslator::ReadPropVariantInteger(PROPVARIANT *pv, int &out) n
 {
     HRESULT result{E_INVALIDARG};
 
-    ATLASSERT(pv);
+    ASSERT(pv);
     if (pv)
     {
         switch (pv->vt)

@@ -8,7 +8,6 @@
 //----------------------------------------------------------------------------------------
 module;
 
-#include <objidl.h>
 #include <Richedit.h>
 #include <RichOle.h>
 

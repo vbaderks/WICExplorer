@@ -8,13 +8,14 @@
 //----------------------------------------------------------------------------------------
 module;
 
-#include <Windows.h>
-#include <combaseapi.h>
 #include "ImportMsXml2.h"
 
 #include <atlstr.h>
 
 export module MetadataTranslator;
+
+import "pch.h";
+
 
 export class CMetadataTranslator final
 {

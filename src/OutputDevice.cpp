@@ -8,11 +8,18 @@
 //----------------------------------------------------------------------------------------
 module;
 
-#include "pch.h"
+
+#include <atlstr.h>
+
+#include <atlbase.h>
+#include <atlapp.h>
+#include <atlctrls.h>
 
 module OutputDevice;
 
 import BitmapDataObject;
+import Util;
+import "pch.h";
 
 namespace 
 {

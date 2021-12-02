@@ -8,14 +8,15 @@
 //----------------------------------------------------------------------------------------
 module;
 
-#include <Windows.h>
-
 #include <atlbase.h>
 #include <atlstr.h>
 #include <atlapp.h>
 #include <atlctrls.h>
 
 export module OutputDevice;
+
+import "pch.h";
+
 
 export class IOutputDevice
 {

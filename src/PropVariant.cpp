@@ -8,13 +8,15 @@
 //----------------------------------------------------------------------------------------
 module;
 
-#include "pch.h"
+#include <atlstr.h>
 
 #include "Macros.h"
 
-#include <algorithm>
-
 module PropVariant;
+
+import <algorithm>;
+import <cassert>;
+import "pch.h";
 
 
 

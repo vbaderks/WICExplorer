@@ -36,9 +36,11 @@
 
       <!--
         Disable level All warnings that are not useful:
+        C4005 = macro redefinition
         C4061 = enumerator 'identifier' in switch of enum 'enumeration' is not explicitly handled by a case label
         C4191 = operator/operation' : unsafe conversion from 'type of expression' to 'type required'
         C4193 = #pragma warning(pop): no matching '#pragma warning(push)'
+        C4200 = nonstandard extension used: zero-sized array in struct/union
         C4263 = function' : member function does not override any base class virtual member function
         C4264 = virtual_function' : no override available for virtual member function from base 'class'; function is hidden
         C4265 = class' : class has virtual functions, but destructor is not virtual
@@ -62,8 +64,10 @@
         C5039 = 'function': pointer or reference to potentially throwing function passed to extern C function under -EHc.
         C5042 = 'declaration': function declarations at block scope cannot be specified 'inline' in standard C++; remove 'inline' specifier
         C5045 = Compiler will insert Spectre mitigation for memory load if /Qspectre switch specified
+        C5106 = macro redefined with different parameter names
+        C5204: 'class has virtual functions, but its trivial destructor is not virtual; instances of objects derived from this class may not be destructed correctly
       -->
-      <DisableSpecificWarnings>4061;4191;4193;4263;4264;4265;4266;4365;4464;4505;4514;4571;4623;4625;4626;4668;4710;4711;4738;4774;4755;4820;5026;5027;5039;5042;5045</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4005;4061;4191;4193;4200;4263;4264;4265;4266;4365;4464;4505;4514;4571;4623;4625;4626;4668;4710;4711;4738;4774;4755;4820;5026;5027;5039;5042;5045;5106;5204</DisableSpecificWarnings>
 
       <!--
         __cplusplus = Use the correct value for the __cplusplus macro
@@ -86,6 +90,7 @@
         NOMINMAX;
         _CA_SHOULD_CHECK_RETURN;
         _CA_SHOULD_CHECK_RETURN_WER;
+        __STDC_WANT_SECURE_LIB__=1;
         %(PreprocessorDefinitions)
       </PreprocessorDefinitions>
 

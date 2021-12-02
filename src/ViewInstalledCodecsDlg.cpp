@@ -1,13 +1,22 @@
 ﻿module;
 
-#include "pch.h"
-
 #include "Macros.h"
 #include "resource.h"
+
+#include <atlstr.h>
+
+#include <atlbase.h>
+#include <atlapp.h>
+#include <atlctrls.h>
 
 module ViewInstalledCodecsDlg;
 
 import Util;
+import Element;
+import "pch.h";
+
+
+_COM_SMARTPTR_TYPEDEF(IWICBitmapCodecInfo, __uuidof(IWICBitmapCodecInfo));
 
 
 LRESULT CViewInstalledCodecsDlg::OnInitDialog(uint32_t /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/) const

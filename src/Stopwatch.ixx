@@ -8,27 +8,29 @@
 //----------------------------------------------------------------------------------------
 module;
 
-#include <atlbase.h>
+#include "Macros.h"
 
 export module Stopwatch;
+
+import "pch.h";
 
 export class CStopwatch final
 {
 public:
     CStopwatch() noexcept
     {
-        ATLVERIFY(QueryPerformanceFrequency(&m_frequency));
+        VERIFY(QueryPerformanceFrequency(&m_frequency));
     }
 
     void Start() noexcept
     {
-        ATLVERIFY(QueryPerformanceCounter(&m_startTime));
+        VERIFY(QueryPerformanceCounter(&m_startTime));
     }
 
     [[nodiscard]] DWORD GetTimeMS() const noexcept
     {
         LARGE_INTEGER now;
-        ATLVERIFY(QueryPerformanceCounter(&now));
+        VERIFY(QueryPerformanceCounter(&now));
 
         const LONGLONG timeMS = (now.QuadPart - m_startTime.QuadPart) * static_cast<LONGLONG>(1000) / m_frequency.QuadPart;
 

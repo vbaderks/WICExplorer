@@ -8,11 +8,10 @@
 //----------------------------------------------------------------------------------------
 module;
 
-#include "pch.h"
 #include "Macros.h"
 #include "resource.h"
 
-#include <memory>
+#include <atlstr.h>
 
 module Element;
 
@@ -20,6 +19,22 @@ import MetadataTranslator;
 import Stopwatch;
 import Util;
 import PropVariant;
+
+import <memory>;
+import "pch.h";
+import <atlres.h>;
+
+
+_COM_SMARTPTR_TYPEDEF(IWICComponentInfo, __uuidof(IWICComponentInfo));
+_COM_SMARTPTR_TYPEDEF(IWICMetadataBlockReader, __uuidof(IWICMetadataBlockReader));
+_COM_SMARTPTR_TYPEDEF(IWICProgressiveLevelControl, __uuidof(IWICProgressiveLevelControl));
+_COM_SMARTPTR_TYPEDEF(IWICBitmapDecoderInfo, __uuidof(IWICBitmapDecoderInfo));
+_COM_SMARTPTR_TYPEDEF(IWICColorContext, __uuidof(IWICColorContext));
+_COM_SMARTPTR_TYPEDEF(IWICColorTransform, __uuidof(IWICColorTransform));
+_COM_SMARTPTR_TYPEDEF(IWICFormatConverter, __uuidof(IWICFormatConverter));
+_COM_SMARTPTR_TYPEDEF(IWICBitmapFlipRotator, __uuidof(IWICBitmapFlipRotator));
+_COM_SMARTPTR_TYPEDEF(IWICMetadataHandlerInfo, __uuidof(IWICMetadataHandlerInfo));
+
 
 
 namespace
@@ -278,7 +293,7 @@ HRESULT CElementManager::OpenFile(const LPCWSTR filename, ICodeGenerator& codeGe
 {
     HRESULT result = E_UNEXPECTED;
 
-    ATLASSERT(g_imagingFactory);
+    ASSERT(g_imagingFactory);
 
     if (g_imagingFactory)
     {

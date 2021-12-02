@@ -8,15 +8,16 @@
 //----------------------------------------------------------------------------------------
 module;
 
-#include "Interfaces.h"
-
-#include <winerror.h>
-#include <combaseapi.h>
-#include <wincodec.h>
-
 export module ImageTransencoder;
 
 import CodeGenerator;
+
+import "pch.h";
+
+
+_COM_SMARTPTR_TYPEDEF(IWICBitmapFrameEncode, __uuidof(IWICBitmapFrameEncode));
+_COM_SMARTPTR_TYPEDEF(IWICStream, __uuidof(IWICStream));
+_COM_SMARTPTR_TYPEDEF(IWICBitmapEncoder, __uuidof(IWICBitmapEncoder));
 
 
 export class CImageTransencoder final

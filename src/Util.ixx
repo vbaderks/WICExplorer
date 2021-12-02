@@ -2,13 +2,13 @@
 
 #include "Macros.h"
 
-#include <string>
-#include <cassert>
-
-#include <combaseapi.h>
+#include <atlstr.h>
 
 export module Util;
 
+import "pch.h";
+import <string>;
+import <cassert>;
 
 export [[nodiscard]] inline std::wstring guid_to_string(const GUID& guid)
 {
@@ -22,3 +22,5 @@ export [[nodiscard]] inline std::wstring guid_to_string(const GUID& guid)
 
     return guid_text;
 }
+
+export CString GetHresultString(HRESULT hr);

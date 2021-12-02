@@ -9,10 +9,24 @@
 
 module;
 
-#include "pch.h"
+#include <atlstr.h>
+
+#include <atlbase.h>
+#include <atlapp.h>
+#include <atlctrls.h>
+
 #include "resource.h"
+#include "Macros.h"
 
 module EncoderSelectionDlg;
+
+import Element;
+import "pch.h";
+
+
+_COM_SMARTPTR_TYPEDEF(IWICBitmapEncoderInfo, __uuidof(IWICBitmapEncoderInfo));
+_COM_SMARTPTR_TYPEDEF(IWICPixelFormatInfo, __uuidof(IWICPixelFormatInfo));
+
 
 
 GUID CEncoderSelectionDlg::GetContainerFormat()
