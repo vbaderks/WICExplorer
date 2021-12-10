@@ -21,19 +21,18 @@ export struct ICodeGenerator
 {
     virtual ~ICodeGenerator() = default;
 
+    virtual void BeginVariableScope(LPCWSTR varType, LPCWSTR varBaseName, LPCWSTR varInitValue) = 0;
+    virtual void EndVariableScope() = 0;
+    virtual void CallFunction(LPCWSTR func, ...) = 0;
+    virtual LPCWSTR GetLastVariableName() noexcept = 0;
+    virtual void GenerateCode(CString &out) = 0;
+
+protected:
     ICodeGenerator() = default;
     ICodeGenerator(const ICodeGenerator&) = default;
     ICodeGenerator(ICodeGenerator&&) = default;
     ICodeGenerator& operator=(const ICodeGenerator&) = default;
     ICodeGenerator& operator=(ICodeGenerator&&) = default;
-
-    virtual void BeginVariableScope(LPCWSTR varType, LPCWSTR varBaseName, LPCWSTR varInitValue) = 0;
-    virtual void EndVariableScope() = 0;
-    virtual void CallFunction(LPCWSTR func, ...) = 0;
-
-    virtual LPCWSTR GetLastVariableName() noexcept = 0;
-
-    virtual void GenerateCode(CString &out) = 0;
 };
 
 export class CSimpleCodeGenerator final : public ICodeGenerator
