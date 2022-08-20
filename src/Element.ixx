@@ -9,6 +9,7 @@
 module;
 
 #include <atlstr.h>
+#include "ComSmartPointers.h"
 
 export module Element;
 
@@ -16,17 +17,7 @@ import ImageTransencoder;
 import OutputDevice;
 import CodeGenerator;
 
-import <cstdint>;
-import "pch.h";
-
 export HRESULT GetPixelFormatName(WCHAR* dest, uint32_t chars, WICPixelFormatGUID guid);
-
-_COM_SMARTPTR_TYPEDEF(IWICImagingFactory, __uuidof(IWICImagingFactory));
-_COM_SMARTPTR_TYPEDEF(IWICBitmapDecoder, __uuidof(IWICBitmapDecoder));
-_COM_SMARTPTR_TYPEDEF(IWICBitmapSource, __uuidof(IWICBitmapSource));
-_COM_SMARTPTR_TYPEDEF(IWICBitmapFrameDecode, __uuidof(IWICBitmapFrameDecode));
-_COM_SMARTPTR_TYPEDEF(IWICMetadataReader, __uuidof(IWICMetadataReader));
-
 
 export extern IWICImagingFactoryPtr g_imagingFactory;
 

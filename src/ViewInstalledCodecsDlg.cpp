@@ -2,6 +2,7 @@
 
 #include "Macros.h"
 #include "resource.h"
+#include "ComSmartPointers.h"
 
 #include <atlstr.h>
 
@@ -13,10 +14,6 @@ module ViewInstalledCodecsDlg;
 
 import Util;
 import Element;
-import "pch.h";
-
-
-_COM_SMARTPTR_TYPEDEF(IWICBitmapCodecInfo, __uuidof(IWICBitmapCodecInfo));
 
 
 LRESULT CViewInstalledCodecsDlg::OnInitDialog(uint32_t /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/) const

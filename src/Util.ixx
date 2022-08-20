@@ -6,9 +6,7 @@
 
 export module Util;
 
-import "pch.h";
-import <string>;
-import <cassert>;
+import "std.h";
 
 export [[nodiscard]] inline std::wstring guid_to_string(const GUID& guid)
 {

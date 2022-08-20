@@ -15,8 +15,7 @@ module;
 
 module BitmapDataObject;
 
-import "pch.h";
-import <memory>;
+import "std.h";
 
 
 HRESULT CBitmapDataObject::InsertDib(HWND /*hWnd*/, IRichEditOle* pRichEditOle, const HGLOBAL hGlobal)

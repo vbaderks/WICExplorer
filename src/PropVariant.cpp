@@ -14,11 +14,11 @@ module;
 
 module PropVariant;
 
-import <algorithm>;
-import <cassert>;
-import "pch.h";
+import "std.h";
 
+import "Windows-import.h";
 
+import <strsafe.h>;
 
 template<class T> static void WriteValue(const T & /*val*/, CString &out)
 {

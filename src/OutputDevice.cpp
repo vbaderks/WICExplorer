@@ -19,7 +19,6 @@ module OutputDevice;
 
 import BitmapDataObject;
 import Util;
-import "pch.h";
 
 namespace 
 {

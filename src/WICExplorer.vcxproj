@@ -162,7 +162,7 @@
       <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</MultiProcessorCompilation>
     </ClCompile>
     <ClCompile Include="OutputDevice.cpp" />
-    <ClCompile Include="pch.cpp">
+    <ClCompile Include="GenerateHeaderUnits.cpp">
       <ScanSourceForModuleDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ScanSourceForModuleDependencies>
       <ScanSourceForModuleDependencies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ScanSourceForModuleDependencies>
       <ScanSourceForModuleDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ScanSourceForModuleDependencies>
@@ -173,10 +173,12 @@
     <ClCompile Include="WICExplorer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ComSmartPointers.h" />
     <ClInclude Include="ImportMsXml2.h" />
     <ClInclude Include="Macros.h" />
-    <ClInclude Include="pch.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="std.h" />
+    <ClInclude Include="Windows-import.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="MainTree.bmp" />

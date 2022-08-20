@@ -12,8 +12,6 @@ module;
 
 export module PropVariant;
 
-import "pch.h";
-
 export
 {
 

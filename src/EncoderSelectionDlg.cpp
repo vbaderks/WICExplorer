@@ -17,16 +17,11 @@ module;
 
 #include "resource.h"
 #include "Macros.h"
+#include "ComSmartPointers.h"
 
 module EncoderSelectionDlg;
 
 import Element;
-import "pch.h";
-
-
-_COM_SMARTPTR_TYPEDEF(IWICBitmapEncoderInfo, __uuidof(IWICBitmapEncoderInfo));
-_COM_SMARTPTR_TYPEDEF(IWICPixelFormatInfo, __uuidof(IWICPixelFormatInfo));
-
 
 
 GUID CEncoderSelectionDlg::GetContainerFormat()

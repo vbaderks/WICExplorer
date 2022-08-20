@@ -15,8 +15,6 @@ module;
 
 export module OutputDevice;
 
-import "pch.h";
-
 
 export class IOutputDevice
 {

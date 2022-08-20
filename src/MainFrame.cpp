@@ -19,6 +19,7 @@ module;
 
 #include "Macros.h"
 #include "resource.h"
+#include "ComSmartPointers.h"
 
 module MainFrame;
 
@@ -29,17 +30,9 @@ import EncoderSelectionDlg;
 import ViewInstalledCodecsDlg;
 import Util;
 
-import <vector>;
-import <memory>;
-import "pch.h";
+import "Windows-import.h";
+import "std.h";
 
-
-_COM_SMARTPTR_TYPEDEF(IWICMetadataWriter, __uuidof(IWICMetadataWriter));
-_COM_SMARTPTR_TYPEDEF(IWICMetadataBlockReader, __uuidof(IWICMetadataBlockReader));
-_COM_SMARTPTR_TYPEDEF(IWICComponentFactory, __uuidof(IWICComponentFactory));
-_COM_SMARTPTR_TYPEDEF(IWICMetadataQueryWriter, __uuidof(IWICMetadataQueryWriter));
-_COM_SMARTPTR_TYPEDEF(IWICMetadataQueryReader, __uuidof(IWICMetadataQueryReader));
-_COM_SMARTPTR_TYPEDEF(IWICMetadataReader, __uuidof(IWICMetadataReader));
 
 
 namespace

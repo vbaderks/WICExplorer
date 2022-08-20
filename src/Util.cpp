@@ -4,8 +4,9 @@
 #include <strsafe.h>
 
 module Util;
-import "pch.h";
-import <array>;
+
+import "std.h";
+import "Windows-import.h";
 
 using std::array;
 using std::pair;

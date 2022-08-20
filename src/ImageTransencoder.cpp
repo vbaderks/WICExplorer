@@ -9,17 +9,13 @@
 module;
 
 #include "Macros.h"
+#include "ComSmartPointers.h"
 
 module ImageTransencoder;
 
 import Element;
-import <vector>;
-import "pch.h";
 
-_COM_SMARTPTR_TYPEDEF(IWICBitmapFrameDecode, __uuidof(IWICBitmapFrameDecode));
-_COM_SMARTPTR_TYPEDEF(IWICBitmapFrameEncode, __uuidof(IWICBitmapFrameEncode));
-_COM_SMARTPTR_TYPEDEF(IWICPalette, __uuidof(IWICPalette));
-_COM_SMARTPTR_TYPEDEF(IWICBitmapSource, __uuidof(IWICBitmapSource));
+import "std.h";
 
 
 namespace

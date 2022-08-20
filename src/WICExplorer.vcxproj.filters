@@ -42,52 +42,52 @@
     <ClCompile Include="WICExplorer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="pch.cpp">
+    <ClCompile Include="GenerateHeaderUnits.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ViewInstalledCodecsDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BitmapDataObject.ixx">
-      <Filter>Header Files</Filter>
-    </ClCompile>
-    <ClCompile Include="OutputDevice.ixx">
-      <Filter>Header Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ImageTransencoder.ixx">
-      <Filter>Header Files</Filter>
+    <ClCompile Include="Util.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="AboutDlg.ixx">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MetadataTranslator.ixx">
-      <Filter>Header Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Util.ixx">
-      <Filter>Header Files</Filter>
-    </ClCompile>
-    <ClCompile Include="PropVariant.ixx">
-      <Filter>Header Files</Filter>
-    </ClCompile>
-    <ClCompile Include="EncoderSelectionDlg.ixx">
-      <Filter>Header Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Element.ixx">
-      <Filter>Header Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Stopwatch.ixx">
-      <Filter>Header Files</Filter>
+    <ClCompile Include="BitmapDataObject.ixx">
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CodeGenerator.ixx">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ViewInstalledCodecsDlg.ixx">
-      <Filter>Header Files</Filter>
+    <ClCompile Include="Element.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EncoderSelectionDlg.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageTransencoder.ixx">
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MainFrame.ixx">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Util.cpp">
+    <ClCompile Include="MetadataTranslator.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OutputDevice.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PropVariant.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Stopwatch.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Util.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ViewInstalledCodecsDlg.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -95,13 +95,19 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="pch.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Macros.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ImportMsXml2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ComSmartPointers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="std.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Windows-import.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

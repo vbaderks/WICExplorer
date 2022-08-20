@@ -14,8 +14,6 @@ module;
 
 export module MetadataTranslator;
 
-import "pch.h";
-
 
 export class CMetadataTranslator final
 {

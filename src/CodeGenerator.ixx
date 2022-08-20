@@ -14,8 +14,7 @@ module;
 
 export module CodeGenerator;
 
-import "pch.h";
-
+import <strsafe.h>;
 
 export struct ICodeGenerator
 {

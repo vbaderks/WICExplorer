@@ -8,6 +8,7 @@
 //----------------------------------------------------------------------------------------
 
 #include "Macros.h"
+#include "ComSmartPointers.h"
 
 #include <atlstr.h>
 
@@ -19,12 +20,7 @@ import MainFrame;
 import Util;
 import Element;
 
-import "pch.h";
-import <array>;
-import <algorithm>;
-import <utility>;
-
-_COM_SMARTPTR_TYPEDEF(IWICImagingFactory, __uuidof(IWICImagingFactory));
+import "std.h";
 
 
 #ifndef _UNICODE
