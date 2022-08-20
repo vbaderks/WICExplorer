@@ -12,3 +12,5 @@ build/
 
 *.user
 *.aps
+*.tli
+*.tlh
