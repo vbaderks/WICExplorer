@@ -39,8 +39,8 @@ namespace
 {
     CString GetFullPath(const CString& directory, const CString& file)
     {
-        WCHAR buffer[MAX_PATH * 2];
-        WCHAR oldDirectory[MAX_PATH];
+        wchar_t buffer[MAX_PATH * 2];
+        wchar_t oldDirectory[MAX_PATH];
 
         // Ideally we'd like to use GetFullPathName to give us an absolute path,
         // since it's more reliable. Unfortunately, it only works off of the current
@@ -345,7 +345,7 @@ HRESULT CMainFrame::OpenWildcard(const LPCWSTR search, DWORD& attempted, DWORD& 
     // stored anywhere else inside of fdata. The directory needs to be copied
     // from the search string, and then cFileName has to be concatonated to the
     // directory.
-    WCHAR directoryPrefix[MAX_PATH * 2] = { 0 };
+    wchar_t directoryPrefix[MAX_PATH * 2] = { 0 };
     const auto* lastSlash = wcsrchr(search, L'\\');
     const auto* lastSlash2 = wcsrchr(search, L'/');
 
@@ -434,7 +434,7 @@ HRESULT CMainFrame::Load(const LPCWSTR* filenames, const int count)
 
     if (attempted > 1)
     {
-        WCHAR buffer[60];
+        wchar_t buffer[60];
         swprintf_s(buffer, 60, L"Successfully opened %lu out of %lu image files", opened, attempted);
 
         if (!m_suppressMessageBox)
@@ -453,7 +453,7 @@ LRESULT CMainFrame::OnFileOpen(uint16_t, uint16_t, const HWND hParentWnd, BOOL&)
         L"All Files (*.*)\0*.*\0\0", hParentWnd);
 
     // Create a large buffer to hold the result of the filenames.
-    std::vector<WCHAR> filenameBuffer(16 * 1024);
+    std::vector<wchar_t> filenameBuffer(16 * 1024);
     fileDlg.m_ofn.lpstrFile = filenameBuffer.data();
     fileDlg.m_ofn.nMaxFile = static_cast<DWORD>(filenameBuffer.size());
 
@@ -477,7 +477,7 @@ LRESULT CMainFrame::OnFileOpen(uint16_t, uint16_t, const HWND hParentWnd, BOOL&)
         else
         {
             // Get each of the files
-            WCHAR* filenamePtr = fileDlg.m_ofn.lpstrFile + path.GetLength() + 1;
+            wchar_t* filenamePtr = fileDlg.m_ofn.lpstrFile + path.GetLength() + 1;
             while (L'\0' != *filenamePtr)
             {
                 CString filename = filenamePtr;
@@ -582,7 +582,7 @@ LRESULT CMainFrame::OnFileOpenDir(uint16_t /*code*/, uint16_t /*item*/, const HW
 
     UpdateTreeView(true);
 
-    WCHAR buffer[60];
+    wchar_t buffer[60];
     swprintf_s(buffer, 60, L"Successfully opened %lu out of %lu image files", opened, attempted);
 
     if (!m_suppressMessageBox)
@@ -768,8 +768,8 @@ HRESULT CMainFrame::SaveElementAsImage(CInfoElement& element)
                     // The user cares about the pixel format, and WIC actually used
                     // a different one than what the user picked.
                     CString msg;
-                    WCHAR picked[30];
-                    WCHAR actual[30];
+                    wchar_t picked[30];
+                    wchar_t actual[30];
                     if (FAILED(GetPixelFormatName(picked, ARRAYSIZE(picked), dlg.GetPixelFormat())))
                     {
                         VERIFY(wcscpy_s(picked, ARRAYSIZE(picked), L"Unknown") == 0);

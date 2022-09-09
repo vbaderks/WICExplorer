@@ -17,7 +17,7 @@ import ImageTransencoder;
 import OutputDevice;
 import CodeGenerator;
 
-export HRESULT GetPixelFormatName(WCHAR* dest, uint32_t chars, WICPixelFormatGUID guid);
+export HRESULT GetPixelFormatName(wchar_t* dest, uint32_t chars, WICPixelFormatGUID guid);
 
 export extern IWICImagingFactoryPtr g_imagingFactory;
 

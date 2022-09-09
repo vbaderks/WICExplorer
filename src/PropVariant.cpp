@@ -30,12 +30,12 @@ template<class T> static LPCWSTR GetTypeName()
     return L"<UnknownType>";
 }
 
-template<> void WriteValue<CHAR>(const CHAR &val, CString &out)
+template<> void WriteValue<char>(const char &val, CString &out)
 {
     out.Format(L"%d", static_cast<int>(val));
 }
 
-template<> PCWSTR GetTypeName<CHAR>() noexcept
+template<> PCWSTR GetTypeName<char>() noexcept
 {
     return L"CHAR";
 }
@@ -115,7 +115,7 @@ template<> void WriteValue<LARGE_INTEGER>(const LARGE_INTEGER &val, CString &out
     // "the numerator in low part and denominator in the high part"
     if (0 != val.HighPart)
     {
-        WCHAR str[64];
+        wchar_t str[64];
         StringCchPrintfW(str, 64, L"%ul / %dl (%g)", val.LowPart, val.HighPart, static_cast<double>(val.LowPart) / static_cast<double>(val.HighPart));
         out = str;
     }
@@ -135,7 +135,7 @@ template<> void WriteValue<ULARGE_INTEGER>(const ULARGE_INTEGER &val, CString &o
     // "the numerator in low part and denominator in the high part"
     if (0 != val.HighPart)
     {
-        WCHAR str[64];
+        wchar_t str[64];
         StringCchPrintfW(str, 64, L"%u / %u (%g)", val.LowPart, val.HighPart, static_cast<double>(val.LowPart) / static_cast<double>(val.HighPart));
         out = str;
     }
@@ -152,7 +152,7 @@ template<> PCWSTR GetTypeName<ULARGE_INTEGER>() noexcept
 
 template<> void WriteValue<FLOAT>(const FLOAT &val, CString &out)
 {
-    WCHAR str[64];
+    wchar_t str[64];
     StringCchPrintfW(str, 64, L"%g", static_cast<double>(val));
     out = str;
 }
@@ -164,7 +164,7 @@ template<> PCWSTR GetTypeName<FLOAT>() noexcept
 
 template<> void WriteValue<DOUBLE>(const DOUBLE &val, CString &out)
 {
-    WCHAR str[64];
+    wchar_t str[64];
     StringCchPrintfW(str, 64, L"%g", val);
     out = str;
 }
@@ -186,7 +186,7 @@ template<> PCWSTR GetTypeName<CY>() noexcept
 
 template<> void WriteValue<CLSID>(const CLSID &val, CString &out)
 {
-    WCHAR str[64];
+    wchar_t str[64];
     VERIFY(StringFromGUID2(val, str, 64) != 0);
     out = str;
 }

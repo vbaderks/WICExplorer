@@ -44,7 +44,7 @@ bool HasAlpha(REFWICPixelFormatGUID pGuid) noexcept
 }
 
 
-HRESULT GetPixelFormatName(WCHAR* dest, uint32_t chars, const WICPixelFormatGUID guid)
+HRESULT GetPixelFormatName(wchar_t* dest, uint32_t chars, const WICPixelFormatGUID guid)
 {
     HRESULT result;
     if (guid == GUID_WICPixelFormatDontCare)
@@ -1014,7 +1014,7 @@ HRESULT CBitmapSourceElement::OutputView(IOutputDevice& output, const InfoElemen
 
         output.BeginKeyValues(L"");
 
-        WCHAR v[128];
+        wchar_t v[128];
 
         StringCchPrintfW(v, ARRAYSIZE(v), L"%u", width);
         output.AddKeyValue(L"Width", v);
@@ -1047,7 +1047,7 @@ HRESULT CBitmapSourceElement::OutputView(IOutputDevice& output, const InfoElemen
             IWICColorContextPtr colorContextSrc;
             IWICColorContextPtr colorContextDst;
             IWICColorTransformPtr colorTransform;
-            WCHAR wzFilename[_MAX_PATH + 1];
+            wchar_t wzFilename[_MAX_PATH + 1];
             uint32_t cActual = 0;
 
             result = m_source->QueryInterface(IID_PPV_ARGS(&frame));

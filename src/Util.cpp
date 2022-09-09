@@ -74,7 +74,7 @@ CString GetHresultString(HRESULT hr)
 
     constexpr DWORD MAX_MsgLength = 256;
 
-    WCHAR msg[MAX_MsgLength];
+    wchar_t msg[MAX_MsgLength];
 
     msg[0] = TEXT('\0');
 
