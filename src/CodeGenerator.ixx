@@ -10,21 +10,20 @@ module;
 
 #include "Macros.h"
 
-#include <atlstr.h>
-
 export module CodeGenerator;
 
 import <strsafe.h>;
+import "std.h";
 
 export struct ICodeGenerator
 {
     virtual ~ICodeGenerator() = default;
 
-    virtual void BeginVariableScope(LPCWSTR varType, LPCWSTR varBaseName, LPCWSTR varInitValue) = 0;
+    virtual void BeginVariableScope(std::wstring_view varType, std::wstring_view varBaseName, std::wstring_view varInitValue) = 0;
     virtual void EndVariableScope() = 0;
-    virtual void CallFunction(LPCWSTR func, ...) = 0;
-    virtual LPCWSTR GetLastVariableName() noexcept = 0;
-    virtual void GenerateCode(CString &out) = 0;
+    virtual void CallFunction(const wchar_t* func, ...) = 0;
+    virtual const std::wstring& GetLastVariableName() noexcept = 0;
+    virtual std::wstring GenerateCode() = 0;
 
 protected:
     ICodeGenerator() = default;
@@ -43,7 +42,7 @@ public:
         CallFunction(L"CoCreateInstance(CLSID_WICImagingFactory, nullptr, CLSCTX_INPROC_SERVER, IID_IWICImagingFactory, (LPVOID*) &imagingFactory)");
     }
 
-    void BeginVariableScope(const LPCWSTR varType, const LPCWSTR varBaseName, const LPCWSTR varInitValue) override
+    void BeginVariableScope(std::wstring_view varType, std::wstring_view varBaseName, std::wstring_view varInitValue) override
     {
         AddLine(L"{");
 
@@ -62,10 +61,10 @@ public:
         }
     }
 
-    void CallFunction(LPCWSTR func, ...) override
+    void CallFunction(const wchar_t* func, ...) override
     {
         constexpr size_t maxCallLength = 1024;
-        WCHAR call[maxCallLength];
+        wchar_t call[maxCallLength];
 
         WARNING_SUPPRESS_NEXT_LINE(26826) //  Don't use C-style variable arguments (f.55).
         va_list args;
@@ -84,40 +83,42 @@ public:
         AddLine(call);
     }
 
-    LPCWSTR GetLastVariableName() noexcept override
+    const std::wstring& GetLastVariableName() noexcept override
     {
         return m_lastVarName;
     }
 
-    void GenerateCode(CString &out) override
+    std::wstring GenerateCode() override
     {
-        out = L"";
-        for (int l = 0; l < m_lines.GetSize(); l++)
+        std::wstring out;
+        for (size_t l = 0; l < m_lines.size(); l++)
         {
-            out += m_lines[l];
+            out += m_lines[l].c_str();
             out += L"\n";
         }
+
+        return out;
     }
 
 private:
-    void BeginVariable(const LPCWSTR varType, const LPCWSTR varBaseName, const LPCWSTR varInitValue)
+    void BeginVariable(std::wstring_view varType, std::wstring_view varBaseName, std::wstring_view varInitValue)
     {
-        CString decl;
-        decl.Format(L"%s %s = %s;", varType, varBaseName, varInitValue);
-
-        AddLine(decl);
+#pragma warning(push)
+#pragma warning(disable : 4296) // '<': expression is always false (known defect in MSVC compiler 2022 17.4 Preview 1.0)
+        AddLine(std::format(L"{} {} = {}", varType, varBaseName, varInitValue));
+#pragma warning(pop)
 
         m_lastVarName = varBaseName;
     }
 
-    void AddLine(const LPCWSTR line)
+    void AddLine(const std::wstring& line)
     {
-        m_lines.Add(CString(L' ', m_indent) + line);
+        m_lines.push_back(std::wstring(m_indent, L' ') + line);
     }
 
-    enum { INDENT_SPACES = 4 };
+    static constexpr size_t INDENT_SPACES{4};
 
-    CSimpleArray<CString> m_lines;
-    CString m_lastVarName;
-    int m_indent{};
+    std::vector<std::wstring> m_lines;
+    std::wstring m_lastVarName;
+    size_t m_indent{};
 };

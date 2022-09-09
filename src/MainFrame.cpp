@@ -323,9 +323,7 @@ HRESULT CMainFrame::OpenFile(const LPCWSTR filename, bool& updateElements)
                 filename, GetHresultString(result).GetString());
         }
 
-        CString code;
-        codeGen.GenerateCode(code);
-        msg += code;
+        msg += codeGen.GenerateCode().c_str();
 
         if (!m_suppressMessageBox)
         {
@@ -757,9 +755,7 @@ HRESULT CMainFrame::SaveElementAsImage(CInfoElement& element)
                     msg.Format(L"Unable to encode '%s' as '%s'. The error is: %s.\n\n",
                         element.Name().GetString(), fileDlg.m_szFileName, GetHresultString(result).GetString());
 
-                    CString code;
-                    codeGen.GenerateCode(code);
-                    msg += code;
+                    msg += codeGen.GenerateCode().c_str();
 
                     if (!m_suppressMessageBox)
                     {

@@ -306,10 +306,7 @@ HRESULT CElementManager::OpenFile(const LPCWSTR filename, ICodeGenerator& codeGe
             if (nullptr != realDecElem)
             {
                 realDecElem->SetCreationTime(creationTimer.GetTimeMS());
-
-                CString code;
-                codeGen.GenerateCode(code);
-                realDecElem->SetCreationCode(code);
+                realDecElem->SetCreationCode(codeGen.GenerateCode().c_str());
             }
         }
     }
