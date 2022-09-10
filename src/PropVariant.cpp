@@ -14,9 +14,9 @@ module;
 
 module PropVariant;
 
-import "std.h";
+import <std.h>;
 
-import "Windows-import.h";
+import <Windows-import.h>;
 
 import <strsafe.h>;
 

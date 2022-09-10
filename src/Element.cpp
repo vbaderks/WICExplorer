@@ -13,6 +13,8 @@ module;
 #include "ComSmartPointers.h"
 
 #include <atlstr.h>
+#include <atlres.h>
+
 
 module Element;
 
@@ -21,8 +23,7 @@ import Stopwatch;
 import Util;
 import PropVariant;
 
-import "std.h";
-import <atlres.h>;
+import <std.h>;
 import <strsafe.h>;
 
 

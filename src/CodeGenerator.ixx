@@ -13,7 +13,7 @@ module;
 export module CodeGenerator;
 
 import <strsafe.h>;
-import "std.h";
+import <std.h>;
 
 export struct ICodeGenerator
 {

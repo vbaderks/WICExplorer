@@ -30,8 +30,8 @@ import EncoderSelectionDlg;
 import ViewInstalledCodecsDlg;
 import Util;
 
-import "Windows-import.h";
-import "std.h";
+import <Windows-import.h>;
+import <std.h>;
 
 
 

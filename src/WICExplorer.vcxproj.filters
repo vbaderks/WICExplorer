@@ -42,9 +42,6 @@
     <ClCompile Include="WICExplorer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GenerateHeaderUnits.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ViewInstalledCodecsDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -102,12 +99,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ComSmartPointers.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="std.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Windows-import.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

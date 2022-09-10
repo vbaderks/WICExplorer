@@ -12,8 +12,8 @@ module;
 
 export module Stopwatch;
 
-import "std.h";
-import "Windows-import.h";
+import <std.h>;
+import <Windows-import.h>;
 
 export class CStopwatch final
 {
