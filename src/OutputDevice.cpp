@@ -8,9 +8,6 @@
 //----------------------------------------------------------------------------------------
 module;
 
-
-#include <atlstr.h>
-
 #include <atlbase.h>
 #include <atlapp.h>
 #include <atlctrls.h>
@@ -137,19 +134,20 @@ void CRichEditDevice::AddVerbatimText(const LPCWSTR name)
 
 void CRichEditDevice::AddDib(const HGLOBAL hBitmap)
 {
-    IRichEditOle *oleInterface = m_richEditCtrl.GetOleInterface();
+    IRichEditOle* oleInterface = m_richEditCtrl.GetOleInterface();
 
-    if (nullptr != oleInterface)
+    if (oleInterface)
     {
         const HRESULT result = CBitmapDataObject::InsertDib(m_richEditCtrl.m_hWnd, oleInterface, hBitmap);
 
         if (FAILED(result))
         {
-            CString msg;
-            msg.Format(L"Failed to render bitmap: %s\n", GetHresultString(result).GetString());
             const COLORREF oldColor = SetTextColor(RGB(255, 0, 0));
-            AddText(msg);
+#pragma warning(push)
+#pragma warning(disable : 4296) // '<': expression is always false
+            AddText(std::format(L"Failed to render bitmap: {}\n", GetHresultString(result)).c_str());
             SetTextColor(oldColor);
+#pragma warning(pop)
         }
         else
         {

@@ -1109,9 +1109,7 @@ HRESULT CBitmapSourceElement::OutputView(IOutputDevice& output, const InfoElemen
                         }
                     }
                 }
-
             }
-
         }
 
         if (m_colorTransform)
@@ -1146,10 +1144,11 @@ HRESULT CBitmapSourceElement::OutputView(IOutputDevice& output, const InfoElemen
         }
         else
         {
-            CString msg;
-            msg.Format(L"Failed to convert IWICBitmapSource to HBITMAP: %s", GetHresultString(result).GetString());
             const COLORREF oldColor = output.SetTextColor(RGB(255, 0, 0));
-            output.AddText(msg);
+#pragma warning(push)
+#pragma warning(disable : 4296) // '<': expression is always false
+            output.AddText(std::format(L"Failed to convert IWICBitmapSource to HBITMAP: {}", GetHresultString(result)).c_str());
+#pragma warning(pop)
             output.SetTextColor(oldColor);
         }
     }

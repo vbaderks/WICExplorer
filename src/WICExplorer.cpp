@@ -100,9 +100,11 @@ int WINAPI wWinMain(const HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, cons
     ATLASSERT(SUCCEEDED(hr));
     if (FAILED(hr))
     {
-        CString msg;
-        msg.Format(L"Unable to create ImagingFactory. The error is: %s.", GetHresultString(hr).GetString());
-        MessageBoxW(nullptr, msg, L"Error Creating ImagingFactory", MB_ICONERROR);
+#pragma warning(push)
+#pragma warning(disable : 4296) // '<': expression is always false
+        MessageBoxW(nullptr, std::format(L"Unable to create ImagingFactory. The error is: {}.", GetHresultString(hr)).c_str(),
+            L"Error Creating ImagingFactory", MB_ICONERROR);
+#pragma warning(pop)
     }
 
     // Initialize the RichEdit library

@@ -62,7 +62,7 @@ namespace
 }
 
 
-CString GetHresultString(HRESULT hr)
+std::wstring GetHresultString(HRESULT hr)
 {
     const auto knownError = std::find_if(g_wicErrorCodes.begin(), g_wicErrorCodes.end(),
         [=](const pair<HRESULT, LPCWSTR>& x) { return x.first == hr; });

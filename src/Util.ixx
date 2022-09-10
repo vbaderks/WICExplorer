@@ -2,11 +2,10 @@
 
 #include "Macros.h"
 
-#include <atlstr.h>
-
 export module Util;
 
 import "std.h";
+import "Windows-import.h";
 
 export [[nodiscard]] inline std::wstring guid_to_string(const GUID& guid)
 {
@@ -21,4 +20,4 @@ export [[nodiscard]] inline std::wstring guid_to_string(const GUID& guid)
     return guid_text;
 }
 
-export CString GetHresultString(HRESULT hr);
+export std::wstring GetHresultString(HRESULT hr);

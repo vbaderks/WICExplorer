@@ -31,8 +31,8 @@ import ViewInstalledCodecsDlg;
 import Util;
 import CodeGenerator;
 
-import <Windows-import.h>;
 import <std.h>;
+import <Windows-import.h>;
 
 
 
@@ -306,29 +306,38 @@ HRESULT CMainFrame::OpenFile(const LPCWSTR filename, bool& updateElements)
     }
     else
     {
-        CString msg;
+        std::wstring msg;
 
         if (result == E_FAIL)
         {
-            msg.Format(L"File \"%s\" loaded but contained 0 frames.\n\n", filename);
+#pragma warning(push)
+#pragma warning(disable : 4296) // '<': expression is always false
+            msg = std::format(L"File \"{}\" loaded but contained 0 frames.\n\n", filename);
+#pragma warning(pop)
         }
         else
         {
-            msg.Format(L"Unable to load the file \"%s\". The error is: %s.\n\n", filename, GetHresultString(result).GetString());
+#pragma warning(push)
+#pragma warning(disable : 4296) // '<': expression is always false
+            msg = std::format(L"Unable to load the file \"{}\". The error is: {}.\n\n", filename, GetHresultString(result));
+#pragma warning(pop)
         }
 
         if (nullptr != newRoot)
         {
             updateElements = true;
-            msg.Format(L"Unable to completely load the file \"%s\". The error is: %s. Some parts of the file may still be viewed.\n\n",
-                filename, GetHresultString(result).GetString());
+#pragma warning(push)
+#pragma warning(disable : 4296) // '<': expression is always false
+            msg = std::format(L"Unable to completely load the file \"{}\". The error is: {}. Some parts of the file may still be viewed.\n\n",
+                filename, GetHresultString(result));
+#pragma warning(pop)
         }
 
-        msg += codeGen.GenerateCode().c_str();
+        msg += codeGen.GenerateCode();
 
         if (!m_suppressMessageBox)
         {
-            MessageBoxW(msg, L"Error Opening File", MB_OK | MB_ICONWARNING);
+            MessageBoxW(msg.c_str(), L"Error Opening File", MB_OK | MB_ICONWARNING);
         }
     }
 
@@ -754,7 +763,7 @@ HRESULT CMainFrame::SaveElementAsImage(CInfoElement& element)
                 {
                     CString msg;
                     msg.Format(L"Unable to encode '%s' as '%s'. The error is: %s.\n\n",
-                        element.Name().GetString(), fileDlg.m_szFileName, GetHresultString(result).GetString());
+                        element.Name().GetString(), fileDlg.m_szFileName, GetHresultString(result).c_str());
 
                     msg += codeGen.GenerateCode().c_str();
 
@@ -1042,12 +1051,12 @@ LRESULT CMainFrame::OnContextClick(const uint16_t /*code*/, const uint16_t item,
         const HRESULT result = QueryMetadata(elem);
         if (FAILED(result))
         {
-            CString msg;
-            msg.Format(L"Unable find metadata. The error is: %s.", GetHresultString(result).GetString());
-
             if (!m_suppressMessageBox)
             {
-                MessageBoxW(msg, L"Error Finding Metadata", MB_OK | MB_ICONWARNING);
+#pragma warning(push)
+#pragma warning(disable : 4296) // '<': expression is always false
+                MessageBoxW(std::format(L"Unable find metadata. The error is: {}", GetHresultString(result)).c_str(), L"Error Finding Metadata", MB_OK | MB_ICONWARNING);
+#pragma warning(pop)
             }
         }
     }
