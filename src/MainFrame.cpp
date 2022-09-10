@@ -29,6 +29,7 @@ import PropVariant;
 import EncoderSelectionDlg;
 import ViewInstalledCodecsDlg;
 import Util;
+import CodeGenerator;
 
 import <Windows-import.h>;
 import <std.h>;

@@ -87,6 +87,12 @@
     <ClCompile Include="ViewInstalledCodecsDlg.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ICodeGenerator.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IOutputDevice.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">

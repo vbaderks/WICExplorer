@@ -12,7 +12,7 @@ module;
 
 export module ImageTransencoder;
 
-import CodeGenerator;
+import ICodeGenerator;
 
 export class CImageTransencoder final
 {
@@ -31,7 +31,7 @@ public:
     HRESULT SetPreview(IWICBitmapSource* preview) const;
     HRESULT End();
 
-    WICPixelFormatGUID     m_format{GUID_WICPixelFormatDontCare};
+    WICPixelFormatGUID m_format{GUID_WICPixelFormatDontCare};
 
 private:
     void Clear() noexcept;
@@ -39,7 +39,7 @@ private:
     HRESULT AddBitmapFrameDecode(IWICBitmapFrameDecode* frame);
     HRESULT CreateFrameEncode(IWICBitmapSource* bitmapSource, IWICBitmapFrameEncodePtr &frameEncode);
 
-    ICodeGenerator       *m_codeGen{};
+    ICodeGenerator*       m_codeGen{};
     IWICStreamPtr         m_stream;
     IWICBitmapEncoderPtr  m_encoder;
     bool                  m_encoding{};

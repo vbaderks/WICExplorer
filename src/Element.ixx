@@ -14,8 +14,8 @@ module;
 export module Element;
 
 import ImageTransencoder;
-import OutputDevice;
-import CodeGenerator;
+import IOutputDevice;
+import ICodeGenerator;
 
 export HRESULT GetPixelFormatName(wchar_t* dest, uint32_t chars, WICPixelFormatGUID guid);
 

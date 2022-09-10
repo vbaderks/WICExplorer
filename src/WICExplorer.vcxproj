@@ -99,7 +99,9 @@
     <ClCompile Include="CodeGenerator.ixx" />
     <ClCompile Include="Element.ixx" />
     <ClCompile Include="EncoderSelectionDlg.ixx" />
+    <ClCompile Include="ICodeGenerator.ixx" />
     <ClCompile Include="ImageTransencoder.ixx" />
+    <ClCompile Include="IOutputDevice.ixx" />
     <ClCompile Include="MainFrame.ixx" />
     <ClCompile Include="MetadataTranslator.ixx" />
     <ClCompile Include="OutputDevice.ixx" />

@@ -1,11 +1,11 @@
 ﻿module;
 
 #include <atlstr.h>
-#include <strsafe.h>
 
 module Util;
 
 import <std.h>;
+import <strsafe.h>;
 import <Windows-import.h>;
 
 using std::array;
