@@ -42,7 +42,7 @@ LRESULT CEncoderSelectionDlg::OnInitDialog(uint32_t /*uMsg*/, WPARAM /*wParam*/,
     containerList.InsertColumn(0, L"Friendly Name", LVCFMT_LEFT, 150, 0);
 
     // Enumerate all of the encoders installed on the system
-    m_containers.RemoveAll();
+    m_containers.clear();
 
     IEnumUnknownPtr e;
     HRESULT result = g_imagingFactory->CreateComponentEnumerator(WICEncoder, WICComponentEnumerateRefresh, &e);
@@ -61,12 +61,12 @@ LRESULT CEncoderSelectionDlg::OnInitDialog(uint32_t /*uMsg*/, WPARAM /*wParam*/,
 
             // Add the container to the ListView
             const int idx = containerList.InsertItem(0, friendlyName);
-            containerList.SetItemData(idx, static_cast<DWORD_PTR>(m_containers.GetSize()));
+            containerList.SetItemData(idx, static_cast<DWORD_PTR>(m_containers.size()));
 
             // Add the container to the list of containers
             GUID containerFormat{};
             encoderInfo->GetContainerFormat(&containerFormat);
-            m_containers.Add(containerFormat);
+            m_containers.push_back(containerFormat);
         }
     }
 
@@ -77,7 +77,7 @@ LRESULT CEncoderSelectionDlg::OnInitDialog(uint32_t /*uMsg*/, WPARAM /*wParam*/,
     formatList.InsertColumn(0, L"Friendly Name", LVCFMT_LEFT, 170, 0);
 
     // Enumerate all of the pixel formats installed on the system
-    m_formats.RemoveAll();
+    m_formats.clear();
 
     e = nullptr;
     result = g_imagingFactory->CreateComponentEnumerator(WICPixelFormat, WICComponentEnumerateRefresh, &e);
@@ -96,19 +96,19 @@ LRESULT CEncoderSelectionDlg::OnInitDialog(uint32_t /*uMsg*/, WPARAM /*wParam*/,
 
             // Add the format to the ListView
             const int idx = formatList.InsertItem(0, friendlyName);
-            formatList.SetItemData(idx, static_cast<DWORD_PTR>(m_formats.GetSize()));
+            formatList.SetItemData(idx, static_cast<DWORD_PTR>(m_formats.size()));
 
             // Add the format to the list of containers
             GUID pixelFormat{};
             formatInfo->GetFormatGUID(&pixelFormat);
-            m_formats.Add(pixelFormat);
+            m_formats.push_back(pixelFormat);
         }
     }
 
     //Add in "don't care" as the default pixel format
     const int idx = formatList.InsertItem(0, L"Don't care");
-    formatList.SetItemData(idx, static_cast<DWORD_PTR>(m_formats.GetSize()));
-    m_formats.Add(GUID_WICPixelFormatDontCare);
+    formatList.SetItemData(idx, static_cast<DWORD_PTR>(m_formats.size()));
+    m_formats.push_back(GUID_WICPixelFormatDontCare);
 
     // Select the first Format in the list (don't care)
     formatList.SelectItem(idx);
@@ -124,7 +124,7 @@ LRESULT CEncoderSelectionDlg::OnCloseCmd(uint16_t /*wNotifyCode*/, const uint16_
         const CListViewCtrl containerList(::GetDlgItem(m_hWnd, IDC_ENCODER_LIST));
         int selIdx = containerList.GetSelectedIndex();
 
-        if ((selIdx < 0) || (selIdx >= m_containers.GetSize()))
+        if ((selIdx < 0) || (selIdx >= static_cast<int>(m_containers.size())))
         {
             ::MessageBoxW(m_hWnd, L"Please select one of the encoders from the list before continuing.",
                 L"No Encoder Was Selected", MB_OK | MB_ICONINFORMATION);
@@ -136,7 +136,7 @@ LRESULT CEncoderSelectionDlg::OnCloseCmd(uint16_t /*wNotifyCode*/, const uint16_
         const CListViewCtrl formatList(::GetDlgItem(m_hWnd, IDC_FORMAT_LIST));
         selIdx = formatList.GetSelectedIndex();
 
-        if ((selIdx < 0) || (selIdx >= m_formats.GetSize()))
+        if ((selIdx < 0) || (selIdx >= static_cast<int>(m_formats.size())))
         {
             ::MessageBoxW(m_hWnd, L"Please select one of the pixel formats from the list before continuing.",
                 L"No Pixel Format Was Selected", MB_OK | MB_ICONINFORMATION);

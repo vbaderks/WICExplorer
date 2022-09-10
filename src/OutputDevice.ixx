@@ -9,13 +9,14 @@
 module;
 
 #include <atlbase.h>
-#include <atlstr.h>
 #include <atlapp.h>
 #include <atlctrls.h>
 
 export module OutputDevice;
 
 import IOutputDevice;
+
+import <std.h>;
 
 export class CRichEditDevice final : public IOutputDevice
 {
@@ -39,8 +40,6 @@ public:
     void EndSection() override;
 
 private:
-    enum { TEXT_SIZE = 10 };
-
-    CSimpleArray<CString> m_sections;
-    CRichEditCtrl &m_richEditCtrl;
+    std::vector<std::wstring> m_sections;
+    CRichEditCtrl& m_richEditCtrl;
 };

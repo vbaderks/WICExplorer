@@ -20,11 +20,12 @@ module OutputDevice;
 import BitmapDataObject;
 import Util;
 
-namespace 
-{
+namespace {
 
 LPCWSTR NormalFontName = L"Verdana";
 LPCWSTR VerbatimFontName = L"Lucida Console";
+
+constexpr auto TEXT_SIZE{10};
 
 }
 
@@ -102,15 +103,15 @@ int CRichEditDevice::SetFontSize(const int pointSize)
 void CRichEditDevice::BeginSection(const LPCWSTR name)
 {
     // Add this new level to the output stack
-    m_sections.Add(CString(name));
+    m_sections.push_back(std::wstring{name});
 
     // Actually write the section heading
     if ((nullptr != name) && (L'\0' != *name))
     {
         AddText(L"\n");
 
-        const int headingSize = TEXT_SIZE + ((m_sections.GetSize() <= 4) ? (4 - m_sections.GetSize())*TEXT_SIZE/4 : 0);
-        const int oldSize = SetFontSize(headingSize);
+        const size_t headingSize = TEXT_SIZE + ((m_sections.size() <= 4) ? (4 - m_sections.size())*TEXT_SIZE/4 : 0);
+        const int oldSize = SetFontSize(static_cast<int>(headingSize));
         const COLORREF oldColor = SetTextColor(RGB(192, 0, 0));
 
         AddText(name);
@@ -194,8 +195,8 @@ void CRichEditDevice::EndKeyValues()
 
 void CRichEditDevice::EndSection()
 {
-    if (m_sections.GetSize() > 0)
+    if (m_sections.size() > 0)
     {
-        m_sections.RemoveAt(m_sections.GetSize() - 1);
+        m_sections.erase(m_sections.cbegin() + (m_sections.size() - 1));
     }
 }
