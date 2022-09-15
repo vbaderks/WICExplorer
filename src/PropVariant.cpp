@@ -11,6 +11,7 @@ module;
 #include <atlstr.h>
 
 #include "Macros.h"
+#include <cassert>
 
 module PropVariant;
 
@@ -19,6 +20,8 @@ import <std.h>;
 import <Windows-import.h>;
 
 import <strsafe.h>;
+
+namespace {
 
 template<class T> static void WriteValue(const T & /*val*/, CString &out)
 {
@@ -287,6 +290,8 @@ template<typename T> void WriteValues(const ULONG count, T *vals, const VARTYPE 
     }
 
     out += L"}";
+}
+
 }
 
 HRESULT VariantTypeToString(const VARTYPE vt, CString &out)

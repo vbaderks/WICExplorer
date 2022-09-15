@@ -9,6 +9,7 @@
 module;
 
 #include "Macros.h"
+#include <cassert>
 
 #include <RichEdit.h>
 #include <RichOle.h>
