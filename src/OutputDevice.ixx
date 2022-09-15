@@ -37,7 +37,7 @@ public:
     void BeginKeyValues(LPCWSTR name) override;
     void AddKeyValue(LPCWSTR key, LPCWSTR value) override;
     void EndKeyValues() override;
-    void EndSection() override;
+    void EndSection() noexcept override;
 
 private:
     std::vector<std::wstring> m_sections;

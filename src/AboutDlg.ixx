@@ -22,8 +22,7 @@ export class CAboutDlg final : public CDialogImpl<CAboutDlg>
 public:
     enum { IDD = IDD_ABOUTBOX };
 
-    WARNING_SUPPRESS_NEXT_LINE(26433) //  Function 'ProcessWindowMessage' should be marked with 'override' (c.128).
-    BEGIN_MSG_MAP(CAboutDlg)
+    BEGIN_MSG_MAP_OVERRIDE()
         MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
         COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
         COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
@@ -41,4 +40,3 @@ public:
         return 0;
     }
 };
-

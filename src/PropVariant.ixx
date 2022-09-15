@@ -15,7 +15,7 @@ export module PropVariant;
 export
 {
 
-constexpr inline unsigned PVTSOPTION_IncludeType = 0x01;
+inline constexpr unsigned PVTSOPTION_IncludeType = 0x01;
 
 HRESULT PropVariantToString(PROPVARIANT* pv, unsigned options, CString& out);
 HRESULT VariantTypeToString(VARTYPE vt, CString& out);

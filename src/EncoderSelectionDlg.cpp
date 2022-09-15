@@ -24,12 +24,12 @@ module EncoderSelectionDlg;
 import Element;
 
 
-GUID CEncoderSelectionDlg::GetContainerFormat()
+GUID CEncoderSelectionDlg::GetContainerFormat() const noexcept
 {
     return m_containers[m_containerSel];
 }
 
-GUID CEncoderSelectionDlg::GetPixelFormat()
+GUID CEncoderSelectionDlg::GetPixelFormat() const noexcept
 {
     return m_formats[m_formatSel];
 }

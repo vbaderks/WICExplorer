@@ -42,6 +42,7 @@
 
       <!-- Explicit set the 'external' warning level to disabled (Supported since Visual Studio 2019 16.10) -->
       <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
+      <TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
 
       <!--
         Disable level All warnings that are not useful:
@@ -83,25 +84,14 @@
         throwingNew = Communicate with the compiler that only the throwing variant of operator new is used.
         utf-8 = interpret all source files as UTF-8.
       -->
-      <AdditionalOptions>
-        /Zc:__cplusplus /Zc:throwingNew /utf-8 %(AdditionalOptions)
-      </AdditionalOptions>
+      <AdditionalOptions>/Zc:__cplusplus /Zc:throwingNew /utf-8 %(AdditionalOptions)</AdditionalOptions>
 
       <!--
         NOMINMAX = Prevent that the Windows SDK header files define the macros min and max.
         _CA_SHOULD_CHECK_RETURN = Expand PreFast attribute _Check_return_opt_ into _Check_return_
         _CA_SHOULD_CHECK_RETURN_WER = Expand PreFast attribute _Check_return_wat_ into _Check_return_
       -->
-      <PreprocessorDefinitions>
-        WIN32;
-        _WINDOWS;
-        WIN32_LEAN_AND_MEAN;
-        NOMINMAX;
-        _CA_SHOULD_CHECK_RETURN;
-        _CA_SHOULD_CHECK_RETURN_WER;
-        __STDC_WANT_SECURE_LIB__=1;
-        %(PreprocessorDefinitions)
-      </PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;WIN32_LEAN_AND_MEAN;NOMINMAX;_CA_SHOULD_CHECK_RETURN;_CA_SHOULD_CHECK_RETURN_WER;__STDC_WANT_SECURE_LIB__=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
 
       <!-- Mark the application compatible with Control-flow Enforcement Technology (CET) Shadow Stack -->
       <CETCompat>true</CETCompat>

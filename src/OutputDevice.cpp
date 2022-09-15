@@ -191,7 +191,7 @@ void CRichEditDevice::EndKeyValues()
     AddText(L"\n");
 }
 
-void CRichEditDevice::EndSection()
+void CRichEditDevice::EndSection() noexcept
 {
     if (m_sections.size() > 0)
     {

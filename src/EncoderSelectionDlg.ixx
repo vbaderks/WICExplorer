@@ -24,15 +24,14 @@ export class CEncoderSelectionDlg final : public CDialogImpl<CEncoderSelectionDl
 public:
     enum { IDD = IDD_ENCODER_SELECTION };
 
-    WARNING_SUPPRESS_NEXT_LINE(26433) //  Function 'ProcessWindowMessage' should be marked with 'override' (c.128).
-    BEGIN_MSG_MAP(CEncoderSelectionDlg)
+    BEGIN_MSG_MAP_OVERRIDE()
         MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
         COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
         COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
     END_MSG_MAP()
 
-    GUID GetContainerFormat();
-    GUID GetPixelFormat();
+    [[nodiscard]] GUID GetContainerFormat() const noexcept;
+    [[nodiscard]] GUID GetPixelFormat() const noexcept;
 
 private:
     LRESULT OnInitDialog(uint32_t /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);

@@ -37,6 +37,7 @@ int Run(CAppModule& appModule, const LPCWSTR lpCmdLine, const int nCmdShow)
     CMessageLoop msgLoop;
     appModule.AddMessageLoop(&msgLoop);
 
+    WARNING_SUPPRESS_NEXT_LINE(5262) // implicit fall-through occurs here; are you missing a break statement?
     CMainFrame mainWnd;
 
     // Create the main window

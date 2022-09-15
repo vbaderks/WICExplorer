@@ -1,6 +1,7 @@
 ﻿module;
 
 #include "Macros.h"
+#include <cassert>
 
 export module Util;
 
