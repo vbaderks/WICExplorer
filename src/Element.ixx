@@ -43,14 +43,14 @@ public:
         return m_name;
     }
 
-    virtual HRESULT SaveAsImage(CImageTransencoder & /*trans*/, ICodeGenerator & /*codeGen*/) noexcept(false)
+    virtual HRESULT SaveAsImage(CImageTransencoder& /*trans*/, ICodeGenerator& /*codeGen*/) noexcept(false)
     {
         return E_NOTIMPL;
     }
 
-    virtual HRESULT OutputView(IOutputDevice &output, const InfoElementViewContext& /*context*/)
+    virtual HRESULT OutputView(IOutputDevice& output, const InfoElementViewContext& /*context*/)
     {
-        if(m_queryKey != L"")
+        if (m_queryKey != L"")
         {
             output.BeginKeyValues(L"Metadata Query Result");
             output.AddKeyValue(m_queryKey, m_queryValue);
@@ -60,7 +60,7 @@ public:
         return S_OK;
     }
 
-    virtual HRESULT OutputInfo(IOutputDevice & /*output*/) noexcept(false)
+    virtual HRESULT OutputInfo(IOutputDevice& /*output*/) noexcept(false)
     {
         return S_OK;
     }
@@ -80,12 +80,12 @@ public:
         return m_firstChild;
     }
 
-    [[nodiscard]] BOOL IsChild(const CInfoElement *element) const noexcept
+    [[nodiscard]] BOOL IsChild(const CInfoElement* element) const noexcept
     {
-        CInfoElement *child = FirstChild();
-        while(child)
+        CInfoElement* child = FirstChild();
+        while (child)
         {
-            if(element == child)
+            if (element == child)
             {
                 return 1;
             }
@@ -94,30 +94,30 @@ public:
         return 0;
     }
 
-    void SetParent(const CInfoElement *element) noexcept;
+    void SetParent(const CInfoElement* element) noexcept;
 
     // Adds element after this object
-    void AddSibling(CInfoElement *element) noexcept;
+    void AddSibling(CInfoElement* element) noexcept;
 
     // Adds element as the last child
-    void AddChild(CInfoElement *element) noexcept;
+    void AddChild(CInfoElement* element) noexcept;
 
-    void RemoveChild(CInfoElement *child) noexcept;
+    void RemoveChild(CInfoElement* child) noexcept;
     void RemoveChildren() noexcept;
 
     virtual void FillContextMenu(HMENU /*context*/) noexcept
     {
     }
 
-    virtual CInfoElement *FindElementByReader(IWICMetadataReader *reader)
+    virtual CInfoElement* FindElementByReader(IWICMetadataReader* reader)
     {
-        CInfoElement *result;
-        if(FirstChild() != nullptr &&
+        CInfoElement* result;
+        if (FirstChild() != nullptr &&
             (result = FirstChild()->FindElementByReader(reader)) != nullptr)
         {
             return result;
         }
-        if(NextSibling() != nullptr &&
+        if (NextSibling() != nullptr &&
             (result = NextSibling()->FindElementByReader(reader)) != nullptr)
         {
             return result;
@@ -125,7 +125,7 @@ public:
         return nullptr;
     }
 
-    virtual HRESULT GetQueryReader(IWICMetadataQueryReader **ppReader) noexcept(false)
+    virtual HRESULT GetQueryReader(IWICMetadataQueryReader** ppReader) noexcept(false)
     {
         *ppReader = nullptr;
         return E_NOTIMPL;
@@ -140,30 +140,30 @@ protected:
 private:
     void Unlink() noexcept;
 
-    CInfoElement *m_parent{};
-    CInfoElement *m_prevSibling{};
-    CInfoElement *m_nextSibling{};
-    CInfoElement *m_firstChild{};
+    CInfoElement* m_parent{};
+    CInfoElement* m_prevSibling{};
+    CInfoElement* m_nextSibling{};
+    CInfoElement* m_firstChild{};
 };
 
 export class CElementManager
 {
 public:
-    static HRESULT OpenFile(LPCWSTR filename, ICodeGenerator &codeGen, CInfoElement *&decElem);
+    static HRESULT OpenFile(LPCWSTR filename, ICodeGenerator& codeGen, CInfoElement*& decElem);
 
-    static void RegisterElement(CInfoElement *element)  noexcept;
+    static void RegisterElement(CInfoElement* element)  noexcept;
     static void ClearAllElements() noexcept;
 
-    static void AddSiblingToElement(CInfoElement *element, CInfoElement *sib) noexcept;
-    static void AddChildToElement(CInfoElement *element, CInfoElement *child) noexcept;
+    static void AddSiblingToElement(CInfoElement* element, CInfoElement* sib) noexcept;
+    static void AddChildToElement(CInfoElement* element, CInfoElement* child) noexcept;
 
-    static CInfoElement *GetRootElement() noexcept;
+    static CInfoElement* GetRootElement() noexcept;
 
-    static HRESULT SaveElementAsImage(CInfoElement &element, REFGUID containerFormat, WICPixelFormatGUID &format, LPCWSTR filename, ICodeGenerator &codeGen);
-    static HRESULT CreateDecoderAndChildElements(LPCWSTR filename, ICodeGenerator &codeGen, CInfoElement *&decElem);
-    static HRESULT CreateFrameAndChildElements(CInfoElement *parent, uint32_t index, IWICBitmapFrameDecode* frameDecode, ICodeGenerator &codeGen);
-    static HRESULT CreateMetadataElementsFromBlock(CInfoElement *parent, IWICMetadataBlockReader* blockReader, ICodeGenerator &codeGen);
-    static HRESULT CreateMetadataElements(CInfoElement *parent, uint32_t childIdx, IWICMetadataReader* reader, ICodeGenerator &codeGen);
+    static HRESULT SaveElementAsImage(CInfoElement& element, REFGUID containerFormat, WICPixelFormatGUID& format, LPCWSTR filename, ICodeGenerator& codeGen);
+    static HRESULT CreateDecoderAndChildElements(LPCWSTR filename, ICodeGenerator& codeGen, CInfoElement*& decElem);
+    static HRESULT CreateFrameAndChildElements(CInfoElement* parent, uint32_t index, IWICBitmapFrameDecode* frameDecode, ICodeGenerator& codeGen);
+    static HRESULT CreateMetadataElementsFromBlock(CInfoElement* parent, IWICMetadataBlockReader* blockReader, ICodeGenerator& codeGen);
+    static HRESULT CreateMetadataElements(CInfoElement* parent, uint32_t childIdx, IWICMetadataReader* reader, ICodeGenerator& codeGen);
 
     static ATL::CString queryKey;
     static ATL::CString queryValue;
@@ -180,10 +180,10 @@ public:
     {
     }
 
-    static HRESULT OutputMetadataHandlerInfo(IOutputDevice &output, IWICMetadataHandlerInfo* metaInfo);
-    static HRESULT OutputDecoderInfo(IOutputDevice &output, IWICBitmapDecoderInfo* decoderInfo);
-    static HRESULT OutputCodecInfo(IOutputDevice &output, IWICBitmapCodecInfo* codecInfo);
-    static HRESULT OutputComponentInfo(IOutputDevice &output, IWICComponentInfo* compInfo);
+    static HRESULT OutputMetadataHandlerInfo(IOutputDevice& output, IWICMetadataHandlerInfo* metaInfo);
+    static HRESULT OutputDecoderInfo(IOutputDevice& output, IWICBitmapDecoderInfo* decoderInfo);
+    static HRESULT OutputCodecInfo(IOutputDevice& output, IWICBitmapCodecInfo* codecInfo);
+    static HRESULT OutputComponentInfo(IOutputDevice& output, IWICComponentInfo* componentInfo);
 };
 
 export class CBitmapDecoderElement final : public CComponentInfoElement
@@ -201,7 +201,7 @@ public:
     }
 
     // Creates the decoder and child objects based on the filename
-    HRESULT Load(ICodeGenerator &codeGen);
+    HRESULT Load(ICodeGenerator& codeGen);
 
     // Releases the decoder and child objects but keeps the filename
     void Unload();
@@ -211,10 +211,10 @@ public:
         return m_loaded;
     }
 
-    HRESULT SaveAsImage(CImageTransencoder &trans, ICodeGenerator &codeGen) noexcept(false) override;
+    HRESULT SaveAsImage(CImageTransencoder& trans, ICodeGenerator& codeGen) noexcept(false) override;
 
-    HRESULT OutputView(IOutputDevice &output, const InfoElementViewContext& context) override;
-    HRESULT OutputInfo(IOutputDevice &output) noexcept(false) override;
+    HRESULT OutputView(IOutputDevice& output, const InfoElementViewContext& context) override;
+    HRESULT OutputInfo(IOutputDevice& output) noexcept(false) override;
 
     void SetCreationTime(DWORD ms) noexcept;
     void SetCreationCode(LPCWSTR code);
@@ -238,15 +238,15 @@ public:
 
     }
 
-    HRESULT SaveAsImage(CImageTransencoder &trans, ICodeGenerator &codeGen) noexcept(false) override;
+    HRESULT SaveAsImage(CImageTransencoder& trans, ICodeGenerator& codeGen) noexcept(false) override;
 
-    HRESULT OutputView(IOutputDevice &output, const InfoElementViewContext& context) override;
-    HRESULT OutputInfo(IOutputDevice &output) noexcept override;
+    HRESULT OutputView(IOutputDevice& output, const InfoElementViewContext& context) override;
+    HRESULT OutputInfo(IOutputDevice& output) noexcept override;
     void FillContextMenu(HMENU context) noexcept override;
 
 protected:
     static HRESULT CreateDibFromBitmapSource(IWICBitmapSource* source,
-                                             HGLOBAL &hGlobal, HGLOBAL* phAlpha);
+        HGLOBAL& hGlobal, HGLOBAL* phAlpha);
 
 private:
     IWICBitmapSourcePtr m_source;
@@ -264,12 +264,12 @@ public:
         m_name.Format(L"Frame #%u", index);
     }
 
-    HRESULT SaveAsImage(CImageTransencoder &trans, ICodeGenerator &codeGen) noexcept(false) override;
+    HRESULT SaveAsImage(CImageTransencoder& trans, ICodeGenerator& codeGen) noexcept(false) override;
     void FillContextMenu(HMENU context) noexcept override;
 
-    HRESULT OutputView(IOutputDevice &output, const InfoElementViewContext& context) override;
-    HRESULT OutputInfo(IOutputDevice &output) noexcept override;
-    HRESULT GetQueryReader(IWICMetadataQueryReader **reader) noexcept(false) override
+    HRESULT OutputView(IOutputDevice& output, const InfoElementViewContext& context) override;
+    HRESULT OutputInfo(IOutputDevice& output) noexcept override;
+    HRESULT GetQueryReader(IWICMetadataQueryReader** reader) noexcept(false) override
     {
         return m_frameDecode->GetMetadataQueryReader(reader);
     }
@@ -281,13 +281,13 @@ private:
 export class CMetadataReaderElement final : public CComponentInfoElement
 {
 public:
-    CMetadataReaderElement(CInfoElement *parent, uint32_t idx, IWICMetadataReader* reader);
+    CMetadataReaderElement(CInfoElement* parent, uint32_t idx, IWICMetadataReader* reader);
 
-    HRESULT OutputView(IOutputDevice &output, const InfoElementViewContext& context) override;
-    HRESULT OutputInfo(IOutputDevice &output)  noexcept(false) override;
-    CInfoElement *FindElementByReader(IWICMetadataReader *reader) override
+    HRESULT OutputView(IOutputDevice& output, const InfoElementViewContext& context) override;
+    HRESULT OutputInfo(IOutputDevice& output)  noexcept(false) override;
+    CInfoElement* FindElementByReader(IWICMetadataReader* reader) override
     {
-        if(static_cast<IWICMetadataReader *>(m_reader) == reader)
+        if (static_cast<IWICMetadataReader*>(m_reader) == reader)
         {
             return this;
         }
@@ -295,9 +295,9 @@ public:
     }
 
 private:
-    HRESULT TranslateValueID(PROPVARIANT *pv, unsigned options, ATL::CString &out) const;
-    static HRESULT TrimQuotesFromName(ATL::CString &out);
-    HRESULT SetNiceName(const CInfoElement *parent, uint32_t idx);
+    HRESULT TranslateValueID(PROPVARIANT* pv, unsigned options, ATL::CString& out) const;
+    static HRESULT TrimQuotesFromName(ATL::CString& out);
+    HRESULT SetNiceName(const CInfoElement* parent, uint32_t idx);
 
     IWICMetadataReaderPtr m_reader;
 };

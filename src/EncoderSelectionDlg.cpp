@@ -9,8 +9,6 @@
 
 module;
 
-#include <atlstr.h>
-
 #include <atlbase.h>
 #include <atlapp.h>
 #include <atlctrls.h>
@@ -22,6 +20,7 @@ module;
 module EncoderSelectionDlg;
 
 import Element;
+import Util;
 
 
 GUID CEncoderSelectionDlg::GetContainerFormat() const noexcept
@@ -48,19 +47,19 @@ LRESULT CEncoderSelectionDlg::OnInitDialog(uint32_t /*uMsg*/, WPARAM /*wParam*/,
     HRESULT result = g_imagingFactory->CreateComponentEnumerator(WICEncoder, WICComponentEnumerateRefresh, &e);
     if (SUCCEEDED(result))
     {
-        ULONG num = 0;
+        ULONG num;
         IUnknownPtr unk;
 
         while (S_OK == e->Next(1, &unk, &num) && 1 == num)
         {
-            CString friendlyName;
-            IWICBitmapEncoderInfoPtr encoderInfo = unk;
+            IWICBitmapEncoderInfoPtr encoderInfo{unk};
 
             // Get the name of the container
-            READ_WIC_STRING(encoderInfo->GetFriendlyName, friendlyName)
+            std::wstring friendlyName;
+            VERIFY(SUCCEEDED(GetWicString(*encoderInfo, &(IWICBitmapEncoderInfo::GetFriendlyName), friendlyName)));
 
             // Add the container to the ListView
-            const int idx = containerList.InsertItem(0, friendlyName);
+            const int idx{containerList.InsertItem(0, friendlyName.c_str())};
             containerList.SetItemData(idx, static_cast<DWORD_PTR>(m_containers.size()));
 
             // Add the container to the list of containers
@@ -88,14 +87,14 @@ LRESULT CEncoderSelectionDlg::OnInitDialog(uint32_t /*uMsg*/, WPARAM /*wParam*/,
 
         while (S_OK == e->Next(1, &unk, &num) && 1 == num)
         {
-            CString friendlyName;
-            IWICPixelFormatInfoPtr formatInfo = unk;
+            IWICPixelFormatInfoPtr formatInfo{unk};
 
             // Get the name of the format
-            READ_WIC_STRING(formatInfo->GetFriendlyName, friendlyName)
+            std::wstring friendlyName;
+            VERIFY(SUCCEEDED(GetWicString(*formatInfo, &(IWICPixelFormatInfo::GetFriendlyName), friendlyName)));
 
             // Add the format to the ListView
-            const int idx = formatList.InsertItem(0, friendlyName);
+            const int idx{formatList.InsertItem(0, friendlyName.c_str())};
             formatList.SetItemData(idx, static_cast<DWORD_PTR>(m_formats.size()));
 
             // Add the format to the list of containers

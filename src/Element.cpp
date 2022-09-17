@@ -640,28 +640,28 @@ CInfoElement CElementManager::root(L"");
 // COMPONENT INFO ELEMENT
 //----------------------------------------------------------------------------------------
 
+
+
 HRESULT CComponentInfoElement::OutputMetadataHandlerInfo(IOutputDevice& output, IWICMetadataHandlerInfo* metaInfo)
 {
-    HRESULT result;
-
-    CString str;
-    GUID guid{};
-
     output.BeginKeyValues(L"MetadataHandlerInfo");
 
+    HRESULT result;
+    GUID guid{};
     IFC(metaInfo->GetMetadataFormat(&guid));
     output.AddKeyValue(L"MetadataFormat", guid_to_string(guid).c_str());
 
-    READ_WIC_STRING(metaInfo->GetDeviceManufacturer, str)
+    std::wstring str;
+    result = GetWicString(*metaInfo, &(IWICMetadataHandlerInfo::GetDeviceManufacturer), str);
     if (SUCCEEDED(result))
     {
-        output.AddKeyValue(L"DeviceManufacturer", str);
+        output.AddKeyValue(L"DeviceManufacturer", str.c_str());
     }
 
-    READ_WIC_STRING(metaInfo->GetDeviceModels, str)
+    result = GetWicString(*metaInfo, &(IWICMetadataHandlerInfo::GetDeviceModels), str);
     if (SUCCEEDED(result))
     {
-        output.AddKeyValue(L"DeviceModels", str);
+        output.AddKeyValue(L"DeviceModels", str.c_str());
     }
 
     output.EndKeyValues();
@@ -682,41 +682,39 @@ HRESULT CComponentInfoElement::OutputDecoderInfo(IOutputDevice& output, IWICBitm
 
 HRESULT CComponentInfoElement::OutputCodecInfo(IOutputDevice& output, IWICBitmapCodecInfo* codecInfo)
 {
-    HRESULT result = S_OK;
-
-    BOOL b;
-    CString str;
-    GUID guid{};
-
     output.BeginKeyValues(L"CodecInfo");
 
+    HRESULT result = S_OK;
+    GUID guid{};
     IFC(codecInfo->GetContainerFormat(&guid));
     output.AddKeyValue(L"ContainerFormat", guid_to_string(guid).c_str());
 
-    READ_WIC_STRING(codecInfo->GetColorManagementVersion, str)
+    std::wstring str;
+    result = GetWicString(*codecInfo, &(IWICBitmapCodecInfo::GetColorManagementVersion), str);
     if (SUCCEEDED(result))
     {
-        output.AddKeyValue(L"ColorManagementVersion", str);
+        output.AddKeyValue(L"ColorManagementVersion", str.c_str());
     }
 
-    READ_WIC_STRING(codecInfo->GetDeviceManufacturer, str)
+    result = GetWicString(*codecInfo, &(IWICBitmapCodecInfo::GetDeviceManufacturer), str);
     if (SUCCEEDED(result))
     {
-        output.AddKeyValue(L"DeviceManufacturer", str);
+        output.AddKeyValue(L"DeviceManufacturer", str.c_str());
     }
 
-    READ_WIC_STRING(codecInfo->GetDeviceModels, str)
+    result = GetWicString(*codecInfo, &(IWICBitmapCodecInfo::GetDeviceModels), str);
     if (SUCCEEDED(result))
     {
-        output.AddKeyValue(L"DeviceModels", str);
+        output.AddKeyValue(L"DeviceModels", str.c_str());
     }
 
-    READ_WIC_STRING(codecInfo->GetMimeTypes, str)
+    result = GetWicString(*codecInfo, &(IWICBitmapCodecInfo::GetMimeTypes), str);
     if (SUCCEEDED(result))
     {
-        output.AddKeyValue(L"MimeTypes", str);
+        output.AddKeyValue(L"MimeTypes", str.c_str());
     }
 
+    BOOL b;
     IFC(codecInfo->DoesSupportAnimation(&b));
     output.AddKeyValue(L"DoesSupportAnimation", b ? L"True" : L"False");
 
@@ -736,43 +734,41 @@ HRESULT CComponentInfoElement::OutputCodecInfo(IOutputDevice& output, IWICBitmap
     return result;
 }
 
-HRESULT CComponentInfoElement::OutputComponentInfo(IOutputDevice& output, IWICComponentInfo* compInfo)
+HRESULT CComponentInfoElement::OutputComponentInfo(IOutputDevice& output, IWICComponentInfo* componentInfo)
 {
-    HRESULT result = S_OK;
-
-    CString str;
-    GUID guid{};
-
     output.BeginKeyValues(L"ComponentInfo");
 
-    IFC(compInfo->GetCLSID(&guid));
+    HRESULT result = S_OK;
+    GUID guid{};
+    IFC(componentInfo->GetCLSID(&guid));
     output.AddKeyValue(L"ClassID", guid_to_string(guid).c_str());
 
-    READ_WIC_STRING(compInfo->GetAuthor, str)
+    std::wstring str;
+    result = GetWicString(*componentInfo, &(IWICComponentInfo::GetAuthor), str);
     if (SUCCEEDED(result))
     {
-        output.AddKeyValue(L"Author", str);
+        output.AddKeyValue(L"Author", str.c_str());
     }
 
-    IFC(compInfo->GetVendorGUID(&guid));
+    IFC(componentInfo->GetVendorGUID(&guid));
     output.AddKeyValue(L"VendorGUID", guid_to_string(guid).c_str());
 
-    READ_WIC_STRING(compInfo->GetVersion, str)
+    result = GetWicString(*componentInfo, &(IWICComponentInfo::GetVersion), str);
     if (SUCCEEDED(result))
     {
-        output.AddKeyValue(L"Version", str);
+        output.AddKeyValue(L"Version", str.c_str());
     }
 
-    READ_WIC_STRING(compInfo->GetSpecVersion, str)
+    result = GetWicString(*componentInfo, &(IWICComponentInfo::GetSpecVersion), str);
     if (SUCCEEDED(result))
     {
-        output.AddKeyValue(L"SpecVersion", str);
+        output.AddKeyValue(L"SpecVersion", str.c_str());
     }
 
-    READ_WIC_STRING(compInfo->GetFriendlyName, str)
+    result = GetWicString(*componentInfo, &(IWICComponentInfo::GetFriendlyName), str);
     if (SUCCEEDED(result))
     {
-        output.AddKeyValue(L"FriendlyName", str);
+        output.AddKeyValue(L"FriendlyName", str.c_str());
     }
 
     output.EndKeyValues();
@@ -1381,12 +1377,12 @@ HRESULT CMetadataReaderElement::SetNiceName(const CInfoElement* parent, const ui
     if (m_reader)
     {
         // First, get our FriendlyName
-        CString t;
+        std::wstring friendlyName;
         IWICMetadataHandlerInfoPtr info;
         result = m_reader->GetMetadataHandlerInfo(&info);
         if (SUCCEEDED(result))
         {
-            READ_WIC_STRING(info->GetFriendlyName, t)
+            VERIFY(SUCCEEDED(GetWicString(*info, &(IWICMetadataHandlerInfo::GetFriendlyName), friendlyName)));
         }
 
         // Next, try to get the name that our parent gave us. We can do this
@@ -1411,11 +1407,11 @@ HRESULT CMetadataReaderElement::SetNiceName(const CInfoElement* parent, const ui
         // Merge them into a name
         if (pn.GetLength() > 0)
         {
-            m_name = pn + L" (" + t + L")";
+            m_name = pn + (std::wstring{L" ("} + friendlyName + L")").c_str();
         }
         else
         {
-            m_name = t;
+            m_name = friendlyName.c_str();
         }
     }
     else

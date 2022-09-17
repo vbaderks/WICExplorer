@@ -8,7 +8,9 @@ export module Util;
 import "std.h";
 import "Windows-import.h";
 
-export [[nodiscard]] inline std::wstring guid_to_string(const GUID& guid)
+export {
+
+[[nodiscard]] inline std::wstring guid_to_string(const GUID& guid)
 {
     std::wstring guid_text;
 
@@ -21,4 +23,25 @@ export [[nodiscard]] inline std::wstring guid_to_string(const GUID& guid)
     return guid_text;
 }
 
-export std::wstring GetHresultString(HRESULT hr);
+std::wstring GetHresultString(HRESULT hr);
+
+template<typename WicInterface, typename MemberFunction>
+[[nodiscard]] HRESULT GetWicString(WicInterface& wicIinterface, MemberFunction memberFunction, std::wstring& output) {
+    uint32_t bufferSizeInChars;
+    const HRESULT result{(wicIinterface.*memberFunction)(0, nullptr, &bufferSizeInChars)};
+    if (FAILED(result))
+        return result;
+
+    if (bufferSizeInChars == 0)
+    {
+        output.clear();
+        return result;
+    }
+
+    // std::wstring will also automatically allocate space for the null terminator.
+    output.resize(bufferSizeInChars - size_t{1});
+
+    return (wicIinterface.*memberFunction)(bufferSizeInChars, output.data(), &bufferSizeInChars);
+}
+
+}

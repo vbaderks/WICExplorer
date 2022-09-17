@@ -23,14 +23,6 @@
 
 #define IFC(c) do { result = (c); if (FAILED(result)) return result; } while(false)
 
-#define READ_WIC_STRING(f, out) do {                                    \
-    uint32_t strLen = 0;                                                    \
-    result = f(0, 0, &strLen);                                          \
-    if (SUCCEEDED(result) && (strLen > 0)) {                            \
-        result = f(strLen, out.GetBufferSetLength(strLen), &strLen);    \
-        out.ReleaseBuffer(strLen - 1);                                  \
-    } else { out = L""; } } while(0);
-
 // Improved ATL macro that doesn't generate warning C26433 (override is missing
 #define BEGIN_MSG_MAP_OVERRIDE() \
 public: \

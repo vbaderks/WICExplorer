@@ -4,8 +4,6 @@
 #include "resource.h"
 #include "ComSmartPointers.h"
 
-#include <atlstr.h>
-
 #include <atlbase.h>
 #include <atlapp.h>
 #include <atlctrls.h>
@@ -14,6 +12,8 @@ module ViewInstalledCodecsDlg;
 
 import Util;
 import Element;
+
+import <std.h>;
 
 
 LRESULT CViewInstalledCodecsDlg::OnInitDialog(uint32_t /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/) const
@@ -27,18 +27,18 @@ LRESULT CViewInstalledCodecsDlg::OnInitDialog(uint32_t /*uMsg*/, WPARAM /*wParam
         HRESULT result = g_imagingFactory->CreateComponentEnumerator(WICEncoder, WICComponentEnumerateRefresh, &e);
         if (SUCCEEDED(result))
         {
-            ULONG num = 0;
+            ULONG num;
             IUnknownPtr unk;
 
             while (S_OK == e->Next(1, &unk, &num) && 1 == num)
             {
-                CString friendlyName;
-                IWICBitmapCodecInfoPtr encoderInfo = unk;
+                IWICBitmapCodecInfoPtr encoderInfo{unk};
 
                 // Get the name of the container
-                READ_WIC_STRING(encoderInfo->GetFriendlyName, friendlyName)
+                std::wstring friendlyName;
+                VERIFY(SUCCEEDED(GetWicString(*encoderInfo, &(IWICBitmapCodecInfo::GetFriendlyName), friendlyName)));
 
-                const int id = codecListView.InsertItem(0, friendlyName);
+                const int id{codecListView.InsertItem(0, friendlyName.c_str())};
 
                 GUID classId;
                 encoderInfo->GetCLSID(&classId);
@@ -52,18 +52,18 @@ LRESULT CViewInstalledCodecsDlg::OnInitDialog(uint32_t /*uMsg*/, WPARAM /*wParam
         HRESULT result = g_imagingFactory->CreateComponentEnumerator(WICDecoder, WICComponentEnumerateRefresh, &e);
         if (SUCCEEDED(result))
         {
-            ULONG num = 0;
+            ULONG num;
             IUnknownPtr unk;
 
             while (S_OK == e->Next(1, &unk, &num) && 1 == num)
             {
-                CString friendlyName;
-                IWICBitmapCodecInfoPtr encoderInfo = unk;
+                IWICBitmapCodecInfoPtr encoderInfo{unk};
 
                 // Get the name of the container
-                READ_WIC_STRING(encoderInfo->GetFriendlyName, friendlyName)
+                std::wstring friendlyName;
+                VERIFY(SUCCEEDED(GetWicString(*encoderInfo, &(IWICBitmapCodecInfo::GetFriendlyName), friendlyName)));
 
-                const int id = codecListView.InsertItem(0, friendlyName);
+                const int id{codecListView.InsertItem(0, friendlyName.c_str())};
 
                 GUID classId;
                 encoderInfo->GetCLSID(&classId);
