@@ -78,8 +78,9 @@
         C5204 = 'class has virtual functions, but its trivial destructor is not virtual; instances of objects derived from this class may not be destructed correctly
         C5246 = the initialization of a subobject should be wrapped in braces [Causes IntelliSense to fail]
         C5262 = implicit fall-through occurs here; are you missing a break statement? Use [[fallthrough]] when a break statement is intentionally omitted between cases [Causes IntelliSense to fail]
+        C5264 = '': 'const' variable is not used [Too many false positives, Visual Studio 2022 17.4.0 Preview 5.0]
       -->
-      <DisableSpecificWarnings>4005;4061;4191;4193;4200;4263;4264;4265;4266;4365;4464;4505;4514;4571;4623;4625;4626;4668;4710;4711;4738;4774;4755;4820;5026;5027;5039;5042;5045;5106;5204;5246;5262</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4005;4061;4191;4193;4200;4263;4264;4265;4266;4365;4464;4505;4514;4571;4623;4625;4626;4668;4710;4711;4738;4774;4755;4820;5026;5027;5039;5042;5045;5106;5204;5246;5262;5264</DisableSpecificWarnings>
 
       <!--
         __cplusplus = Use the correct value for the __cplusplus macro
