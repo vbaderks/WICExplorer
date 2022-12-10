@@ -1,14 +1,14 @@
 ﻿# Comments on disabled Microsoft C++ Code Analysis Rules
 
-This document contains the rationales why Microsoft
+This document contains the rationales why some Microsoft
 C++ warnings are disabled in the file default.ruleset
 It is not possible to add this info to the .ruleset file itself as edit actions
 with the VS GUI would cause the comments to get lost.
-Most of these rules\warning are based on the C++ Core Guidelines.
+Most of these Microsoft rules\warning are based on the C++ Core Guidelines.
 
 ## Warnings
 
-- C26052: Potentially unconstrained access using expression
+- C26052: Potentially unconstrained access using expression  
 **Rationale**: false warnings (VS 2019 16.9.0 Preview 2)
 
 - C26429: Use a not_null to indicate that "null" is not a valid value  
@@ -37,11 +37,11 @@ gsl::span and pass as a span iterator (stl.1)
 **Rationale**: static analysis can verify access.
 
 - C26485: Do not pass an array as a single pointer  
-**Rationale**: see C26481.
+**Rationale**: see rationale for C26481.
 
 - C26490: Don't use reinterpret_cast  
-**Rationale**: required to work with win32 API, manual verification required.
+**Rationale**: required to work with win32 API, manual review required.
 
 - C26494: Variable 'x' is uninitialized. Always initialize an object  
-**Rationale**: many false warnings due to output parameters. Other analyzers are better 
-as they check if the variable is used before initialized.
+**Rationale**: many false warnings due to output parameters. Other analyzers (prefast) provide
+flow inspection and can be used.

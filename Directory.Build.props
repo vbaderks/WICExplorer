@@ -96,8 +96,8 @@
       -->
       <PreprocessorDefinitions>WIN32;_WINDOWS;WIN32_LEAN_AND_MEAN;NOMINMAX;_CA_SHOULD_CHECK_RETURN;_CA_SHOULD_CHECK_RETURN_WER;__STDC_WANT_SECURE_LIB__=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
 
-      <!-- Mark the application compatible with Control-flow Enforcement Technology (CET) Shadow Stack -->
-      <CETCompat>true</CETCompat>
+      <!-- Mark the application compatible with Control-flow Enforcement Technology (CET) Shadow Stack (for x86 and x64)-->
+      <CETCompat Condition="'$(Platform)'!='ARM64'">true</CETCompat>
 
       <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)generate-header-units;$(MSBuildThisFileDirectory)wtl\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
