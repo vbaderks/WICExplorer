@@ -1,4 +1,7 @@
-﻿module Util;
+﻿// Copyright (c) Microsoft Corporation \ Victor Derks.
+// SPDX-License-Identifier: MIT
+
+module Util;
 
 import <std.h>;
 import <Windows-import.h>;

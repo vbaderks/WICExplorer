@@ -1,11 +1,6 @@
-﻿//----------------------------------------------------------------------------------------
-// THIS CODE AND INFORMATION IS PROVIDED "AS-IS" WITHOUT WARRANTY OF
-// ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
-// PARTICULAR PURPOSE.
-//
-// Copyright (c) Microsoft Corporation. All rights reserved.
-//----------------------------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation \ Victor Derks.
+// SPDX-License-Identifier: MIT
+
 module;
 
 #include <atlstr.h>
@@ -33,7 +28,6 @@ import CodeGenerator;
 
 import <std.h>;
 import <Windows-import.h>;
-
 
 
 namespace
@@ -244,7 +238,7 @@ HTREEITEM CMainFrame::BuildTree(const CInfoElement* elem, const HTREEITEM hParen
         const uint32_t state = (nullptr == hParent) ? TVIS_BOLD : 0;
 
         const HTREEITEM hItem = m_mainTree.InsertItem(TVIF_TEXT | TVIF_STATE | TVIF_IMAGE | TVIF_SELECTEDIMAGE,
-                                                      elem->Name().c_str(), image, image, state, state, 0, hParent, nullptr);
+            elem->Name().c_str(), image, image, state, state, 0, hParent, nullptr);
 
         // Set a pointer to the element in the tree
         m_mainTree.SetItemData(hItem, reinterpret_cast<DWORD_PTR>(elem));
@@ -355,7 +349,7 @@ HRESULT CMainFrame::OpenWildcard(const LPCWSTR search, DWORD& attempted, DWORD& 
     // stored anywhere else inside of fdata. The directory needs to be copied
     // from the search string, and then cFileName has to be concatonated to the
     // directory.
-    wchar_t directoryPrefix[MAX_PATH * 2] = { 0 };
+    wchar_t directoryPrefix[MAX_PATH * 2] = {0};
     const auto* lastSlash = wcsrchr(search, L'\\');
     const auto* lastSlash2 = wcsrchr(search, L'/');
 
@@ -962,7 +956,7 @@ namespace {
 LRESULT CMainFrame::OnShowViewPane(uint16_t /*code*/, const uint16_t item, HWND /*hSender*/, BOOL& handled)
 {
     const HMENU menu = GetMenu();
-    MENUITEMINFO currentState{.cbSize = sizeof currentState, .fMask = MIIM_STATE };
+    MENUITEMINFO currentState{.cbSize = sizeof currentState, .fMask = MIIM_STATE};
     GetMenuItemInfo(menu, item, false, &currentState);
 
     if ((currentState.fState & MFS_CHECKED) == MFS_CHECKED)
@@ -986,7 +980,7 @@ LRESULT CMainFrame::OnShowViewPane(uint16_t /*code*/, const uint16_t item, HWND 
 LRESULT CMainFrame::OnShowAlpha(uint16_t /*code*/, const uint16_t item, HWND /*hSender*/, BOOL& handled)
 {
     const HMENU menu = GetMenu();
-    MENUITEMINFO currentState{ .cbSize = sizeof currentState, .fMask = MIIM_STATE };
+    MENUITEMINFO currentState{.cbSize = sizeof currentState, .fMask = MIIM_STATE};
 
     GetMenuItemInfo(menu, item, false, &currentState);
     if ((currentState.fState & MFS_CHECKED) == MFS_CHECKED)

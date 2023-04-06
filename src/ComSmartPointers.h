@@ -1,4 +1,7 @@
-﻿#pragma once
+﻿// Copyright (c) Microsoft Corporation \ Victor Derks.
+// SPDX-License-Identifier: MIT
+
+#pragma once
 
 #include <wincodecsdk.h>
 

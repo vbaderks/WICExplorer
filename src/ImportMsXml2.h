@@ -1,4 +1,7 @@
-﻿#pragma once
+﻿// Copyright (c) Microsoft Corporation \ Victor Derks.
+// SPDX-License-Identifier: MIT
+
+#pragma once
 
 #pragma warning(push)
 #pragma warning(disable: 4471) // enum forward without type

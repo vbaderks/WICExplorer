@@ -1,4 +1,7 @@
-﻿module;
+﻿// Copyright (c) Microsoft Corporation \ Victor Derks.
+// SPDX-License-Identifier: MIT
+
+module;
 
 #include "Macros.h"
 #include <cassert>
