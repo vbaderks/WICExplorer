@@ -14,6 +14,9 @@
 
     <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)default.ruleset</CodeAnalysisRuleSet>
     <CAExcludePath>$(IntDir);$(MSBuildThisFileDirectory)wtl\include</CAExcludePath>
+
+    <!-- Newer versions of Visual Studio (17.5 and 17.6 Preview 2.0 have known defects and fail to compile WICExplorer. -->
+    <VCToolsVersion>14.34.31933</VCToolsVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">

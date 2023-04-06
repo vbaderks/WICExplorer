@@ -19,8 +19,6 @@ import <std.h>;
 
 import <Windows-import.h>;
 
-import <strsafe.h>;
-
 namespace {
 
 template<class T> static void WriteValue(const T & /*val*/, CString &out)
@@ -118,9 +116,10 @@ template<> void WriteValue<LARGE_INTEGER>(const LARGE_INTEGER &val, CString &out
     // "the numerator in low part and denominator in the high part"
     if (0 != val.HighPart)
     {
-        wchar_t str[64];
-        StringCchPrintfW(str, 64, L"%ul / %dl (%g)", val.LowPart, val.HighPart, static_cast<double>(val.LowPart) / static_cast<double>(val.HighPart));
-        out = str;
+#pragma warning(push)
+#pragma warning(disable : 4296) // '<': expression is always false [known problem in MSVC/STL, solved in VS 2022, 17.5, but 17.5 has critical flaw in named modules]
+        out = std::format(L"{} / {} ({})", val.LowPart, val.HighPart, static_cast<double>(val.LowPart) / static_cast<double>(val.HighPart)).c_str();
+#pragma warning(pop)
     }
     else
     {
@@ -138,9 +137,10 @@ template<> void WriteValue<ULARGE_INTEGER>(const ULARGE_INTEGER &val, CString &o
     // "the numerator in low part and denominator in the high part"
     if (0 != val.HighPart)
     {
-        wchar_t str[64];
-        StringCchPrintfW(str, 64, L"%u / %u (%g)", val.LowPart, val.HighPart, static_cast<double>(val.LowPart) / static_cast<double>(val.HighPart));
-        out = str;
+#pragma warning(push)
+#pragma warning(disable : 4296) // '<': expression is always false [known problem in MSVC/STL, solved in VS 2022, 17.5, but 17.5 has critical flaw in named modules]
+        out = std::format("{} / {} ({})", val.LowPart, val.HighPart, static_cast<double>(val.LowPart) / static_cast<double>(val.HighPart)).c_str();
+#pragma warning(pop)
     }
     else
     {
@@ -155,9 +155,9 @@ template<> PCWSTR GetTypeName<ULARGE_INTEGER>() noexcept
 
 template<> void WriteValue<FLOAT>(const FLOAT &val, CString &out)
 {
-    wchar_t str[64];
-    StringCchPrintfW(str, 64, L"%g", static_cast<double>(val));
-    out = str;
+    //wchar_t str[64];
+    //StringCchPrintfW(str, 64, L"%g", static_cast<double>(val));
+    out = std::to_wstring(val).c_str();
 }
 
 template<> PCWSTR GetTypeName<FLOAT>() noexcept
@@ -167,9 +167,10 @@ template<> PCWSTR GetTypeName<FLOAT>() noexcept
 
 template<> void WriteValue<DOUBLE>(const DOUBLE &val, CString &out)
 {
-    wchar_t str[64];
-    StringCchPrintfW(str, 64, L"%g", val);
-    out = str;
+    //wchar_t str[64];
+    //StringCchPrintfW(str, 64, L"%g", val);
+    //out = str;
+    out = std::to_wstring(val).c_str();
 }
 
 template<> PCWSTR GetTypeName<DOUBLE>() noexcept

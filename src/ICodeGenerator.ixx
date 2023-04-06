@@ -8,7 +8,7 @@ export struct ICodeGenerator
 
     virtual void BeginVariableScope(std::wstring_view varType, std::wstring_view varBaseName, std::wstring_view varInitValue) = 0;
     virtual void EndVariableScope() = 0;
-    virtual void CallFunction(const wchar_t* func, ...) = 0;
+    virtual void CallFunction(const std::wstring& func) = 0;
     virtual const std::wstring& GetLastVariableName() noexcept = 0;
     virtual std::wstring GenerateCode() = 0;
 

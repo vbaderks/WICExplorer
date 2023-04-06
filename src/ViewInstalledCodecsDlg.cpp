@@ -24,7 +24,7 @@ LRESULT CViewInstalledCodecsDlg::OnInitDialog(uint32_t /*uMsg*/, WPARAM /*wParam
 
     {
         IEnumUnknownPtr e;
-        HRESULT result = g_imagingFactory->CreateComponentEnumerator(WICEncoder, WICComponentEnumerateRefresh, &e);
+        const HRESULT result{g_imagingFactory->CreateComponentEnumerator(WICEncoder, WICComponentEnumerateRefresh, &e)};
         if (SUCCEEDED(result))
         {
             ULONG num;
@@ -49,7 +49,7 @@ LRESULT CViewInstalledCodecsDlg::OnInitDialog(uint32_t /*uMsg*/, WPARAM /*wParam
 
     {
         IEnumUnknownPtr e;
-        HRESULT result = g_imagingFactory->CreateComponentEnumerator(WICDecoder, WICComponentEnumerateRefresh, &e);
+        const HRESULT result{g_imagingFactory->CreateComponentEnumerator(WICDecoder, WICComponentEnumerateRefresh, &e)};
         if (SUCCEEDED(result))
         {
             ULONG num;

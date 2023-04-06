@@ -244,7 +244,7 @@ HTREEITEM CMainFrame::BuildTree(const CInfoElement* elem, const HTREEITEM hParen
         const uint32_t state = (nullptr == hParent) ? TVIS_BOLD : 0;
 
         const HTREEITEM hItem = m_mainTree.InsertItem(TVIF_TEXT | TVIF_STATE | TVIF_IMAGE | TVIF_SELECTEDIMAGE,
-                                                      elem->Name(), image, image, state, state, 0, hParent, nullptr);
+                                                      elem->Name().c_str(), image, image, state, state, 0, hParent, nullptr);
 
         // Set a pointer to the element in the tree
         m_mainTree.SetItemData(hItem, reinterpret_cast<DWORD_PTR>(elem));
@@ -612,7 +612,7 @@ void CMainFrame::DrawElement(CInfoElement& element)
     m_infoEdit.ReplaceSel(L"");
 
     // Display the view -- prepend it with a path to the selected element
-    CString path = element.Name();
+    auto path{element.Name()};
     CInfoElement* parent = &element;
 
     while (nullptr != parent->Parent())
@@ -622,7 +622,7 @@ void CMainFrame::DrawElement(CInfoElement& element)
     }
 
     CRichEditDevice view(m_viewEdit);
-    view.BeginSection(path);
+    view.BeginSection(path.c_str());
     element.OutputView(view, m_viewcontext);
     view.EndSection();
 
@@ -761,15 +761,13 @@ HRESULT CMainFrame::SaveElementAsImage(CInfoElement& element)
 
                 if (FAILED(result))
                 {
-                    CString msg;
-                    msg.Format(L"Unable to encode '%s' as '%s'. The error is: %s.\n\n",
-                        element.Name().GetString(), fileDlg.m_szFileName, GetHresultString(result).c_str());
-
-                    msg += codeGen.GenerateCode().c_str();
+                    auto msg{std::format(L"Unable to encode '{}' as '{}'. The error is: {}.\n\n",
+                        element.Name(), fileDlg.m_szFileName, GetHresultString(result))};
+                    msg += codeGen.GenerateCode();
 
                     if (!m_suppressMessageBox)
                     {
-                        MessageBoxW(msg, L"Error Encoding Image", MB_OK | MB_ICONERROR);
+                        MessageBoxW(msg.c_str(), L"Error Encoding Image", MB_OK | MB_ICONERROR);
                     }
                 }
                 else if (dlg.GetPixelFormat() != GUID_WICPixelFormatDontCare &&
@@ -805,7 +803,7 @@ HRESULT CMainFrame::SaveElementAsImage(CInfoElement& element)
     else
     {
         CString msg;
-        msg.Format(L"The selected element '%s' cannot be saved as an Image.", element.Name().GetString());
+        msg.Format(L"The selected element '%s' cannot be saved as an Image.", element.Name().c_str());
 
         if (!m_suppressMessageBox)
         {
