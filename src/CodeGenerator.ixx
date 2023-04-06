@@ -6,15 +6,10 @@
 //
 // Copyright (c) Microsoft Corporation. All rights reserved.
 //----------------------------------------------------------------------------------------
-module;
-
-#include "Macros.h"
-
 export module CodeGenerator;
 
 import ICodeGenerator;
 
-import <strsafe.h>;
 import <std.h>;
 
 
@@ -24,7 +19,7 @@ public:
     CSimpleCodeGenerator() noexcept(false)
     {
         BeginVariable(L"IWICImagingFactory*", L"imagingFactory", L"nullptr");
-        CallFunction(L"CoCreateInstance(CLSID_WICImagingFactory, nullptr, CLSCTX_INPROC_SERVER, IID_IWICImagingFactory, (LPVOID*) &imagingFactory)");
+        CallFunction(L"CoCreateInstance(CLSID_WICImagingFactory, nullptr, CLSCTX_INPROC_SERVER, IID_IWICImagingFactory, (LPVOID*) &imagingFactory);");
     }
 
     void BeginVariableScope(std::wstring_view varType, std::wstring_view varBaseName, std::wstring_view varInitValue) override
@@ -46,26 +41,9 @@ public:
         }
     }
 
-    void CallFunction(const wchar_t* func, ...) override
+    void CallFunction(const std::wstring& func) override
     {
-        constexpr size_t maxCallLength = 1024;
-        wchar_t call[maxCallLength];
-
-        WARNING_SUPPRESS_NEXT_LINE(26826) //  Don't use C-style variable arguments (f.55).
-        va_list args;
-
-        WARNING_SUPPRESS_NEXT_LINE(26826) //  Don't use C-style variable arguments (f.55).
-        WARNING_SUPPRESS_NEXT_LINE(26492) // Don't use const_cast to cast away const or volatile (type.3).
-        va_start(args, func);
-
-        StringCchVPrintf(call, maxCallLength, func, args);
-
-        WARNING_SUPPRESS_NEXT_LINE(26826) //  Don't use C-style variable arguments (f.55).
-        va_end(args);
-
-        StringCchCatW(call, maxCallLength, L";");
-
-        AddLine(call);
+        AddLine(func);
     }
 
     const std::wstring& GetLastVariableName() noexcept override
@@ -90,7 +68,7 @@ private:
     {
 #pragma warning(push)
 #pragma warning(disable : 4296) // '<': expression is always false (known defect in MSVC compiler 2022 17.4 Preview 1.0)
-        AddLine(std::format(L"{} {} = {}", varType, varBaseName, varInitValue));
+        AddLine(std::format(L"{} {} = {};", varType, varBaseName, varInitValue));
 #pragma warning(pop)
 
         m_lastVarName = varBaseName;

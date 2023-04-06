@@ -15,6 +15,7 @@ module;
 #include <atlstr.h>
 #include <atlres.h>
 
+#include <cwctype>
 
 module Element;
 
@@ -24,11 +25,9 @@ import Util;
 import PropVariant;
 
 import <std.h>;
-import <strsafe.h>;
 
 
-namespace
-{
+namespace {
 
 // Just hardcoded for now
 bool HasAlpha(REFWICPixelFormatGUID pGuid) noexcept
@@ -333,13 +332,17 @@ HRESULT CBitmapDecoderElement::Load(ICodeGenerator& codeGen)
 
     Unload();
     codeGen.BeginVariableScope(L"IWICBitmapDecoder*", L"decoder", L"nullptr");
-    codeGen.CallFunction(L"imagingFactory->CreateDecoderFromFilename(\"%s\", nullptr, GENERIC_READ, WICDecodeMetadataCacheOnDemand, &decoder)", m_filename.GetString());
+
+#pragma warning(push)
+#pragma warning(disable : 4296) // '<': expression is always false [known problem in MSVC/STL, solved in VS 2022, 17.5, but 17.5 has critical flaw in named modules]
+    codeGen.CallFunction(std::format(L"imagingFactory->CreateDecoderFromFilename(\"{}\", nullptr, GENERIC_READ, WICDecodeMetadataCacheOnDemand, &decoder);", m_filename.GetString()));
+#pragma warning(pop)
     IFC(g_imagingFactory->CreateDecoderFromFilename(m_filename, nullptr, GENERIC_READ, WICDecodeMetadataCacheOnDemand, &m_decoder));
 
     // For each of the frames, create an element
     uint32_t frameCount = 0;
 
-    codeGen.CallFunction(L"decoder->GetFrameCount(&frameCount)");
+    codeGen.CallFunction(L"decoder->GetFrameCount(&frameCount);");
     IFC(m_decoder->GetFrameCount(&frameCount));
 
     // Even if one frame fails, we keep trying the others. However, we still
@@ -356,7 +359,7 @@ HRESULT CBitmapDecoderElement::Load(ICodeGenerator& codeGen)
         codeGen.BeginVariableScope(L"IWICBitmapFrameDecode*", L"frameDecode", L"nullptr");
         IWICBitmapFrameDecodePtr frameDecode;
 
-        codeGen.CallFunction(L"decoder->GetFrame(%d, &frameDecode)", i);
+        codeGen.CallFunction(std::format(L"decoder->GetFrame({}, &frameDecode);", i));
         HRESULT frameResult = m_decoder->GetFrame(i, &frameDecode);
 
         if (SUCCEEDED(frameResult))
@@ -375,7 +378,7 @@ HRESULT CBitmapDecoderElement::Load(ICodeGenerator& codeGen)
     // Add the Thumbnail if it exists
     IWICBitmapSourcePtr thumb;
 
-    codeGen.CallFunction(L"decoder->GetThumbnail(&thumb)");
+    codeGen.CallFunction(L"decoder->GetThumbnail(&thumb);");
     result = m_decoder->GetThumbnail(&thumb);
 
     if (SUCCEEDED(result))
@@ -387,7 +390,7 @@ HRESULT CBitmapDecoderElement::Load(ICodeGenerator& codeGen)
     // Add the Preview if it exists
     IWICBitmapSourcePtr preview;
 
-    codeGen.CallFunction(L"decoder->GetPreview(&preview)");
+    codeGen.CallFunction(L"decoder->GetPreview(&preview);");
     result = m_decoder->GetPreview(&preview);
 
     if (SUCCEEDED(result))
@@ -441,7 +444,7 @@ HRESULT CElementManager::CreateFrameAndChildElements(CInfoElement* parent, const
     // Add the Thumbnail if it exists
     IWICBitmapSourcePtr thumb;
 
-    codeGen.CallFunction(L"frameDecode->GetThumbnail(&thumb)");
+    codeGen.CallFunction(L"frameDecode->GetThumbnail(&thumb);");
     HRESULT result = frameDecode->GetThumbnail(&thumb);
 
     if (SUCCEEDED(result))
@@ -471,7 +474,7 @@ HRESULT CElementManager::CreateFrameAndChildElements(CInfoElement* parent, const
     codeGen.BeginVariableScope(L"IWICMetadataBlockReader*", L"blockReader", L"nullptr");
     IWICMetadataBlockReaderPtr blockReader;
 
-    codeGen.CallFunction(L"frameDecode->QueryInterface(IID_IWICMetadataBlockReader, (void**)&blockReader)");
+    codeGen.CallFunction(L"frameDecode->QueryInterface(IID_IWICMetadataBlockReader, (void**)&blockReader);");
     result = frameDecode->QueryInterface(IID_PPV_ARGS(&blockReader));
 
     if (SUCCEEDED(result))
@@ -494,7 +497,7 @@ HRESULT CElementManager::CreateMetadataElementsFromBlock(CInfoElement* parent, I
 
     uint32_t blockCount = 0;
 
-    codeGen.CallFunction(L"blockReader->GetCount(&count)");
+    codeGen.CallFunction(L"blockReader->GetCount(&count);");
     IFC(blockReader->GetCount(&blockCount));
 
     for (uint32_t i = 0; i < blockCount; i++)
@@ -502,7 +505,7 @@ HRESULT CElementManager::CreateMetadataElementsFromBlock(CInfoElement* parent, I
         codeGen.BeginVariableScope(L"IWICMetadataReader*", L"reader", L"nullptr");
         IWICMetadataReaderPtr reader;
 
-        codeGen.CallFunction(L"blockReader->GetReaderByIndex(%d, &reader)", i);
+        codeGen.CallFunction(std::format(L"blockReader->GetReaderByIndex({}, &reader);", i));
         IFC(blockReader->GetReaderByIndex(i, &reader));
 
         IFC(CreateMetadataElements(parent, i, reader, codeGen));
@@ -536,7 +539,7 @@ HRESULT CElementManager::CreateMetadataElements(CInfoElement* parent, uint32_t c
         PropVariantInit(&id);
         PropVariantInit(&value);
 
-        codeGen.CallFunction(L"reader->GetValueByIndex(%d, nullptr, &id, &value)", i);
+        codeGen.CallFunction(std::format(L"reader->GetValueByIndex({}, nullptr, &id, &value);", i));
         IFC(reader->GetValueByIndex(i, nullptr, &id, &value));
 
         if (VT_UNKNOWN == value.vt)
@@ -545,7 +548,7 @@ HRESULT CElementManager::CreateMetadataElements(CInfoElement* parent, uint32_t c
             codeGen.BeginVariableScope(L"IWICMetadataReader*", L"embReader", L"nullptr");
             IWICMetadataReaderPtr embReader;
 
-            codeGen.CallFunction(L"value.punkVal->QueryInterface(IID_IWICMetadataReader, (void**)&embReader)");
+            codeGen.CallFunction(L"value.punkVal->QueryInterface(IID_IWICMetadataReader, (void**)&embReader);");
             result = value.punkVal->QueryInterface(IID_PPV_ARGS(&embReader));
 
             if (SUCCEEDED(result))
@@ -842,7 +845,7 @@ HRESULT CBitmapDecoderElement::SaveAsImage(CImageTransencoder& trans, ICodeGener
     codeGen.BeginVariableScope(L"IWICBitmapSource*", L"thumb", L"nullptr");
     IWICBitmapSourcePtr thumb;
 
-    codeGen.CallFunction(L"decoder->GetThumbnail(&thumb)");
+    codeGen.CallFunction(L"decoder->GetThumbnail(&thumb);");
     m_decoder->GetThumbnail(&thumb);
 
     if (thumb)
@@ -856,7 +859,7 @@ HRESULT CBitmapDecoderElement::SaveAsImage(CImageTransencoder& trans, ICodeGener
     codeGen.BeginVariableScope(L"IWICBitmapSource*", L"preview", L"nullptr");
     IWICBitmapSourcePtr preview;
 
-    codeGen.CallFunction(L"decoder->GetPreview(&preview)");
+    codeGen.CallFunction(L"decoder->GetPreview(&preview);");
     m_decoder->GetPreview(&preview);
 
     if (preview)
@@ -892,15 +895,13 @@ HRESULT CBitmapDecoderElement::OutputView(IOutputDevice& output, const InfoEleme
         output.AddKeyValue(L"Filename", m_filename);
 
         // Get the number of frames
-        uint32_t numFrames = 0;
+        uint32_t numFrames;
         m_decoder->GetFrameCount(&numFrames);
-        CString value;
-        value.Format(L"%u", numFrames);
-        output.AddKeyValue(L"FrameCount", value);
+        output.AddKeyValue(L"FrameCount", std::to_wstring(numFrames).c_str());
 
         // Display the decode time
-        value.Format(L"%u ms", m_creationTime);
-        output.AddKeyValue(L"CreationTime", value);
+        WARNING_SUPPRESS_NEXT_LINE(4296) // '<': expression is always false
+        output.AddKeyValue(L"CreationTime", std::format(L"{} ms", m_creationTime).c_str());
 
         output.EndKeyValues();
 
@@ -908,7 +909,7 @@ HRESULT CBitmapDecoderElement::OutputView(IOutputDevice& output, const InfoEleme
         CInfoElement* child = FirstChild();
         while (nullptr != child)
         {
-            output.BeginSection(child->Name());
+            output.BeginSection(child->Name().c_str());
 
             child->OutputView(output, context);
             child = child->NextSibling();
@@ -1011,16 +1012,12 @@ HRESULT CBitmapSourceElement::OutputView(IOutputDevice& output, const InfoElemen
 
         output.BeginKeyValues(L"");
 
-        wchar_t v[128];
+        output.AddKeyValue(L"Width", std::to_wstring(width).c_str());
+        output.AddKeyValue(L"Height", std::to_wstring(height).c_str());
+        output.AddKeyValue(L"DpiX", std::to_wstring(dpiX).c_str());
+        output.AddKeyValue(L"DpiY", std::to_wstring(dpiY).c_str());
 
-        StringCchPrintfW(v, ARRAYSIZE(v), L"%u", width);
-        output.AddKeyValue(L"Width", v);
-        StringCchPrintfW(v, ARRAYSIZE(v), L"%u", height);
-        output.AddKeyValue(L"Height", v);
-        StringCchPrintfW(v, ARRAYSIZE(v), L"%g", dpiX);
-        output.AddKeyValue(L"DpiX", v);
-        StringCchPrintfW(v, ARRAYSIZE(v), L"%g", dpiY);
-        output.AddKeyValue(L"DpiY", v);
+        wchar_t v[128];
         if (FAILED(GetPixelFormatName(v, ARRAYSIZE(v), pixelFormat)))
         {
             VERIFY(wcscpy_s(v, ARRAYSIZE(v), L"Unknown ") == 0);
@@ -1044,7 +1041,6 @@ HRESULT CBitmapSourceElement::OutputView(IOutputDevice& output, const InfoElemen
             IWICColorContextPtr colorContextSrc;
             IWICColorContextPtr colorContextDst;
             IWICColorTransformPtr colorTransform;
-            wchar_t wzFilename[_MAX_PATH + 1];
             uint32_t cActual = 0;
 
             result = m_source->QueryInterface(IID_PPV_ARGS(&frame));
@@ -1057,24 +1053,23 @@ HRESULT CBitmapSourceElement::OutputView(IOutputDevice& output, const InfoElemen
                 if (SUCCEEDED(result))
                 {
                     result = frame->GetColorContexts(1, ppiContextSrc, &cActual);
-                    CString value;
-                    value.Format(L"%u", cActual);
-                    output.AddKeyValue(L"Total ColorContexts", value);
+                    output.AddKeyValue(L"Total ColorContexts", std::to_wstring(cActual).c_str());
                 }
 
                 if (SUCCEEDED(result) && cActual > 0)
                 {
+                    std::wstring filename;
                     result = g_imagingFactory->CreateColorContext(&colorContextDst);
 
                     if (SUCCEEDED(result))
                     {
+                        wchar_t wzFilename[_MAX_PATH + 1];
                         DWORD cbFilename = sizeof(wzFilename);
 
                         if (GetColorDirectoryW(nullptr, wzFilename, &cbFilename))
                         {
-                            result = StringCchCatW(wzFilename,
-                                sizeof(wzFilename) / sizeof(wzFilename[0]),
-                                L"\\sRGB Color Space Profile.icm");
+                            filename = wzFilename;
+                            filename += L"\\sRGB Color Space Profile.icm";
                         }
                         else
                         {
@@ -1083,7 +1078,7 @@ HRESULT CBitmapSourceElement::OutputView(IOutputDevice& output, const InfoElemen
 
                         if (SUCCEEDED(result))
                         {
-                            result = colorContextDst->InitializeFromFilename(wzFilename);
+                            result = colorContextDst->InitializeFromFilename(filename.c_str());
                         }
                     }
 
@@ -1101,7 +1096,7 @@ HRESULT CBitmapSourceElement::OutputView(IOutputDevice& output, const InfoElemen
                         if (SUCCEEDED(result))
                         {
                             m_colorTransform = colorTransform;
-                            output.AddKeyValue(L"Output ColorContext", wzFilename);
+                            output.AddKeyValue(L"Output ColorContext", filename.c_str());
                         }
                     }
                 }
@@ -1122,8 +1117,7 @@ HRESULT CBitmapSourceElement::OutputView(IOutputDevice& output, const InfoElemen
         const DWORD renderTime = renderTimer.GetTimeMS();
 
         // Note how long it took to render
-        StringCchPrintfW(v, 64, L"%u ms", renderTime);
-        output.AddKeyValue(L"Time", v);
+        output.AddKeyValue(L"Time", std::format(L"{} ms", renderTime).c_str());
 
         output.EndKeyValues();
 

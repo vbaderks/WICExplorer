@@ -71,22 +71,25 @@ HRESULT CImageTransencoder::Begin(REFGUID containerFormat, const LPCWSTR filenam
     // Get a writable stream
     m_codeGen->BeginVariableScope(L"IWICStream*", L"stream", L"nullptr");
 
-    m_codeGen->CallFunction(L"imagingFactory->CreateStream(&stream)");
+    m_codeGen->CallFunction(L"imagingFactory->CreateStream(&stream);");
     IFC(g_imagingFactory->CreateStream(&m_stream));
 
-    m_codeGen->CallFunction(L"stream->InitializeFromFilename(\"%s\", GENERIC_WRITE)", filename);
+#pragma warning(push)
+#pragma warning(disable : 4296) // '<': expression is always false [known problem in MSVC/STL, solved in VS 2022, 17.5, but 17.5 has critical flaw in named modules]
+    m_codeGen->CallFunction(std::format(L"stream->InitializeFromFilename(\"{}\", GENERIC_WRITE);", filename));
+#pragma warning(pop)
     IFC(m_stream->InitializeFromFilename(filename, GENERIC_WRITE));
 
     // Create the encoder
     m_codeGen->BeginVariableScope(L"IWICBitmapEncoder*", L"encoder", L"nullptr");
 
-    m_codeGen->CallFunction(L"imagingFactory->CreateEncoder(containerFormat, nullptr, &encoder)");
+    m_codeGen->CallFunction(L"imagingFactory->CreateEncoder(containerFormat, nullptr, &encoder);");
     IFC(g_imagingFactory->CreateEncoder(containerFormat, nullptr, &m_encoder));
 
     if (m_encoder)
     {
         // Initialize it
-        m_codeGen->CallFunction(L"encoder->Initialize(stream, WICBitmapEncoderCacheInMemory)");
+        m_codeGen->CallFunction(L"encoder->Initialize(stream, WICBitmapEncoderCacheInMemory);");
         IFC(m_encoder->Initialize(m_stream, WICBitmapEncoderNoCache));
 
         // This transencoder is now ready to encode
@@ -142,7 +145,7 @@ HRESULT CImageTransencoder::SetThumbnail(IWICBitmapSource* thumb) const
     }
 
     // Set the Thumbnail
-    m_codeGen->CallFunction(L"encoder->SetThumbnail(thumb)");
+    m_codeGen->CallFunction(L"encoder->SetThumbnail(thumb);");
 
     // Allow failure
     m_encoder->SetThumbnail(thumb);
@@ -160,7 +163,7 @@ HRESULT CImageTransencoder::SetPreview(IWICBitmapSource* preview) const
     }
 
     // Set the Preview
-    m_codeGen->CallFunction(L"encoder->SetPreview(preview)");
+    m_codeGen->CallFunction(L"encoder->SetPreview(preview);");
 
     // Allow failure
     m_encoder->SetPreview(preview);
@@ -194,29 +197,29 @@ HRESULT CImageTransencoder::CreateFrameEncode(IWICBitmapSource* bitmapSource, IW
 
     // Try to add a frame encode to the encoder
     m_codeGen->BeginVariableScope(L"IWICBitmapFrameEncode*", L"frame", L"nullptr");
-    m_codeGen->CallFunction(L"encoder->CreateNewFrame(&frame, nullptr)");
+    m_codeGen->CallFunction(L"encoder->CreateNewFrame(&frame, nullptr);");
     IFC(m_encoder->CreateNewFrame(&frameEncode, nullptr));
 
     // Initialize it
-    m_codeGen->CallFunction(L"frame->Initialize(nullptr)");
+    m_codeGen->CallFunction(L"frame->Initialize(nullptr);");
     IFC(frameEncode->Initialize(nullptr));
 
     // Set the Size
     uint32_t width;
     uint32_t height;
-    m_codeGen->CallFunction(L"source->GetSize(&width, &height)");
+    m_codeGen->CallFunction(L"source->GetSize(&width, &height);");
     IFC(bitmapSource->GetSize(&width, &height));
 
-    m_codeGen->CallFunction(L"frame->SetSize(%u, %u)", width, height);
+    m_codeGen->CallFunction(std::format(L"frame->SetSize({}, {});", width, height));
     IFC(frameEncode->SetSize(width, height));
 
     // Set the Resolution
     double dpiX;
     double dpiY;
-    m_codeGen->CallFunction(L"source->GetResolution(&dpiX, &dpiY)");
+    m_codeGen->CallFunction(L"source->GetResolution(&dpiX, &dpiY);");
     IFC(bitmapSource->GetResolution(&dpiX, &dpiY));
 
-    m_codeGen->CallFunction(L"frame->SetResolution(%g, %g)", dpiX, dpiY);
+    m_codeGen->CallFunction(std::format(L"frame->SetResolution({}, {});", dpiX, dpiY));
     IFC(frameEncode->SetResolution(dpiX, dpiY));
 
     // Attempt to set the PixelFormat
@@ -224,10 +227,10 @@ HRESULT CImageTransencoder::CreateFrameEncode(IWICBitmapSource* bitmapSource, IW
     WICPixelFormatGUID desiredPixelFormat{};
     WICPixelFormatGUID supportedPixelFormat{};
 
-    m_codeGen->CallFunction(L"source->GetPixelFormat(&desiredPixelFormat)");
+    m_codeGen->CallFunction(L"source->GetPixelFormat(&desiredPixelFormat);");
     IFC(bitmapSource->GetPixelFormat(&desiredPixelFormat));
 
-    m_codeGen->CallFunction(L"supportedPixelFormat = desiredPixelFormat");
+    m_codeGen->CallFunction(L"supportedPixelFormat = desiredPixelFormat;");
     if(m_format == GUID_WICPixelFormatDontCare)
     {
         supportedPixelFormat = desiredPixelFormat;
@@ -237,7 +240,7 @@ HRESULT CImageTransencoder::CreateFrameEncode(IWICBitmapSource* bitmapSource, IW
         supportedPixelFormat = m_format;
     }
 
-    m_codeGen->CallFunction(L"frame->SetPixelFormat(&supportedPixelFormat)");
+    m_codeGen->CallFunction(L"frame->SetPixelFormat(&supportedPixelFormat);");
     frameEncode->SetPixelFormat(&supportedPixelFormat);
     m_format = supportedPixelFormat;
 
@@ -251,11 +254,11 @@ HRESULT CImageTransencoder::CreateFrameEncode(IWICBitmapSource* bitmapSource, IW
         m_codeGen->BeginVariableScope(L"IWICPalette*", L"palette", L"nullptr");
         IWICPalettePtr palette;
 
-        m_codeGen->CallFunction(L"imagingFactory->CreatePalette(&palette)");
+        m_codeGen->CallFunction(L"imagingFactory->CreatePalette(&palette);");
         IFC(g_imagingFactory->CreatePalette(&palette));
 
         // Attempt to get the palette from the source
-        m_codeGen->CallFunction(L"source->CopyPalette(palette)");
+        m_codeGen->CallFunction(L"source->CopyPalette(palette);");
         result = bitmapSource->CopyPalette(palette);
 
         if (FAILED(result))
@@ -264,12 +267,12 @@ HRESULT CImageTransencoder::CreateFrameEncode(IWICBitmapSource* bitmapSource, IW
             // so let's try to generate one from the source's data
             result = S_OK;
 
-            m_codeGen->CallFunction(L"palette->InitializeFromBitmap(source, %u, false)", numPaletteColors);
+            m_codeGen->CallFunction(std::format(L"palette->InitializeFromBitmap(source, {}, false);", numPaletteColors));
             IFC(palette->InitializeFromBitmap(bitmapSource, numPaletteColors, false));
         }
 
         // Set the palette
-        m_codeGen->CallFunction(L"frame->SetPalette(palette)");
+        m_codeGen->CallFunction(L"frame->SetPalette(palette);");
         IFC(frameEncode->SetPalette(palette));
 
         // If this is the first frame to require a palette, use this palette as the
@@ -277,7 +280,7 @@ HRESULT CImageTransencoder::CreateFrameEncode(IWICBitmapSource* bitmapSource, IW
         m_numPalettedFrames++;
         if (1 == m_numPalettedFrames)
         {
-            m_codeGen->CallFunction(L"encoder->SetPalette(palette)");
+            m_codeGen->CallFunction(L"encoder->SetPalette(palette);");
             m_encoder->SetPalette(palette);
         }
 
@@ -317,7 +320,7 @@ HRESULT CImageTransencoder::CreateFrameEncode(IWICBitmapSource* bitmapSource, IW
     // Finally, write the actual BitmapSource
     WICRect rct{.Width = static_cast<int>(width), .Height = static_cast<int>(height)};
 
-    m_codeGen->CallFunction(L"frame->WriteSource(source, &rct)");
+    m_codeGen->CallFunction(L"frame->WriteSource(source, &rct);");
     IFC(frameEncode->WriteSource(bitmapSource, &rct));
 
     return result;
@@ -332,7 +335,7 @@ HRESULT CImageTransencoder::AddBitmapSource(IWICBitmapSource* bitmapSource)
     IFC(CreateFrameEncode(bitmapSource, frameEncode));
 
     // Nothing more to do with it
-    m_codeGen->CallFunction(L"frame->Commit()");
+    m_codeGen->CallFunction(L"frame->Commit();");
     IFC(frameEncode->Commit());
 
     return result;
@@ -350,12 +353,12 @@ HRESULT CImageTransencoder::AddBitmapFrameDecode(IWICBitmapFrameDecode* frame)
     m_codeGen->BeginVariableScope(L"IWICBitmapSource*", L"thumb", L"nullptr");
     IWICBitmapSourcePtr thumb;
 
-    m_codeGen->CallFunction(L"source->GetThumbnail(&thumb)");
+    m_codeGen->CallFunction(L"source->GetThumbnail(&thumb);");
     frame->GetThumbnail(&thumb);
 
     if (thumb)
     {
-        m_codeGen->CallFunction(L"frame->SetThumbnail(thumb)");
+        m_codeGen->CallFunction(L"frame->SetThumbnail(thumb);");
 
         // This is allowed to fail
         frameEncode->SetThumbnail(thumb);
@@ -364,7 +367,7 @@ HRESULT CImageTransencoder::AddBitmapFrameDecode(IWICBitmapFrameDecode* frame)
     // TODO: Output Metadata
 
     // All done
-    m_codeGen->CallFunction(L"frame->Commit()");
+    m_codeGen->CallFunction(L"frame->Commit();");
     IFC(frameEncode->Commit());
 
     return result;

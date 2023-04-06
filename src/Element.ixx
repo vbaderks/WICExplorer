@@ -9,6 +9,8 @@
 module;
 
 #include <atlstr.h>
+
+#include "Macros.h"
 #include "ComSmartPointers.h"
 
 export module Element;
@@ -16,6 +18,8 @@ export module Element;
 import ImageTransencoder;
 import IOutputDevice;
 import ICodeGenerator;
+
+import <std.h>;
 
 export HRESULT GetPixelFormatName(wchar_t* dest, uint32_t chars, WICPixelFormatGUID guid);
 
@@ -38,7 +42,7 @@ public:
     CInfoElement& operator=(const CInfoElement&) = default;
     CInfoElement& operator=(CInfoElement&&) = default;
 
-    [[nodiscard]] const ATL::CString& Name() const noexcept
+    [[nodiscard]] const std::wstring& Name() const noexcept
     {
         return m_name;
     }
@@ -135,7 +139,7 @@ public:
     ATL::CString m_queryValue;
 
 protected:
-    ATL::CString   m_name;
+    std::wstring m_name;
 
 private:
     void Unlink() noexcept;
@@ -193,10 +197,10 @@ public:
         : CComponentInfoElement(filename)
         , m_filename(filename)
     {
-        const int pathDelim = m_name.ReverseFind('\\');
-        if (pathDelim >= 0)
+        const size_t pathDelim{m_name.rfind(L'\\')};
+        if (pathDelim != std::wstring::npos)
         {
-            m_name = m_name.Right(m_name.GetLength() - pathDelim - 1);
+            m_name = m_name.substr(pathDelim + 1);
         }
     }
 
@@ -261,7 +265,8 @@ public:
         : CBitmapSourceElement(L"", frameDecode)
         , m_frameDecode(frameDecode)
     {
-        m_name.Format(L"Frame #%u", index);
+        WARNING_SUPPRESS_NEXT_LINE(4296) // '<': expression is always false
+        m_name = std::format(L"Frame #{}", index);
     }
 
     HRESULT SaveAsImage(CImageTransencoder& trans, ICodeGenerator& codeGen) noexcept(false) override;

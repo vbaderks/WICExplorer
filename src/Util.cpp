@@ -1,7 +1,6 @@
 ﻿module Util;
 
 import <std.h>;
-import <strsafe.h>;
 import <Windows-import.h>;
 
 using std::array;
@@ -93,11 +92,11 @@ std::wstring GetHresultString(HRESULT hr)
         {
             msg[len - 1] = L'\0';
         }
-    }
-    else
-    {
-        StringCchPrintf(msg, MAX_MsgLength, L"0x%.8X", static_cast<unsigned>(hr));
+        return msg;
     }
 
-    return msg;
+#pragma warning(push)
+#pragma warning(disable : 4296) // '<': expression is always false [known problem in MSVC/STL, solved in VS 2022, 17.5, but 17.5 has critical flaw in named modules]
+    return std::format(L"{:#8X}", hr);
+#pragma warning(pop)
 }
