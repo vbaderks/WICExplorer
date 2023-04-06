@@ -1,4 +1,7 @@
-﻿module;
+﻿// Copyright (c) Victor Derks.
+// SPDX-License-Identifier: MIT
+
+module;
 
 #include "Macros.h"
 #include "resource.h"
