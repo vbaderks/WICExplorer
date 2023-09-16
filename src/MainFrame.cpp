@@ -1007,9 +1007,7 @@ LRESULT CMainFrame::OnShowAlpha(uint16_t /*code*/, const uint16_t item, HWND /*h
 
 LRESULT CMainFrame::OnShowInstalledCodecs(uint16_t, uint16_t, HWND, BOOL&)
 {
-    CViewInstalledCodecsDlg dlg;
-    dlg.DoModal();
-
+    ViewInstalledCodecsModal();
     return 0;
 }
 
