@@ -122,6 +122,7 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AboutDlg.cpp" />
     <ClCompile Include="AboutDlg.ixx" />
     <ClCompile Include="BitmapDataObject.cpp" />
     <ClCompile Include="BitmapDataObject.ixx" />

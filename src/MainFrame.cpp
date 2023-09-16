@@ -817,9 +817,7 @@ LRESULT CMainFrame::OnAppExit(uint16_t, uint16_t, HWND, BOOL&) noexcept
 
 LRESULT CMainFrame::OnAppAbout(uint16_t, uint16_t, HWND, BOOL&)
 {
-    CAboutDlg dlg;
-    dlg.DoModal();
-
+    ShowAboutDialogModal();
     return 0;
 }
 
