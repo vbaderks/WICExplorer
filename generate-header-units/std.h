@@ -8,3 +8,4 @@
 #include <string>
 #include <cstdint>
 #include <format>
+#include <optional>

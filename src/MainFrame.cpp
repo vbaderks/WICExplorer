@@ -735,23 +735,23 @@ HRESULT CMainFrame::SaveElementAsImage(CInfoElement& element)
     if (ElementCanBeSavedAsImage(element))
     {
         // Let the user choose the type of encoder to use
-        CEncoderSelectionDlg dlg;
-        INT_PTR id = dlg.DoModal();
+        const auto encoderSelection{ GetEncoderSelectionFromUser() };
 
-        if (IDOK == id)
+        if (encoderSelection.has_value())
         {
             // Now that we know what kind of encoder they want to use, let's get a filename from them
             CSimpleFileDialog fileDlg(false, nullptr, nullptr, OFN_HIDEREADONLY,
                 L"All Files (*.*)\0*.*\0\0", m_hWnd);
-            id = fileDlg.DoModal();
+            INT_PTR id = fileDlg.DoModal();
 
             if (IDOK == id)
             {
                 // Now we have a filename and an encoder, let's go
                 CSimpleCodeGenerator codeGen;
 
-                WICPixelFormatGUID format = dlg.GetPixelFormat();
-                result = CElementManager::SaveElementAsImage(element, dlg.GetContainerFormat(), format, fileDlg.m_szFileName, codeGen);
+                const auto& [containerFormat, pixelFormat] = *encoderSelection;
+                GUID format{pixelFormat};
+                result = CElementManager::SaveElementAsImage(element, containerFormat, format, fileDlg.m_szFileName, codeGen);
 
                 if (FAILED(result))
                 {
@@ -764,15 +764,15 @@ HRESULT CMainFrame::SaveElementAsImage(CInfoElement& element)
                         MessageBoxW(msg.c_str(), L"Error Encoding Image", MB_OK | MB_ICONERROR);
                     }
                 }
-                else if (dlg.GetPixelFormat() != GUID_WICPixelFormatDontCare &&
-                    dlg.GetPixelFormat() != format)
+                else if (pixelFormat != GUID_WICPixelFormatDontCare &&
+                    pixelFormat != format)
                 {
                     // The user cares about the pixel format, and WIC actually used
                     // a different one than what the user picked.
                     CString msg;
                     wchar_t picked[30];
                     wchar_t actual[30];
-                    if (FAILED(GetPixelFormatName(picked, ARRAYSIZE(picked), dlg.GetPixelFormat())))
+                    if (FAILED(GetPixelFormatName(picked, ARRAYSIZE(picked), pixelFormat)))
                     {
                         VERIFY(wcscpy_s(picked, ARRAYSIZE(picked), L"Unknown") == 0);
                     }

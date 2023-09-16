@@ -3,12 +3,14 @@
 
 module;
 
+#include "resource.h"
+#include "Macros.h"
+
 #include <atlbase.h>
+#include <atlwin.h>
 #include <atlapp.h>
 #include <atlctrls.h>
 
-#include "resource.h"
-#include "Macros.h"
 #include "ComSmartPointers.h"
 
 module EncoderSelectionDlg;
@@ -17,15 +19,39 @@ import Element;
 import Util;
 
 
-GUID CEncoderSelectionDlg::GetContainerFormat() const noexcept
+class CEncoderSelectionDlg final : public CDialogImpl<CEncoderSelectionDlg>
 {
-    return m_containers[m_containerSel];
-}
+public:
+    enum { IDD = IDD_ENCODER_SELECTION };
 
-GUID CEncoderSelectionDlg::GetPixelFormat() const noexcept
-{
-    return m_formats[m_formatSel];
-}
+    BEGIN_MSG_MAP_OVERRIDE()
+        MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
+        COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
+        COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
+        END_MSG_MAP()
+
+    [[nodiscard]]
+    GUID GetContainerFormat() const noexcept
+    {
+        return m_containers[m_containerSel];
+    }
+
+    [[nodiscard]]
+    GUID GetPixelFormat() const noexcept
+    {
+        return m_formats[m_formatSel];
+    }
+
+private:
+    LRESULT OnInitDialog(uint32_t /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
+    LRESULT OnCloseCmd(uint16_t /*wNotifyCode*/, uint16_t wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+
+    std::vector<GUID> m_containers;
+    int m_containerSel{-1};
+
+    std::vector<GUID> m_formats;
+    int m_formatSel{-1};
+};
 
 LRESULT CEncoderSelectionDlg::OnInitDialog(uint32_t /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
@@ -145,3 +171,11 @@ LRESULT CEncoderSelectionDlg::OnCloseCmd(uint16_t /*wNotifyCode*/, const uint16_
     return 0;
 }
 
+std::optional<std::pair<GUID, GUID>> GetEncoderSelectionFromUser()
+{
+    CEncoderSelectionDlg dialog;
+    if (dialog.DoModal() != IDOK)
+        return {};
+
+    return std::make_pair(dialog.GetPixelFormat(), dialog.GetContainerFormat());
+}
