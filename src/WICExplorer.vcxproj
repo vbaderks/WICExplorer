@@ -132,7 +132,6 @@
     <ClCompile Include="ICodeGenerator.ixx" />
     <ClCompile Include="ImageTransencoder.ixx" />
     <ClCompile Include="IOutputDevice.ixx" />
-    <ClCompile Include="MainFrame.ixx" />
     <ClCompile Include="MetadataTranslator.ixx" />
     <ClCompile Include="OutputDevice.ixx" />
     <ClCompile Include="PropVariant.ixx" />
@@ -161,6 +160,7 @@
     <ClInclude Include="ComSmartPointers.h" />
     <ClInclude Include="ImportMsXml2.h" />
     <ClInclude Include="Macros.h" />
+    <ClInclude Include="MainFrame.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>

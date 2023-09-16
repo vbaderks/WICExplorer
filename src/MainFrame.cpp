@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation \ Victor Derks.
 // SPDX-License-Identifier: MIT
 
-module;
+#include "MainFrame.h"
 
 #include <atlstr.h>
 
@@ -15,8 +15,6 @@ module;
 #include "Macros.h"
 #include "resource.h"
 #include "ComSmartPointers.h"
-
-module MainFrame;
 
 import AboutDlg;
 import OutputDevice;

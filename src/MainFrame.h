@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation \ Victor Derks.
 // SPDX-License-Identifier: MIT
 
-module;
+#pragma once
 
 #include "resource.h"
 #include "Macros.h"
@@ -14,11 +14,9 @@ module;
 #include <atlctrls.h>
 #include <atlctrlx.h>
 
-export module MainFrame;
-
 import Element;
 
-export class CMainFrame final : public CFrameWindowImpl<CMainFrame>
+class CMainFrame final : public CFrameWindowImpl<CMainFrame>
 {
 public:
     WARNING_SUPPRESS_NEXT_LINE(26440) // Function 'CMainFrame::GetWndClassInfo' can be declared 'noexcept' (f.6).

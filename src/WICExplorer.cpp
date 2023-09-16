@@ -3,6 +3,7 @@
 
 #include "Macros.h"
 #include "ComSmartPointers.h"
+#include "MainFrame.h"
 
 #include <atlstr.h>
 
@@ -10,7 +11,6 @@
 #include <atlapp.h>
 #include <atlctrls.h>
 
-import MainFrame;
 import Util;
 import Element;
 
