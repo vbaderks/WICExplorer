@@ -16,7 +16,7 @@ public:
 
     CBitmapDataObject() = default;
 
-    virtual ~CBitmapDataObject()
+    ~CBitmapDataObject()
     {
         ReleaseStgMedium(&m_stgmed);
     }
