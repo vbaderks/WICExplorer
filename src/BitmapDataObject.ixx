@@ -1,13 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation \ Victor Derks.
 // SPDX-License-Identifier: MIT
 
-module;
-
-#include <Richedit.h>
-#include <RichOle.h>
-
 export module BitmapDataObject;
 
+import <Windows-import.h>;
 
 export class CBitmapDataObject final : IDataObject
 {
@@ -51,4 +47,3 @@ private:
     STGMEDIUM m_stgmed{};
     FORMATETC m_format{};
 };
-

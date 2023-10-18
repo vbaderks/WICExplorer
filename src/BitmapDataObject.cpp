@@ -6,12 +6,10 @@ module;
 #include "Macros.h"
 #include <cassert>
 
-#include <RichEdit.h>
-#include <RichOle.h>
-
 module BitmapDataObject;
 
-import "std.h";
+import <std.h>;
+import <Windows-import.h>;
 
 
 HRESULT CBitmapDataObject::InsertDib(HWND /*hWnd*/, IRichEditOle* pRichEditOle, const HGLOBAL hGlobal)

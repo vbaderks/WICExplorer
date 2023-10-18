@@ -8,8 +8,8 @@ module;
 
 export module Util;
 
-import "std.h";
-import "Windows-import.h";
+import <std.h>;
+import <Windows-import.h>;
 
 export {
 
