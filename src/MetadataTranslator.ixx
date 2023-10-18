@@ -5,10 +5,9 @@ module;
 
 #include "ImportMsXml2.h"
 
-#include <atlstr.h>
-
 export module MetadataTranslator;
 
+import <std.h>;
 
 export class CMetadataTranslator final
 {
@@ -29,13 +28,13 @@ public:
         return inst;
     }
 
-    HRESULT Translate(const GUID &format, PROPVARIANT *pv, CString &out) const;
+    HRESULT Translate(const GUID &format, PROPVARIANT *pv, std::wstring &out) const;
 
 private:
     struct Key final
     {
-        Key(PCWSTR guidStr, PCWSTR idStr) noexcept;
         Key() = default;
+        Key(PCWSTR guidStr, PCWSTR idStr) noexcept;
 
         GUID m_format{};
         int m_id{};
@@ -52,6 +51,5 @@ private:
     HRESULT LoadFormat(MSXML2::IXMLDOMNode* formatNodeArg);
     HRESULT LoadTranslations();
 
-    CSimpleMap<Key, CString> m_dictionary;
+    std::vector<std::pair<Key, std::wstring>> m_dictionary;
 };
-

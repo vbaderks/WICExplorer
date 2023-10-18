@@ -3,8 +3,6 @@
 
 module;
 
-#include <atlstr.h>
-
 #include "Macros.h"
 #include "ImportMsXml2.h"
 
@@ -17,7 +15,7 @@ CMetadataTranslator::Key::Key(const PCWSTR guidStr, const PCWSTR idStr) noexcept
     VERIFY(SUCCEEDED(CLSIDFromString(guidStr, &m_format)));
 }
 
-HRESULT CMetadataTranslator::ReadPropVariantInteger(PROPVARIANT *pv, int &out) noexcept
+HRESULT CMetadataTranslator::ReadPropVariantInteger(PROPVARIANT* pv, int& out) noexcept
 {
     HRESULT result{E_INVALIDARG};
 
@@ -67,11 +65,11 @@ HRESULT CMetadataTranslator::ReadPropVariantInteger(PROPVARIANT *pv, int &out) n
     return result;
 }
 
-HRESULT CMetadataTranslator::Translate(const GUID &format, PROPVARIANT *pv, CString &out) const
+HRESULT CMetadataTranslator::Translate(const GUID& format, PROPVARIANT* pv, std::wstring& out) const
 {
     HRESULT result;
 
-    int id = 0;
+    int id{};
 
     // For now, pv must be one of the integers
     IFC(ReadPropVariantInteger(pv, id));
@@ -80,12 +78,13 @@ HRESULT CMetadataTranslator::Translate(const GUID &format, PROPVARIANT *pv, CStr
     Key k;
     k.m_format = format;
     k.m_id = id;
-    const int idx = m_dictionary.FindKey(k);
+    const auto item{std::find_if(m_dictionary.cbegin(), m_dictionary.cend(),
+        [&k](const std::pair<Key, std::wstring>& m) -> bool { return m.first == k; })};
 
-    if (idx >= 0)
+    if (item != m_dictionary.cend())
     {
         // Found one!
-        out = m_dictionary.GetValueAt(idx);
+        out = item->second;
     }
     else
     {
@@ -105,7 +104,7 @@ HRESULT CMetadataTranslator::LoadFormat(MSXML2::IXMLDOMNode* formatNodeArg)
     if (formatGuidNode)
     {
         WARNING_SUPPRESS_NEXT_LINE(33005) // VARIANT '' was provided as an _In_ or _InOut_ parameter but was not initialized(expression '&allotemp.4').
-        formatGuidStr = formatGuidNode->nodeValue;
+            formatGuidStr = formatGuidNode->nodeValue;
     }
 
     // Verify that the GUID has some text
@@ -126,13 +125,13 @@ HRESULT CMetadataTranslator::LoadFormat(MSXML2::IXMLDOMNode* formatNodeArg)
             if (entryIdNode && entryValueNode)
             {
                 WARNING_SUPPRESS_NEXT_LINE(33005) // VARIANT '' was provided as an _In_ or _InOut_ parameter but was not initialized(expression '&allotemp.4').
-                _bstr_t idStr{ entryIdNode->nodeValue };
+                    _bstr_t idStr{entryIdNode->nodeValue};
 
                 WARNING_SUPPRESS_NEXT_LINE(33005) // VARIANT '' was provided as an _In_ or _InOut_ parameter but was not initialized(expression '&allotemp.4').
-                _bstr_t valueStr{ entryValueNode->nodeValue };
+                    _bstr_t valueStr{entryValueNode->nodeValue};
 
                 // Finally, we can add this entry
-                m_dictionary.Add(Key(formatGuidStr, idStr), CString(static_cast<LPCWSTR>(valueStr)));
+                m_dictionary.push_back(std::make_pair(Key(formatGuidStr, idStr), static_cast<LPCWSTR>(valueStr)));
             }
         }
     }

@@ -25,15 +25,16 @@ import <std.h>;
 namespace {
 
 // Just hardcoded for now
-bool HasAlpha(REFWICPixelFormatGUID pGuid) noexcept
+[[nodiscard]]
+bool HasAlpha(const GUID& guid) noexcept
 {
-    return IsEqualGUID(pGuid, GUID_WICPixelFormat32bppBGRA)
-        || IsEqualGUID(pGuid, GUID_WICPixelFormat32bppPBGRA)
-        || IsEqualGUID(pGuid, GUID_WICPixelFormat64bppRGBA)
-        || IsEqualGUID(pGuid, GUID_WICPixelFormat64bppPRGBA)
-        || IsEqualGUID(pGuid, GUID_WICPixelFormat128bppRGBAFloat)
-        || IsEqualGUID(pGuid, GUID_WICPixelFormat128bppPRGBAFloat)
-        || IsEqualGUID(pGuid, GUID_WICPixelFormat128bppRGBAFixedPoint);
+    return IsEqualGUID(guid, GUID_WICPixelFormat32bppBGRA)
+        || IsEqualGUID(guid, GUID_WICPixelFormat32bppPBGRA)
+        || IsEqualGUID(guid, GUID_WICPixelFormat64bppRGBA)
+        || IsEqualGUID(guid, GUID_WICPixelFormat64bppPRGBA)
+        || IsEqualGUID(guid, GUID_WICPixelFormat128bppRGBAFloat)
+        || IsEqualGUID(guid, GUID_WICPixelFormat128bppPRGBAFloat)
+        || IsEqualGUID(guid, GUID_WICPixelFormat128bppRGBAFixedPoint);
 }
 
 }
@@ -1501,14 +1502,18 @@ HRESULT CMetadataReaderElement::TranslateValueID(PROPVARIANT* pv, const unsigned
     IFC(handlerInfo->GetMetadataFormat(&metadataFormat));
 
     // Try using the translator
-    result = CMetadataTranslator::Inst().Translate(metadataFormat, pv, out);
+    std::wstring str;
+    result = CMetadataTranslator::Inst().Translate(metadataFormat, pv, str);
 
     // If that failed, use the string converter
     if (FAILED(result))
     {
         result = PropVariantToString(pv, options, out);
     }
+    else
+    {
+        out = str.c_str();
+    }
 
     return result;
 }
-
