@@ -14,7 +14,7 @@
 import Util;
 import Element;
 
-import "std.h";
+import <std.h>;
 
 
 #ifndef _UNICODE
