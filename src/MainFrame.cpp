@@ -159,7 +159,7 @@ LRESULT CMainFrame::OnPaneClose(uint16_t, uint16_t, const HWND hWndCtl, BOOL&) c
     // take the container that was Closed out of the splitter.
     // Use SetSplitterPane(nPane, nullptr) if you want to stay in
     // multipane mode instead of changing to single pane mode
-    const int nCount = pWnd->m_nPanesCount;
+    constexpr int nCount{pWnd->m_nPanesCount};
     for (int nPane = 0; nPane < nCount; nPane++)
     {
         if (hWndCtl == pWnd->m_hWndPane[nPane])
@@ -740,7 +740,7 @@ HRESULT CMainFrame::SaveElementAsImage(CInfoElement& element)
             // Now that we know what kind of encoder they want to use, let's get a filename from them
             CSimpleFileDialog fileDlg(false, nullptr, nullptr, OFN_HIDEREADONLY,
                 L"All Files (*.*)\0*.*\0\0", m_hWnd);
-            INT_PTR id = fileDlg.DoModal();
+            const INT_PTR id{fileDlg.DoModal()};
 
             if (IDOK == id)
             {

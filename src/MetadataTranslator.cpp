@@ -79,7 +79,7 @@ HRESULT CMetadataTranslator::Translate(const GUID& format, PROPVARIANT* pv, std:
     k.m_format = format;
     k.m_id = id;
     const auto item{std::find_if(m_dictionary.cbegin(), m_dictionary.cend(),
-        [&k](const std::pair<Key, std::wstring>& m) -> bool { return m.first == k; })};
+        [&k](const std::pair<Key, std::wstring>& m) noexcept -> bool { return m.first == k; })};
 
     if (item != m_dictionary.cend())
     {

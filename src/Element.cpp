@@ -794,24 +794,24 @@ void CBitmapDecoderElement::FillContextMenu(const HMENU context) noexcept
     if (m_loaded)
     {
         itemInfo.wID = ID_FILE_SAVE;
-        WARNING_SUPPRESS_NEXT_LINE(26465) // Don't use const_cast to cast away const or volatile.
+        WARNING_SUPPRESS_NEXT_LINE(26465 26492) // Don't use const_cast to cast away const or volatile.
         itemInfo.dwTypeData = const_cast<LPWSTR>(L"Save As Image...");
         VERIFY(InsertMenuItem(context, GetMenuItemCount(context), true, &itemInfo));
 
         itemInfo.wID = ID_FILE_UNLOAD;
-        WARNING_SUPPRESS_NEXT_LINE(26465) // Don't use const_cast to cast away const or volatile.
+        WARNING_SUPPRESS_NEXT_LINE(26465 26492) // Don't use const_cast to cast away const or volatile.
         itemInfo.dwTypeData = const_cast<LPWSTR>(L"Unload");
     }
     else
     {
         itemInfo.wID = ID_FILE_LOAD;
-        WARNING_SUPPRESS_NEXT_LINE(26465) // Don't use const_cast to cast away const or volatile.
+        WARNING_SUPPRESS_NEXT_LINE(26465 26492) // Don't use const_cast to cast away const or volatile.
         itemInfo.dwTypeData = const_cast<LPWSTR>(L"Load");
     }
     VERIFY(InsertMenuItem(context, GetMenuItemCount(context), true, &itemInfo));
 
     itemInfo.wID = ID_FILE_CLOSE;
-    WARNING_SUPPRESS_NEXT_LINE(26465) // Don't use const_cast to cast away const or volatile.
+    WARNING_SUPPRESS_NEXT_LINE(26465 26492) // Don't use const_cast to cast away const or volatile.
     itemInfo.dwTypeData = const_cast<LPWSTR>(L"Close");
     VERIFY(InsertMenuItem(context, GetMenuItemCount(context), true, &itemInfo));
 }
@@ -962,13 +962,13 @@ void CBitmapSourceElement::FillContextMenu(const HMENU context) noexcept
     CInfoElement::FillContextMenu(context);
 
     // Add the Save as Bitmap string if this element supports it
-    MENUITEMINFO itemInfo{
+    const MENUITEMINFO itemInfo{
         .cbSize = sizeof itemInfo,
         .fMask = MIIM_FTYPE | MIIM_ID | MIIM_STATE | MIIM_STRING,
         .fType = MFT_STRING,
         .fState = MFS_ENABLED,
         .wID = ID_FILE_SAVE,
-        WARNING_SUPPRESS_NEXT_LINE(26465) // Don't use const_cast to cast away const or volatile.
+        WARNING_SUPPRESS_NEXT_LINE(26465 26492) // Don't use const_cast to cast away const or volatile.
         .dwTypeData = const_cast<LPWSTR>(L"Save As Image...")
     };
 
@@ -1309,7 +1309,7 @@ void CBitmapFrameDecodeElement::FillContextMenu(const HMENU context) noexcept
         .fType = MFT_STRING,
         .fState = MFS_ENABLED,
         .wID = ID_FIND_METADATA,
-        WARNING_SUPPRESS_NEXT_LINE(26465) // Don't use const_cast to cast away const or volatile.
+        WARNING_SUPPRESS_NEXT_LINE(26465 26492) // Don't use const_cast to cast away const or volatile.
         .dwTypeData = const_cast<LPWSTR>(L"Find metadata by Query Language")
     };
 
