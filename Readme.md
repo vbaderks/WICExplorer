@@ -1,5 +1,7 @@
 # WIC Explorer sample
 
+[![Build](https://github.com/vbaderks/WICExplorer/actions/workflows/msbuild.yml/badge.svg)](https://github.com/vbaderks/WICExplorer/actions/workflows/msbuild.yml)
+
 WIC Explorer is a tool that uses the Windows Imaging Component API to enumerate and list all of the elements within an image file, including metadata, frames, and thumbnails. It is useful for exploring the contents of images, as well as understanding how the WIC API is interpreting a specific file.
 
 ## Modifications
