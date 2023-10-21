@@ -4,21 +4,19 @@
 module;
 
 #include <atlstr.h>
-
 #include "Macros.h"
 #include <cassert>
 
 module PropVariant;
 
 import <std.h>;
-
 import <Windows-import.h>;
 
 namespace {
 
-template<class T> static void WriteValue(const T & /*val*/, CString &out)
+template<class T> static void WriteValue(const T& /*val*/, std::wstring& out)
 {
-    out.Format(L"<UnknownValue>");
+    out = L"<UnknownValue>";
 }
 
 template<class T> static LPCWSTR GetTypeName()
@@ -26,9 +24,9 @@ template<class T> static LPCWSTR GetTypeName()
     return L"<UnknownType>";
 }
 
-template<> void WriteValue<char>(const char &val, CString &out)
+template<> void WriteValue<char>(const char& val, std::wstring& out)
 {
-    out.Format(L"%d", static_cast<int>(val));
+    out = std::format(L"{}", static_cast<int>(val));
 }
 
 template<> PCWSTR GetTypeName<char>() noexcept
@@ -36,9 +34,9 @@ template<> PCWSTR GetTypeName<char>() noexcept
     return L"CHAR";
 }
 
-template<> void WriteValue<UCHAR>(const UCHAR &val, CString &out)
+template<> void WriteValue<UCHAR>(const UCHAR& val, std::wstring& out)
 {
-    out.Format(L"%u", static_cast<unsigned>(val));
+    out = std::format(L"{}", static_cast<unsigned>(val));
 }
 
 template<> PCWSTR GetTypeName<UCHAR>() noexcept
@@ -46,9 +44,9 @@ template<> PCWSTR GetTypeName<UCHAR>() noexcept
     return L"UCHAR";
 }
 
-template<> void WriteValue<SHORT>(const SHORT &val, CString &out)
+template<> void WriteValue<SHORT>(const SHORT& val, std::wstring& out)
 {
-    out.Format(L"%d", static_cast<int>(val));
+    out = std::format(L"{}", static_cast<int>(val));
 }
 
 template<> PCWSTR GetTypeName<SHORT>() noexcept
@@ -56,9 +54,9 @@ template<> PCWSTR GetTypeName<SHORT>() noexcept
     return L"SHORT";
 }
 
-template<> void WriteValue<USHORT>(const USHORT &val, CString &out)
+template<> void WriteValue<USHORT>(const USHORT& val, std::wstring& out)
 {
-    out.Format(L"%u", static_cast<unsigned>(val));
+    out = std::format(L"{}", static_cast<unsigned>(val));
 }
 
 template<> PCWSTR GetTypeName<USHORT>() noexcept
@@ -66,9 +64,9 @@ template<> PCWSTR GetTypeName<USHORT>() noexcept
     return L"USHORT";
 }
 
-template<> void WriteValue<LONG>(const LONG &val, CString &out)
+template<> void WriteValue<LONG>(const LONG& val, std::wstring& out)
 {
-    out.Format(L"%d", static_cast<int>(val));
+    out = std::format(L"{}", static_cast<int>(val));
 }
 
 template<> PCWSTR GetTypeName<LONG>() noexcept
@@ -76,9 +74,9 @@ template<> PCWSTR GetTypeName<LONG>() noexcept
     return L"LONG";
 }
 
-template<> void WriteValue<ULONG>(const ULONG &val, CString &out)
+template<> void WriteValue<ULONG>(const ULONG& val, std::wstring& out)
 {
-    out.Format(L"%u", static_cast<unsigned>(val));
+    out = std::format(L"{}", static_cast<unsigned>(val));
 }
 
 template<> PCWSTR GetTypeName<ULONG>() noexcept
@@ -86,9 +84,9 @@ template<> PCWSTR GetTypeName<ULONG>() noexcept
     return L"ULONG";
 }
 
-template<> void WriteValue<INT>(const INT &val, CString &out)
+template<> void WriteValue<INT>(const INT& val, std::wstring& out)
 {
-    out.Format(L"%d", static_cast<int>(val));
+    out = std::format(L"{}", static_cast<int>(val));
 }
 
 template<> PCWSTR GetTypeName<INT>() noexcept
@@ -96,9 +94,9 @@ template<> PCWSTR GetTypeName<INT>() noexcept
     return L"INT";
 }
 
-template<> void WriteValue<uint32_t>(const uint32_t &val, CString &out)
+template<> void WriteValue<uint32_t>(const uint32_t& val, std::wstring& out)
 {
-    out.Format(L"%u", static_cast<unsigned>(val));
+    out = std::format(L"{}", static_cast<unsigned>(val));
 }
 
 template<> PCWSTR GetTypeName<uint32_t>() noexcept
@@ -106,19 +104,16 @@ template<> PCWSTR GetTypeName<uint32_t>() noexcept
     return L"UINT";
 }
 
-template<> void WriteValue<LARGE_INTEGER>(const LARGE_INTEGER &val, CString &out)
+template<> void WriteValue<LARGE_INTEGER>(const LARGE_INTEGER& val, std::wstring& out)
 {
     // "the numerator in low part and denominator in the high part"
     if (0 != val.HighPart)
     {
-#pragma warning(push)
-#pragma warning(disable : 4296) // '<': expression is always false [known problem in MSVC/STL, solved in VS 2022, 17.5, but 17.5 has critical flaw in named modules]
         out = std::format(L"{} / {} ({})", val.LowPart, val.HighPart, static_cast<double>(val.LowPart) / static_cast<double>(val.HighPart)).c_str();
-#pragma warning(pop)
     }
     else
     {
-        out.Format(L"%ul / %dl", val.LowPart, val.HighPart);
+        out = std::format(L"{} / {}", val.LowPart, val.HighPart);
     }
 }
 
@@ -127,19 +122,16 @@ template<> PCWSTR GetTypeName<LARGE_INTEGER>() noexcept
     return L"LARGE_INTEGER";
 }
 
-template<> void WriteValue<ULARGE_INTEGER>(const ULARGE_INTEGER &val, CString &out)
+template<> void WriteValue<ULARGE_INTEGER>(const ULARGE_INTEGER& val, std::wstring& out)
 {
     // "the numerator in low part and denominator in the high part"
     if (0 != val.HighPart)
     {
-#pragma warning(push)
-#pragma warning(disable : 4296) // '<': expression is always false [known problem in MSVC/STL, solved in VS 2022, 17.5, but 17.5 has critical flaw in named modules]
-        out = std::format("{} / {} ({})", val.LowPart, val.HighPart, static_cast<double>(val.LowPart) / static_cast<double>(val.HighPart)).c_str();
-#pragma warning(pop)
+        out = std::format(L"{} / {} ({})", val.LowPart, val.HighPart, static_cast<double>(val.LowPart) / static_cast<double>(val.HighPart));
     }
     else
     {
-        out.Format(L"%u / %u", val.LowPart, val.HighPart);
+        out = std::format(L"{} / {}", val.LowPart, val.HighPart);
     }
 }
 
@@ -148,10 +140,8 @@ template<> PCWSTR GetTypeName<ULARGE_INTEGER>() noexcept
     return L"ULARGE_INTEGER";
 }
 
-template<> void WriteValue<FLOAT>(const FLOAT &val, CString &out)
+template<> void WriteValue<FLOAT>(const FLOAT& val, std::wstring& out)
 {
-    //wchar_t str[64];
-    //StringCchPrintfW(str, 64, L"%g", static_cast<double>(val));
     out = std::to_wstring(val).c_str();
 }
 
@@ -160,11 +150,8 @@ template<> PCWSTR GetTypeName<FLOAT>() noexcept
     return L"FLOAT";
 }
 
-template<> void WriteValue<DOUBLE>(const DOUBLE &val, CString &out)
+template<> void WriteValue<DOUBLE>(const DOUBLE& val, std::wstring& out)
 {
-    //wchar_t str[64];
-    //StringCchPrintfW(str, 64, L"%g", val);
-    //out = str;
     out = std::to_wstring(val).c_str();
 }
 
@@ -173,9 +160,9 @@ template<> PCWSTR GetTypeName<DOUBLE>() noexcept
     return L"DOUBLE";
 }
 
-template<> void WriteValue<CY>(const CY &val, CString &out)
+template<> void WriteValue<CY>(const CY& val, std::wstring& out)
 {
-    out.Format(L"%g", static_cast<double>(val.int64) / 10000.0);
+    out = std::format(L"{}", static_cast<double>(val.int64) / 10000.0);
 }
 
 template<> PCWSTR GetTypeName<CY>() noexcept
@@ -183,7 +170,7 @@ template<> PCWSTR GetTypeName<CY>() noexcept
     return L"CY";
 }
 
-template<> void WriteValue<CLSID>(const CLSID &val, CString &out)
+template<> void WriteValue<CLSID>(const CLSID& val, std::wstring& out)
 {
     wchar_t str[64];
     VERIFY(StringFromGUID2(val, str, 64) != 0);
@@ -195,15 +182,15 @@ template<> PCWSTR GetTypeName<CLSID>() noexcept
     return L"CLSID";
 }
 
-template<> void WriteValue<BLOB>(const BLOB &val, CString &out)
+template<> void WriteValue<BLOB>(const BLOB& val, std::wstring& out)
 {
     constexpr ULONG MAX_BYTES = 10;
-    CString b;
+    std::wstring b;
 
-    out.Format(L"%u bytes = { ", val.cbSize);
+    out = std::format(L"{} bytes = {{ ", val.cbSize);
     for (uint32_t i = 0; i < std::min(MAX_BYTES, val.cbSize); i++)
     {
-        b.Format(L"0x%.2X ", val.pBlobData[i]);
+        b = std::format(L"{:#X} ", val.pBlobData[i]);
         out += b;
     }
 
@@ -220,7 +207,7 @@ template<> PCWSTR GetTypeName<BLOB>() noexcept
     return L"BLOB";
 }
 
-template<> void WriteValue<PSTR>(const PSTR &val, CString &out)
+template<> void WriteValue<PSTR>(const PSTR& val, std::wstring& out)
 {
     out = L"\"" + CString(val) + L"\"";
 }
@@ -230,9 +217,9 @@ template<> PCWSTR GetTypeName<PSTR>() noexcept
     return L"PSTR";
 }
 
-template<> void WriteValue<LPWSTR>(const LPWSTR &val, CString &out)
+template<> void WriteValue<LPWSTR>(const LPWSTR& val, std::wstring& out)
 {
-    out = L"\"" + CString(val) + L"\"";
+    out = L"\"" + std::wstring(val) + L"\"";
 }
 
 template<> PCWSTR GetTypeName<PWSTR>() noexcept
@@ -240,9 +227,9 @@ template<> PCWSTR GetTypeName<PWSTR>() noexcept
     return L"PWSTR";
 }
 
-template<> void WriteValue<IUnknown>(const IUnknown &val, CString &out)
+template<> void WriteValue<IUnknown>(const IUnknown& val, std::wstring& out)
 {
-    out.Format(L"IUnknown * = %p", &val);
+    out = std::format(L"IUnknown * = {}", static_cast<const void*>(&val));
 }
 
 template<> PCWSTR GetTypeName<IUnknown>() noexcept
@@ -250,15 +237,15 @@ template<> PCWSTR GetTypeName<IUnknown>() noexcept
     return L"IUnknown*";
 }
 
-template<typename T> void WriteValues(const ULONG count, T *vals, const VARTYPE type, const unsigned options, CString &out)
+template<typename T> void WriteValues(const ULONG count, T* vals, const VARTYPE type, const unsigned options, std::wstring& out)
 {
     constexpr ULONG MAX_VALUES = 10;
-    CString b;
+    std::wstring b;
 
     if (options & PVTSOPTION_IncludeType)
     {
         VariantTypeToString(type, b);
-        out.Format(L"%s[%u] = { ", b.GetBuffer(0), count);
+        out = std::format(L"{}[{}] = {{ ", b, count);
     }
     else
     {
@@ -290,7 +277,7 @@ template<typename T> void WriteValues(const ULONG count, T *vals, const VARTYPE 
 
 }
 
-HRESULT VariantTypeToString(const VARTYPE vt, CString &out)
+HRESULT VariantTypeToString(const VARTYPE vt, std::wstring& out)
 {
     switch (vt)
     {
@@ -409,19 +396,19 @@ HRESULT VariantTypeToString(const VARTYPE vt, CString &out)
         out = L"VARIANT";
         break;
     default:
-        out.Format(L"<vt: 0x%.4X>", static_cast<unsigned>(vt));
+        out = std::format(L"<vt: 0x{:X}>", static_cast<unsigned>(vt));
         break;
     }
 
     return S_OK;
 }
 
-static HRESULT AddTypeToString(const VARTYPE vt, CString &out)
+static HRESULT AddTypeToString(const VARTYPE vt, std::wstring& out)
 {
-    CString typeName;
+    std::wstring typeName;
     VariantTypeToString(vt, typeName);
 
-    if (out.GetLength() > 0)
+    if (out.size() > 0)
     {
         out += L" (" + typeName + L")";
     }
@@ -433,20 +420,20 @@ static HRESULT AddTypeToString(const VARTYPE vt, CString &out)
     return S_OK;
 }
 
-HRESULT PropVariantToString(PROPVARIANT *pv, const unsigned options, CString &out)
+HRESULT PropVariantToString(PROPVARIANT* pv, const unsigned options, std::wstring& out)
 {
     if (options & PVTSOPTION_IncludeType)
     {
-        out.Format(L"<UnknownType: 0x%.4X>", static_cast<unsigned>(pv->vt));
+        out = std::format(L"<UnknownType: 0x{:X}>", static_cast<unsigned>(pv->vt));
     }
     else
     {
-        out.Empty();
+        out.clear();
     }
 
     if (pv->vt & VT_VECTOR)
     {
-        out.Format(L"%u elements of type 0x%.4X", pv->cac.cElems, pv->vt & ~VT_VECTOR);
+        out = std::format(L"%u elements of type 0x{:X}", pv->cac.cElems, pv->vt & ~VT_VECTOR);
 
         const VARTYPE typ = pv->vt & ~VT_VECTOR;
 
@@ -516,7 +503,7 @@ HRESULT PropVariantToString(PROPVARIANT *pv, const unsigned options, CString &ou
             WriteValues(pv->capropvar.cElems, pv->capropvar.pElems, typ, options, out);
             break;
         default:
-            ATLASSERT(false);
+            ASSERT(false);
             break;
         }
     }
@@ -567,7 +554,7 @@ HRESULT PropVariantToString(PROPVARIANT *pv, const unsigned options, CString &ou
             out = (0 == pv->boolVal) ? L"False" : L"True";
             break;
         case VT_ERROR:
-            out.Format(L"<Error: %u>", static_cast<unsigned>(pv->scode));
+            out = std::format(L"<Error: {}>", static_cast<unsigned>(pv->scode));
             break;
         case VT_CY:
             WriteValue(pv->cyVal, out);
@@ -625,7 +612,7 @@ HRESULT PropVariantToString(PROPVARIANT *pv, const unsigned options, CString &ou
             // capropvar A DWORD type indicator followed by the corresponding value. VT_VARIANT can be used only with VT_VECTOR or VT_BYREF.
             break;
         default:
-            ATLASSERT(false);
+            ASSERT(false);
             break;
         }
 

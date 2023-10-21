@@ -1446,20 +1446,20 @@ HRESULT CMetadataReaderElement::OutputView(IOutputDevice& output, const InfoElem
             IFC(m_reader->GetValueByIndex(i, &schema, &id, &value));
 
             CString k;
-            CString v;
+            std::wstring v;
 
             IFC(TranslateValueID(&id, PVTSOPTION_IncludeType, k));
             IFC(PropVariantToString(&value, PVTSOPTION_IncludeType, v));
 
             if (schema.vt != VT_EMPTY)
             {
-                CString s;
+                std::wstring s;
                 IFC(PropVariantToString(&schema, PVTSOPTION_IncludeType, s));
-                output.AddKeyValue(k + L" [" + s + L"]", v);
+                output.AddKeyValue(k + L" [" + s.c_str() + L"]", v.c_str());
             }
             else
             {
-                output.AddKeyValue(k, v);
+                output.AddKeyValue(k, v.c_str());
             }
 
             PropVariantClear(&id);
@@ -1508,7 +1508,8 @@ HRESULT CMetadataReaderElement::TranslateValueID(PROPVARIANT* pv, const unsigned
     // If that failed, use the string converter
     if (FAILED(result))
     {
-        result = PropVariantToString(pv, options, out);
+        result = PropVariantToString(pv, options, str);
+        out = str.c_str();
     }
     else
     {
