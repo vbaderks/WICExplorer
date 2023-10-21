@@ -1183,7 +1183,6 @@ HRESULT CMainFrame::QueryMetadata(CInfoElement* elem)
     if (parentElem)
     {
         parentElem->m_queryKey = qlpath.m_path;
-        CString v;
         // If there's a child element (might not be true if this is a branch), then
         // read its value. Otherwise, use the parent's path
         if (childPath != L"")
@@ -1194,11 +1193,12 @@ HRESULT CMainFrame::QueryMetadata(CInfoElement* elem)
         {
             rootQueryReader->GetMetadataByName(parentPath, &value);
         }
+        std::wstring v;
         result = PropVariantToString(&value, PVTSOPTION_IncludeType, v);
         PropVariantClear(&value);
         IFC(result);
 
-        parentElem->m_queryValue = v;
+        parentElem->m_queryValue = v.c_str();
         if (elem == parentElem)
         {
             // Redraw the output view with the new query string
