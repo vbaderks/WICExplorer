@@ -21,6 +21,7 @@ export extern IWICImagingFactoryPtr g_imagingFactory;
 export struct InfoElementViewContext
 {
     bool bIsAlphaEnable;
+    bool normalizeHistogram;
 };
 
 export class CInfoElement

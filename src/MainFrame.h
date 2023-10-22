@@ -35,6 +35,7 @@ public:
         COMMAND_ID_HANDLER(ID_SHOW_VIEWPANE, OnShowViewPane)
         COMMAND_ID_HANDLER(ID_SHOW_ALPHA, OnShowAlpha)
         COMMAND_ID_HANDLER(ID_SHOW_INSTALLED_CODECS, OnShowInstalledCodecs)
+        COMMAND_ID_HANDLER(ID_VIEW_NORMALIZE_HISTOGRAM, OnNormalizeHistogram)
         COMMAND_ID_HANDLER(ID_FILE_LOAD, OnContextClick)
         COMMAND_ID_HANDLER(ID_FILE_UNLOAD, OnContextClick)
         COMMAND_ID_HANDLER(ID_FILE_CLOSE, OnContextClick)
@@ -52,7 +53,7 @@ public:
     HRESULT Load(const LPCWSTR *filenames, int count);
 
 private:
-    InfoElementViewContext m_viewcontext{};
+    InfoElementViewContext m_viewcontext{false, true};
 
     HWND CreateClient();
     static int GetElementTreeImage(const CInfoElement *elem) noexcept;
@@ -86,6 +87,7 @@ private:
     LRESULT OnShowViewPane(uint16_t code, uint16_t item, HWND hSender, BOOL& handled);
     LRESULT OnShowAlpha(uint16_t code, uint16_t item, HWND hSender, BOOL& handled);
     static LRESULT OnShowInstalledCodecs(uint16_t, uint16_t, HWND, BOOL&);
+    LRESULT OnNormalizeHistogram(uint16_t code, uint16_t item, HWND hSender, BOOL& handled) noexcept;
     LRESULT OnContextClick(uint16_t code, uint16_t item, HWND hSender, BOOL& handled);
 
     CSplitterWindow m_mainSplit;
