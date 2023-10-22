@@ -46,3 +46,10 @@ The right hand pane displays the contents of the currently highlighted node. Thi
 ### Saving to another image format
 
 WIC Explorer can save an image to any supported WIC encoder; you can also specify the desired pixel format in which to save. Note that not all of the listed pixel formats may be supported by the encoder; it will automatically perform pixel format conversion when necessary. It also will not preserve any metadata in the original image.
+
+### Normalizing the histogram of 16 bit grayscale images
+
+WIC Explorer can normalize the histogram of 16 bit grayscale images.
+This is useful for images that have a very small range of values, as it will stretch the histogram to fill the entire range.
+Typically this is used for medical images, such as exported DICOM images.
+This option is enabled by default, but can be disabled in the view menu.

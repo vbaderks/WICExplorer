@@ -89,6 +89,7 @@ BEGIN
         MENUITEM "Show Alpha",                  ID_SHOW_ALPHA, CHECKED
         MENUITEM SEPARATOR
         MENUITEM "Installed WIC Codecs",        ID_SHOW_INSTALLED_CODECS
+        MENUITEM "Normalize Histogram (16 bit grayscale)", ID_VIEW_NORMALIZE_HISTOGRAM, CHECKED
     END
     POPUP "&Help"
     BEGIN

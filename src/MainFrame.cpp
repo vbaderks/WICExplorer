@@ -1007,6 +1007,27 @@ LRESULT CMainFrame::OnShowInstalledCodecs(uint16_t, uint16_t, HWND, BOOL&)
     return 0;
 }
 
+LRESULT CMainFrame::OnNormalizeHistogram(uint16_t /*code*/, uint16_t item, HWND /*hSender*/, BOOL& handled) noexcept
+{
+    const HMENU menu{GetMenu()};
+    MENUITEMINFO currentState{.cbSize = sizeof currentState, .fMask = MIIM_STATE};
+
+    GetMenuItemInfo(menu, item, false, &currentState);
+    if ((currentState.fState & MFS_CHECKED) == MFS_CHECKED)
+    {
+        m_viewcontext.normalizeHistogram = false;
+        CheckMenuItem(menu, item, MF_UNCHECKED | MF_BYCOMMAND);
+    }
+    else
+    {
+        m_viewcontext.normalizeHistogram = true;
+        CheckMenuItem(menu, item, MF_CHECKED | MF_BYCOMMAND);
+        handled = 1;
+    }
+
+    return 0;
+}
+
 LRESULT CMainFrame::OnContextClick(const uint16_t /*code*/, const uint16_t item, HWND /*hSender*/, BOOL& handled)
 {
     handled = true;

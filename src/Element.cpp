@@ -36,6 +36,68 @@ bool HasAlpha(const GUID& guid) noexcept
         || IsEqualGUID(guid, GUID_WICPixelFormat128bppRGBAFixedPoint);
 }
 
+[[nodiscard]]
+uint16_t GetMaxPixelValue(const uint16_t* pixels, const size_t height, const size_t stride) noexcept {
+    const size_t pixelsPerRow{stride / sizeof(uint16_t)};
+    uint16_t max{};
+
+    for (size_t y{}; y != height; ++y) {
+        const uint16_t* row{pixels + y * pixelsPerRow};
+        for (size_t i{}; i != pixelsPerRow; ++i) {
+            if (row[i] > max) {
+                max = row[i];
+            }
+        }
+    }
+
+    return max;
+}
+
+
+void NormalizeHistogram16BitGrayscale(IWICBitmap* bitmap)
+{
+    uint32_t width;
+    uint32_t height;
+    VERIFY(SUCCEEDED(bitmap->GetSize(&width, &height)));
+
+    IWICBitmapLockPtr bitmapLock;
+    const WICRect completeImage{0, 0, static_cast<int32_t>(width), static_cast<int32_t>(height)};
+    VERIFY(SUCCEEDED(bitmap->Lock(&completeImage, WICBitmapLockWrite, &bitmapLock)));
+
+    uint32_t stride;
+    VERIFY(SUCCEEDED(bitmapLock->GetStride(&stride)));
+
+    void* dataBuffer;
+    uint32_t dataBufferSize;
+    VERIFY(SUCCEEDED(bitmapLock->GetDataPointer(&dataBufferSize, reinterpret_cast<BYTE**>(&dataBuffer))));
+    __assume(dataBuffer != nullptr);
+
+    auto max{GetMaxPixelValue(static_cast<const uint16_t*>(dataBuffer), height, stride)};
+    auto bitsOfData{1};
+    while (max > 1)
+    {
+        max = max >> 1;
+        bitsOfData++;
+    }
+
+    const auto bitShift{16 - bitsOfData};
+    if (bitShift <= 0)
+    {
+        return;
+    }
+
+    const size_t pixelsPerRow{stride / sizeof(uint16_t)};
+    for (size_t y{}; y != height; ++y)
+    {
+        uint16_t* row{static_cast<uint16_t*>(dataBuffer) + y * pixelsPerRow};
+        for (size_t x{}; x != pixelsPerRow; ++x)
+        {
+            WARNING_SUPPRESS_NEXT_LINE(6385 6386)
+            row[x] = row[x] << bitShift;
+        }
+    }
+}
+
 }
 
 
@@ -70,9 +132,9 @@ public:
     ~CProgressiveBitmapSource()
     {
         WARNING_SUPPRESS_NEXT_LINE(26447) // The function is declared 'noexcept' but calls function 'Release()' which may throw exceptions (f.6).
-        m_source->Release();
+            m_source->Release();
         WARNING_SUPPRESS_NEXT_LINE(26447) // The function is declared 'noexcept' but calls function 'Release()' which may throw exceptions (f.6).
-        m_prog->Release();
+            m_prog->Release();
     }
 
     CProgressiveBitmapSource() = delete;
@@ -123,14 +185,14 @@ public:
     HRESULT STDMETHODCALLTYPE GetSize(
         uint32_t* puiWidth,
         uint32_t* puiHeight
-        ) override
+    ) override
     {
         return m_source->GetSize(puiWidth, puiHeight);
     }
 
     HRESULT STDMETHODCALLTYPE GetPixelFormat(
         WICPixelFormatGUID* pPixelFormat
-        ) override
+    ) override
     {
         return m_source->GetPixelFormat(pPixelFormat);
     }
@@ -138,14 +200,14 @@ public:
     HRESULT STDMETHODCALLTYPE GetResolution(
         double* pDpiX,
         double* pDpiY
-        ) override
+    ) override
     {
         return m_source->GetResolution(pDpiX, pDpiY);
     }
 
     HRESULT STDMETHODCALLTYPE CopyPalette(
         IWICPalette* pIPalette
-        ) override
+    ) override
     {
         return m_source->CopyPalette(pIPalette);
     }
@@ -155,7 +217,7 @@ public:
         const uint32_t cbStride,
         const uint32_t cbBufferSize,
         BYTE* pbBuffer
-        ) override
+    ) override
     {
         HRESULT result;
 
@@ -178,7 +240,7 @@ private:
 IWICImagingFactoryPtr g_imagingFactory;
 
 CInfoElement::CInfoElement(const LPCWSTR name)
-    : m_name{ name }
+    : m_name{name}
 {
 
     CElementManager::RegisterElement(this);
@@ -780,35 +842,35 @@ void CBitmapDecoderElement::FillContextMenu(const HMENU context) noexcept
 {
     CComponentInfoElement::FillContextMenu(context);
 
-    MENUITEMINFO itemInfo {
+    MENUITEMINFO itemInfo{
         .cbSize = sizeof itemInfo,
         .fMask = MIIM_FTYPE | MIIM_ID | MIIM_STATE | MIIM_STRING,
         .fType = MFT_STRING,
         .fState = MFS_ENABLED
-        };
+    };
 
     if (m_loaded)
     {
         itemInfo.wID = ID_FILE_SAVE;
         WARNING_SUPPRESS_NEXT_LINE(26465 26492) // Don't use const_cast to cast away const or volatile.
-        itemInfo.dwTypeData = const_cast<LPWSTR>(L"Save As Image...");
+            itemInfo.dwTypeData = const_cast<LPWSTR>(L"Save As Image...");
         VERIFY(InsertMenuItem(context, GetMenuItemCount(context), true, &itemInfo));
 
         itemInfo.wID = ID_FILE_UNLOAD;
         WARNING_SUPPRESS_NEXT_LINE(26465 26492) // Don't use const_cast to cast away const or volatile.
-        itemInfo.dwTypeData = const_cast<LPWSTR>(L"Unload");
+            itemInfo.dwTypeData = const_cast<LPWSTR>(L"Unload");
     }
     else
     {
         itemInfo.wID = ID_FILE_LOAD;
         WARNING_SUPPRESS_NEXT_LINE(26465 26492) // Don't use const_cast to cast away const or volatile.
-        itemInfo.dwTypeData = const_cast<LPWSTR>(L"Load");
+            itemInfo.dwTypeData = const_cast<LPWSTR>(L"Load");
     }
     VERIFY(InsertMenuItem(context, GetMenuItemCount(context), true, &itemInfo));
 
     itemInfo.wID = ID_FILE_CLOSE;
     WARNING_SUPPRESS_NEXT_LINE(26465 26492) // Don't use const_cast to cast away const or volatile.
-    itemInfo.dwTypeData = const_cast<LPWSTR>(L"Close");
+        itemInfo.dwTypeData = const_cast<LPWSTR>(L"Close");
     VERIFY(InsertMenuItem(context, GetMenuItemCount(context), true, &itemInfo));
 }
 
@@ -893,7 +955,7 @@ HRESULT CBitmapDecoderElement::OutputView(IOutputDevice& output, const InfoEleme
 
         // Display the decode time
         WARNING_SUPPRESS_NEXT_LINE(4296) // '<': expression is always false
-        output.AddKeyValue(L"CreationTime", std::format(L"{} ms", m_creationTime).c_str());
+            output.AddKeyValue(L"CreationTime", std::format(L"{} ms", m_creationTime).c_str());
 
         output.EndKeyValues();
 
@@ -1104,6 +1166,15 @@ HRESULT CBitmapSourceElement::OutputView(IOutputDevice& output, const InfoElemen
             source = m_source;
         }
 
+        if (context.normalizeHistogram && pixelFormat == GUID_WICPixelFormat16bppGray)
+        {
+            IWICBitmapPtr bitmap;
+            result = g_imagingFactory->CreateBitmapFromSource(source, WICBitmapCacheOnDemand, &bitmap);
+
+            NormalizeHistogram16BitGrayscale(bitmap);
+            source = bitmap;
+        }
+
         result = CreateDibFromBitmapSource(source, hGlobal, context.bIsAlphaEnable ? &hAlpha : nullptr);
 
         const DWORD renderTime = renderTimer.GetTimeMS();
@@ -1165,15 +1236,13 @@ HRESULT CBitmapSourceElement::CreateDibFromBitmapSource(IWICBitmapSource* source
     IWICFormatConverterPtr formatConverter;
     IFC(g_imagingFactory->CreateFormatConverter(&formatConverter));
 
-    // Init the format converter to output Bgra32
+    // Initialize the format converter to output BGRA 32
     IFC(formatConverter->Initialize(source, GUID_WICPixelFormat32bppBGRA,
         WICBitmapDitherTypeNone, nullptr, 0.0, WICBitmapPaletteTypeCustom));
 
     // Create a FlipRotator because windows requires the bitmap to be bottom-up
     IWICBitmapFlipRotatorPtr flipper;
     IFC(g_imagingFactory->CreateBitmapFlipRotator(&flipper));
-
-    // Init the format converter to output Bgra32
     IFC(flipper->Initialize(formatConverter, WICBitmapTransformFlipVertical));
 
     // Get the size
@@ -1258,7 +1327,7 @@ HRESULT CBitmapSourceElement::CreateDibFromBitmapSource(IWICBitmapSource* source
         bmih2->biHeight = height;
         bmih2->biSizeImage = stride * height;
 
-        // Fill the dibpixels with alpha values:
+        // Fill the dib pixels with alpha values:
         for (unsigned y = 0; y < height; y++)
         {
             for (unsigned x = 0; x < width; x++)
