@@ -3,8 +3,6 @@
 
 module;
 
-#include <atlstr.h>
-
 #include "Macros.h"
 #include "ComSmartPointers.h"
 
@@ -37,7 +35,8 @@ public:
     CInfoElement& operator=(const CInfoElement&) = default;
     CInfoElement& operator=(CInfoElement&&) = default;
 
-    [[nodiscard]] const std::wstring& Name() const noexcept
+    [[nodiscard]]
+    const std::wstring& Name() const noexcept
     {
         return m_name;
     }
@@ -49,10 +48,10 @@ public:
 
     virtual HRESULT OutputView(IOutputDevice& output, const InfoElementViewContext& /*context*/)
     {
-        if (m_queryKey != L"")
+        if (!m_queryKey.empty())
         {
             output.BeginKeyValues(L"Metadata Query Result");
-            output.AddKeyValue(m_queryKey, m_queryValue);
+            output.AddKeyValue(m_queryKey.c_str(), m_queryValue.c_str());
             output.EndKeyValues();
             output.EndSection();
         }
@@ -64,22 +63,26 @@ public:
         return S_OK;
     }
 
-    [[nodiscard]] CInfoElement* Parent() const noexcept
+    [[nodiscard]]
+    CInfoElement* Parent() const noexcept
     {
         return m_parent;
     }
 
-    [[nodiscard]] CInfoElement* NextSibling() const noexcept
+    [[nodiscard]]
+    CInfoElement* NextSibling() const noexcept
     {
         return m_nextSibling;
     }
 
-    [[nodiscard]] CInfoElement* FirstChild() const noexcept
+    [[nodiscard]]
+    CInfoElement* FirstChild() const noexcept
     {
         return m_firstChild;
     }
 
-    [[nodiscard]] BOOL IsChild(const CInfoElement* element) const noexcept
+    [[nodiscard]]
+    BOOL IsChild(const CInfoElement* element) const noexcept
     {
         CInfoElement* child = FirstChild();
         while (child)
@@ -130,8 +133,8 @@ public:
         return E_NOTIMPL;
     }
 
-    ATL::CString m_queryKey;
-    ATL::CString m_queryValue;
+    std::wstring m_queryKey;
+    std::wstring m_queryValue;
 
 protected:
     std::wstring m_name;
@@ -164,8 +167,8 @@ public:
     static HRESULT CreateMetadataElementsFromBlock(CInfoElement* parent, IWICMetadataBlockReader* blockReader, ICodeGenerator& codeGen);
     static HRESULT CreateMetadataElements(CInfoElement* parent, uint32_t childIdx, IWICMetadataReader* reader, ICodeGenerator& codeGen);
 
-    static ATL::CString queryKey;
-    static ATL::CString queryValue;
+    static std::wstring queryKey;
+    static std::wstring queryValue;
 
 private:
     static CInfoElement root;
@@ -205,7 +208,8 @@ public:
     // Releases the decoder and child objects but keeps the filename
     void Unload();
 
-    [[nodiscard]] bool IsLoaded() const noexcept
+    [[nodiscard]]
+    bool IsLoaded() const noexcept
     {
         return m_loaded;
     }
@@ -220,10 +224,10 @@ public:
     void FillContextMenu(HMENU context) noexcept override;
 
 private:
-    ATL::CString              m_filename;
+    std::wstring         m_filename;
     IWICBitmapDecoderPtr m_decoder;
     DWORD                m_creationTime{};
-    ATL::CString              m_creationCode;
+    std::wstring         m_creationCode;
     bool                 m_loaded{};
 };
 
@@ -295,8 +299,8 @@ public:
     }
 
 private:
-    HRESULT TranslateValueID(PROPVARIANT* pv, unsigned options, ATL::CString& out) const;
-    static HRESULT TrimQuotesFromName(ATL::CString& out);
+    HRESULT TranslateValueID(PROPVARIANT* pv, unsigned options, std::wstring& out) const;
+    static HRESULT TrimQuotesFromName(std::wstring& out);
     HRESULT SetNiceName(const CInfoElement* parent, uint32_t idx);
 
     IWICMetadataReaderPtr m_reader;
