@@ -7,7 +7,6 @@ module;
 #include "resource.h"
 #include "ComSmartPointers.h"
 
-#include <atlstr.h>
 #include <atlres.h>
 
 #include <cwctype>
@@ -329,11 +328,8 @@ HRESULT CBitmapDecoderElement::Load(ICodeGenerator& codeGen)
     Unload();
     codeGen.BeginVariableScope(L"IWICBitmapDecoder*", L"decoder", L"nullptr");
 
-#pragma warning(push)
-#pragma warning(disable : 4296) // '<': expression is always false [known problem in MSVC/STL, solved in VS 2022, 17.5, but 17.5 has critical flaw in named modules]
-    codeGen.CallFunction(std::format(L"imagingFactory->CreateDecoderFromFilename(\"{}\", nullptr, GENERIC_READ, WICDecodeMetadataCacheOnDemand, &decoder);", m_filename.GetString()));
-#pragma warning(pop)
-    IFC(g_imagingFactory->CreateDecoderFromFilename(m_filename, nullptr, GENERIC_READ, WICDecodeMetadataCacheOnDemand, &m_decoder));
+    codeGen.CallFunction(std::format(L"imagingFactory->CreateDecoderFromFilename(\"{}\", nullptr, GENERIC_READ, WICDecodeMetadataCacheOnDemand, &decoder);", m_filename));
+    IFC(g_imagingFactory->CreateDecoderFromFilename(m_filename.c_str(), nullptr, GENERIC_READ, WICDecodeMetadataCacheOnDemand, &m_decoder));
 
     // For each of the frames, create an element
     uint32_t frameCount = 0;
@@ -585,7 +581,7 @@ void CElementManager::ClearAllElements() noexcept
 
 void CElementManager::AddSiblingToElement(CInfoElement* element, CInfoElement* sib) noexcept
 {
-    ATLASSERT(element);
+    ASSERT(element);
 
     if (element)
     {
@@ -603,7 +599,7 @@ void CElementManager::AddSiblingToElement(CInfoElement* element, CInfoElement* s
 
 void CElementManager::AddChildToElement(CInfoElement* element, CInfoElement* child) noexcept
 {
-    ATLASSERT(element);
+    ASSERT(element);
 
     if (element)
     {
@@ -882,13 +878,13 @@ HRESULT CBitmapDecoderElement::OutputView(IOutputDevice& output, const InfoEleme
         return S_OK;
     }
 
-    ATLASSERT(m_decoder);
+    ASSERT(m_decoder);
 
     if (m_decoder)
     {
         output.BeginKeyValues(L"");
 
-        output.AddKeyValue(L"Filename", m_filename);
+        output.AddKeyValue(L"Filename", m_filename.c_str());
 
         // Get the number of frames
         uint32_t numFrames;
@@ -914,10 +910,10 @@ HRESULT CBitmapDecoderElement::OutputView(IOutputDevice& output, const InfoEleme
         }
 
         // Show the code
-        if (m_creationCode.GetLength() > 0)
+        if (!m_creationCode.empty())
         {
             output.BeginSection(L"Creation Code");
-            output.AddVerbatimText(m_creationCode);
+            output.AddVerbatimText(m_creationCode.c_str());
             output.EndSection();
         }
     }
@@ -989,7 +985,7 @@ HRESULT CBitmapSourceElement::OutputView(IOutputDevice& output, const InfoElemen
 {
     HRESULT result;
 
-    ATLASSERT(m_source);
+    ASSERT(m_source);
 
     IFC(CInfoElement::OutputView(output, context));
     if (m_source)
@@ -1191,7 +1187,7 @@ HRESULT CBitmapSourceElement::CreateDibFromBitmapSource(IWICBitmapSource* source
 
     // Allocate the DIB bytes
     hGlobal = GlobalAlloc(GMEM_MOVEABLE, dibSize);
-    ATLASSERT(hGlobal);
+    ASSERT(hGlobal);
 
     if (nullptr == hGlobal)
     {
@@ -1199,7 +1195,7 @@ HRESULT CBitmapSourceElement::CreateDibFromBitmapSource(IWICBitmapSource* source
     }
 
     BYTE* dibBytes = static_cast<BYTE*>(GlobalLock(hGlobal));
-    ATLASSERT(dibBytes);
+    ASSERT(dibBytes);
 
     if (nullptr == dibBytes)
     {
@@ -1241,7 +1237,7 @@ HRESULT CBitmapSourceElement::CreateDibFromBitmapSource(IWICBitmapSource* source
 
         BYTE* dibAlphaBytes = static_cast<BYTE*>(GlobalLock(*phAlpha));
 
-        ATLASSERT(dibAlphaBytes);
+        ASSERT(dibAlphaBytes);
         if (nullptr == dibAlphaBytes)
         {
             GlobalFree(*phAlpha);
@@ -1329,7 +1325,7 @@ HRESULT CBitmapFrameDecodeElement::OutputView(IOutputDevice& output, const InfoE
 {
     HRESULT result = S_OK;
 
-    ATLASSERT(m_frameDecode);
+    ASSERT(m_frameDecode);
 
     if (m_frameDecode)
     {
@@ -1377,7 +1373,7 @@ HRESULT CMetadataReaderElement::SetNiceName(const CInfoElement* parent, const ui
 
         // Next, try to get the name that our parent gave us. We can do this
         // only if our parent is a CMetadataReaderElement
-        CString pn;
+        std::wstring pn;
         const auto* mre = dynamic_cast<const CMetadataReaderElement*>(parent);
         if (mre)
         {
@@ -1395,7 +1391,7 @@ HRESULT CMetadataReaderElement::SetNiceName(const CInfoElement* parent, const ui
         }
 
         // Merge them into a name
-        if (pn.GetLength() > 0)
+        if (!pn.empty())
         {
             m_name = pn + (std::wstring{L" ("} + friendlyName + L")").c_str();
         }
@@ -1412,10 +1408,9 @@ HRESULT CMetadataReaderElement::SetNiceName(const CInfoElement* parent, const ui
     return result;
 }
 
-HRESULT CMetadataReaderElement::TrimQuotesFromName(CString& out)
+HRESULT CMetadataReaderElement::TrimQuotesFromName(std::wstring& out)
 {
-    out.TrimLeft(L'\"');
-    out.TrimRight(L'\"');
+    out.erase(remove(out.begin(), out.end(), '\"'), out.end());
 
     return S_OK;
 }
@@ -1424,7 +1419,7 @@ HRESULT CMetadataReaderElement::OutputView(IOutputDevice& output, const InfoElem
 {
     HRESULT result = S_OK;
 
-    ATLASSERT(m_reader);
+    ASSERT(m_reader);
 
     IFC(CComponentInfoElement::OutputView(output, context));
 
@@ -1445,7 +1440,7 @@ HRESULT CMetadataReaderElement::OutputView(IOutputDevice& output, const InfoElem
 
             IFC(m_reader->GetValueByIndex(i, &schema, &id, &value));
 
-            CString k;
+            std::wstring k;
             std::wstring v;
 
             IFC(TranslateValueID(&id, PVTSOPTION_IncludeType, k));
@@ -1455,11 +1450,11 @@ HRESULT CMetadataReaderElement::OutputView(IOutputDevice& output, const InfoElem
             {
                 std::wstring s;
                 IFC(PropVariantToString(&schema, PVTSOPTION_IncludeType, s));
-                output.AddKeyValue(k + L" [" + s.c_str() + L"]", v.c_str());
+                output.AddKeyValue((k + L" [" + s.c_str() + L"]").c_str(), v.c_str());
             }
             else
             {
-                output.AddKeyValue(k, v.c_str());
+                output.AddKeyValue(k.c_str(), v.c_str());
             }
 
             PropVariantClear(&id);
@@ -1477,7 +1472,7 @@ HRESULT CMetadataReaderElement::OutputInfo(IOutputDevice& output) noexcept(false
 {
     HRESULT result = S_OK;
 
-    ATLASSERT(m_reader);
+    ASSERT(m_reader);
 
     if (m_reader)
     {
@@ -1491,7 +1486,7 @@ HRESULT CMetadataReaderElement::OutputInfo(IOutputDevice& output) noexcept(false
     return result;
 }
 
-HRESULT CMetadataReaderElement::TranslateValueID(PROPVARIANT* pv, const unsigned options, CString& out) const
+HRESULT CMetadataReaderElement::TranslateValueID(PROPVARIANT* pv, const unsigned options, std::wstring& out) const
 {
     HRESULT result = S_OK;
 
