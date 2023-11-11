@@ -50,7 +50,7 @@ public:
         CHAIN_MSG_MAP(CFrameWindowImpl<CMainFrame>)
     END_MSG_MAP()
 
-    HRESULT Load(const LPCWSTR *filenames, int count);
+    HRESULT Load(const PCWSTR *filenames, int count);
 
 private:
     InfoElementViewContext m_viewcontext{false, true};
@@ -58,11 +58,11 @@ private:
     HWND CreateClient();
     static int GetElementTreeImage(const CInfoElement *elem) noexcept;
     // Opens a single file
-    HRESULT OpenFile(LPCWSTR filename, bool &updateElements);
+    HRESULT OpenFile(PCWSTR filename, bool &updateElements);
     // Opens files based on a wildcard expression (not recursive)
-    HRESULT OpenWildcard(LPCWSTR search, DWORD &attempted, DWORD &opened, bool &updateElements);
+    HRESULT OpenWildcard(PCWSTR search, DWORD &attempted, DWORD &opened, bool &updateElements);
     // Opens images recursively in a directory
-    HRESULT OpenDirectory(LPCWSTR directory, DWORD &attempted, DWORD &opened);
+    HRESULT OpenDirectory(PCWSTR directory, DWORD &attempted, DWORD &opened);
     void UpdateTreeView(bool selectLastRoot);
     HTREEITEM BuildTree(const CInfoElement *elem, HTREEITEM hParent);
     static BOOL DoElementContextMenu(HWND hWnd, CInfoElement &element, POINT point) noexcept;
@@ -76,7 +76,7 @@ private:
     HRESULT QueryMetadata(CInfoElement* elem);
 
     LRESULT OnCreate(uint32_t, WPARAM, LPARAM, BOOL&);
-    LRESULT OnNMRClick(int , LPNMHDR pnmh, BOOL&);
+    LRESULT OnNMRClick(int , NMHDR* pnmh, BOOL&);
     LRESULT OnTreeViewSelChanged(WPARAM wParam, const NMHDR* lpNmHdr, BOOL &bHandled);
     LRESULT OnPaneClose(uint16_t, uint16_t, HWND hWndCtl, BOOL&) const;
     LRESULT OnFileOpen(uint16_t, uint16_t, HWND, BOOL&);

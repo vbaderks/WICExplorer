@@ -23,15 +23,15 @@ public:
     COLORREF SetTextColor(COLORREF color) override;
     void SetHighlightColor(COLORREF color) noexcept(false) override;
 
-    void SetFontName(LPCWSTR name) noexcept(false) override;
+    void SetFontName(PCWSTR name) noexcept(false) override;
     int SetFontSize(int pointSize) override;
 
-    void BeginSection(LPCWSTR name) override;
-    void AddText(LPCWSTR name) override;
-    void AddVerbatimText(LPCWSTR name) override;
+    void BeginSection(PCWSTR name) override;
+    void AddText(PCWSTR name) override;
+    void AddVerbatimText(PCWSTR name) override;
     void AddDib(HGLOBAL hBitmap) override;
-    void BeginKeyValues(LPCWSTR name) override;
-    void AddKeyValue(LPCWSTR key, LPCWSTR value) override;
+    void BeginKeyValues(PCWSTR name) override;
+    void AddKeyValue(PCWSTR key, PCWSTR value) override;
     void EndKeyValues() override;
     void EndSection() noexcept override;
 

@@ -20,7 +20,7 @@ public:
     CImageTransencoder& operator=(const CImageTransencoder&) = default;
     CImageTransencoder& operator=(CImageTransencoder&&) = default;
 
-    HRESULT Begin(REFCLSID containerFormat, LPCWSTR filename, ICodeGenerator &codeGen);
+    HRESULT Begin(REFCLSID containerFormat, PCWSTR filename, ICodeGenerator &codeGen);
     HRESULT AddFrame(IWICBitmapSource* bitmapSource);
     HRESULT SetThumbnail(IWICBitmapSource* thumb) const;
     HRESULT SetPreview(IWICBitmapSource* preview) const;

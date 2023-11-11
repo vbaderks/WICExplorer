@@ -63,7 +63,7 @@ constexpr array g_wicErrorCodes{
 std::wstring GetHresultString(HRESULT hr)
 {
     const auto knownError = std::find_if(g_wicErrorCodes.begin(), g_wicErrorCodes.end(),
-        [=](const pair<HRESULT, LPCWSTR>& x) { return x.first == hr; });
+        [=](const pair<HRESULT, PCWSTR>& x) { return x.first == hr; });
 
     if (FACILITY_WINCODEC_ERR == HRESULT_FACILITY(hr) && knownError != g_wicErrorCodes.end())
     {
@@ -98,8 +98,5 @@ std::wstring GetHresultString(HRESULT hr)
         return msg;
     }
 
-#pragma warning(push)
-#pragma warning(disable : 4296) // '<': expression is always false [known problem in MSVC/STL, solved in VS 2022, 17.5, but 17.5 has critical flaw in named modules]
     return std::format(L"{:#8X}", hr);
-#pragma warning(pop)
 }

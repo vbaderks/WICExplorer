@@ -19,7 +19,7 @@ template<class T> static void WriteValue(const T& /*val*/, std::wstring& out)
     out = L"<UnknownValue>";
 }
 
-template<class T> static LPCWSTR GetTypeName()
+template<class T> static PCWSTR GetTypeName()
 {
     return L"<UnknownType>";
 }
@@ -44,19 +44,19 @@ template<> PCWSTR GetTypeName<UCHAR>() noexcept
     return L"UCHAR";
 }
 
-template<> void WriteValue<SHORT>(const SHORT& val, std::wstring& out)
+template<> void WriteValue<short>(const short& val, std::wstring& out)
 {
     out = std::format(L"{}", static_cast<int>(val));
 }
 
-template<> PCWSTR GetTypeName<SHORT>() noexcept
+template<> PCWSTR GetTypeName<short>() noexcept
 {
     return L"SHORT";
 }
 
-template<> void WriteValue<USHORT>(const USHORT& val, std::wstring& out)
+template<> void WriteValue<unsigned short>(const unsigned short& val, std::wstring& out)
 {
-    out = std::format(L"{}", static_cast<unsigned>(val));
+    out = std::format(L"{}", val);
 }
 
 template<> PCWSTR GetTypeName<USHORT>() noexcept
@@ -64,32 +64,32 @@ template<> PCWSTR GetTypeName<USHORT>() noexcept
     return L"USHORT";
 }
 
-template<> void WriteValue<LONG>(const LONG& val, std::wstring& out)
+template<> void WriteValue<long>(const long& val, std::wstring& out)
 {
     out = std::format(L"{}", static_cast<int>(val));
 }
 
-template<> PCWSTR GetTypeName<LONG>() noexcept
+template<> PCWSTR GetTypeName<long>() noexcept
 {
     return L"LONG";
 }
 
-template<> void WriteValue<ULONG>(const ULONG& val, std::wstring& out)
+template<> void WriteValue<unsigned long>(const unsigned long& val, std::wstring& out)
 {
     out = std::format(L"{}", static_cast<unsigned>(val));
 }
 
-template<> PCWSTR GetTypeName<ULONG>() noexcept
+template<> PCWSTR GetTypeName<unsigned long>() noexcept
 {
     return L"ULONG";
 }
 
-template<> void WriteValue<INT>(const INT& val, std::wstring& out)
+template<> void WriteValue<int>(const int& val, std::wstring& out)
 {
     out = std::format(L"{}", static_cast<int>(val));
 }
 
-template<> PCWSTR GetTypeName<INT>() noexcept
+template<> PCWSTR GetTypeName<int>() noexcept
 {
     return L"INT";
 }
@@ -140,22 +140,22 @@ template<> PCWSTR GetTypeName<ULARGE_INTEGER>() noexcept
     return L"ULARGE_INTEGER";
 }
 
-template<> void WriteValue<FLOAT>(const FLOAT& val, std::wstring& out)
+template<> void WriteValue<float>(const float& val, std::wstring& out)
 {
     out = std::to_wstring(val).c_str();
 }
 
-template<> PCWSTR GetTypeName<FLOAT>() noexcept
+template<> PCWSTR GetTypeName<float>() noexcept
 {
     return L"FLOAT";
 }
 
-template<> void WriteValue<DOUBLE>(const DOUBLE& val, std::wstring& out)
+template<> void WriteValue<double>(const double& val, std::wstring& out)
 {
     out = std::to_wstring(val).c_str();
 }
 
-template<> PCWSTR GetTypeName<DOUBLE>() noexcept
+template<> PCWSTR GetTypeName<double>() noexcept
 {
     return L"DOUBLE";
 }
@@ -217,7 +217,7 @@ template<> PCWSTR GetTypeName<PSTR>() noexcept
     return L"PSTR";
 }
 
-template<> void WriteValue<LPWSTR>(const LPWSTR& val, std::wstring& out)
+template<> void WriteValue<PWSTR>(const PWSTR& val, std::wstring& out)
 {
     out = L"\"" + std::wstring(val) + L"\"";
 }

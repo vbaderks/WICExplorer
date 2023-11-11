@@ -14,8 +14,8 @@ import Util;
 
 namespace {
 
-LPCWSTR NormalFontName = L"Verdana";
-LPCWSTR VerbatimFontName = L"Lucida Console";
+PCWSTR NormalFontName = L"Verdana";
+PCWSTR VerbatimFontName = L"Lucida Console";
 
 constexpr auto TEXT_SIZE{10};
 
@@ -60,7 +60,7 @@ void CRichEditDevice::SetHighlightColor(const COLORREF color) noexcept(false)
     m_richEditCtrl.SendMessage(EM_SETCHARFORMAT, SCF_SELECTION | SCF_WORD, reinterpret_cast<LPARAM>(&cf));
 }
 
-void CRichEditDevice::SetFontName(const LPCWSTR name) noexcept(false)
+void CRichEditDevice::SetFontName(const PCWSTR name) noexcept(false)
 {
     CHARFORMAT2 cf{{.cbSize = sizeof cf}, FW_NORMAL};
 
@@ -92,7 +92,7 @@ int CRichEditDevice::SetFontSize(const int pointSize)
     return result;
 }
 
-void CRichEditDevice::BeginSection(const LPCWSTR name)
+void CRichEditDevice::BeginSection(const PCWSTR name)
 {
     // Add this new level to the output stack
     m_sections.push_back(std::wstring{name});
@@ -115,12 +115,12 @@ void CRichEditDevice::BeginSection(const LPCWSTR name)
     }
 }
 
-void CRichEditDevice::AddText(const LPCWSTR name)
+void CRichEditDevice::AddText(const PCWSTR name)
 {
     m_richEditCtrl.AppendText(name);
 }
 
-void CRichEditDevice::AddVerbatimText(const LPCWSTR name)
+void CRichEditDevice::AddVerbatimText(const PCWSTR name)
 {
     SetFontName(VerbatimFontName);
     m_richEditCtrl.AppendText(name);
@@ -129,7 +129,7 @@ void CRichEditDevice::AddVerbatimText(const LPCWSTR name)
 
 void CRichEditDevice::AddDib(const HGLOBAL hBitmap)
 {
-    IRichEditOle* oleInterface = m_richEditCtrl.GetOleInterface();
+    IRichEditOle* oleInterface{m_richEditCtrl.GetOleInterface()};
 
     if (oleInterface)
     {
@@ -137,12 +137,9 @@ void CRichEditDevice::AddDib(const HGLOBAL hBitmap)
 
         if (FAILED(result))
         {
-            const COLORREF oldColor = SetTextColor(RGB(255, 0, 0));
-#pragma warning(push)
-#pragma warning(disable : 4296) // '<': expression is always false
+            const COLORREF oldColor{SetTextColor(RGB(255, 0, 0))};
             AddText(std::format(L"Failed to render bitmap: {}\n", GetHresultString(result)).c_str());
             SetTextColor(oldColor);
-#pragma warning(pop)
         }
         else
         {
@@ -153,7 +150,7 @@ void CRichEditDevice::AddDib(const HGLOBAL hBitmap)
     }
 }
 
-void CRichEditDevice::BeginKeyValues(const LPCWSTR name)
+void CRichEditDevice::BeginKeyValues(const PCWSTR name)
 {
     // Write the heading if one was specified
     if ((nullptr != name) && (L'\0' != *name))
@@ -168,7 +165,7 @@ void CRichEditDevice::BeginKeyValues(const LPCWSTR name)
     }
 }
 
-void CRichEditDevice::AddKeyValue(const LPCWSTR key, const LPCWSTR value)
+void CRichEditDevice::AddKeyValue(const PCWSTR key, const PCWSTR value)
 {
     const COLORREF oldColor = SetTextColor(RGB(0, 128, 0));
 
