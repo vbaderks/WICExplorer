@@ -27,7 +27,7 @@ export struct InfoElementViewContext
 export class CInfoElement
 {
 public:
-    explicit CInfoElement(LPCWSTR name);
+    explicit CInfoElement(PCWSTR name);
     virtual ~CInfoElement();
 
     CInfoElement() = delete;
@@ -152,7 +152,7 @@ private:
 export class CElementManager
 {
 public:
-    static HRESULT OpenFile(LPCWSTR filename, ICodeGenerator& codeGen, CInfoElement*& decElem);
+    static HRESULT OpenFile(PCWSTR filename, ICodeGenerator& codeGen, CInfoElement*& decElem);
 
     static void RegisterElement(CInfoElement* element)  noexcept;
     static void ClearAllElements() noexcept;
@@ -162,8 +162,8 @@ public:
 
     static CInfoElement* GetRootElement() noexcept;
 
-    static HRESULT SaveElementAsImage(CInfoElement& element, REFGUID containerFormat, WICPixelFormatGUID& format, LPCWSTR filename, ICodeGenerator& codeGen);
-    static HRESULT CreateDecoderAndChildElements(LPCWSTR filename, ICodeGenerator& codeGen, CInfoElement*& decElem);
+    static HRESULT SaveElementAsImage(CInfoElement& element, REFGUID containerFormat, WICPixelFormatGUID& format, PCWSTR filename, ICodeGenerator& codeGen);
+    static HRESULT CreateDecoderAndChildElements(PCWSTR filename, ICodeGenerator& codeGen, CInfoElement*& decElem);
     static HRESULT CreateFrameAndChildElements(CInfoElement* parent, uint32_t index, IWICBitmapFrameDecode* frameDecode, ICodeGenerator& codeGen);
     static HRESULT CreateMetadataElementsFromBlock(CInfoElement* parent, IWICMetadataBlockReader* blockReader, ICodeGenerator& codeGen);
     static HRESULT CreateMetadataElements(CInfoElement* parent, uint32_t childIdx, IWICMetadataReader* reader, ICodeGenerator& codeGen);
@@ -178,7 +178,7 @@ private:
 class CComponentInfoElement : public CInfoElement
 {
 public:
-    explicit CComponentInfoElement(const LPCWSTR name)
+    explicit CComponentInfoElement(const PCWSTR name)
         : CInfoElement(name)
     {
     }
@@ -192,7 +192,7 @@ public:
 export class CBitmapDecoderElement final : public CComponentInfoElement
 {
 public:
-    explicit CBitmapDecoderElement(const LPCWSTR filename)
+    explicit CBitmapDecoderElement(const PCWSTR filename)
         : CComponentInfoElement(filename)
         , m_filename(filename)
     {
@@ -221,7 +221,7 @@ public:
     HRESULT OutputInfo(IOutputDevice& output) noexcept(false) override;
 
     void SetCreationTime(DWORD ms) noexcept;
-    void SetCreationCode(LPCWSTR code);
+    void SetCreationCode(PCWSTR code);
     void FillContextMenu(HMENU context) noexcept override;
 
 private:
@@ -235,7 +235,7 @@ private:
 export class CBitmapSourceElement : public CInfoElement
 {
 public:
-    CBitmapSourceElement(const LPCWSTR name, IWICBitmapSource* source)
+    CBitmapSourceElement(const PCWSTR name, IWICBitmapSource* source)
         : CInfoElement(name)
         , m_source(source)
     {

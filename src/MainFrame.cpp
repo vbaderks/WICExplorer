@@ -239,7 +239,7 @@ void CMainFrame::UpdateTreeView(const bool selectLastRoot)
     }
 }
 
-HRESULT CMainFrame::OpenFile(const LPCWSTR filename, bool& updateElements)
+HRESULT CMainFrame::OpenFile(const PCWSTR filename, bool& updateElements)
 {
     updateElements = false;
 
@@ -258,27 +258,18 @@ HRESULT CMainFrame::OpenFile(const LPCWSTR filename, bool& updateElements)
 
         if (result == E_FAIL)
         {
-#pragma warning(push)
-#pragma warning(disable : 4296) // '<': expression is always false
             msg = std::format(L"File \"{}\" loaded but contained 0 frames.\n\n", filename);
-#pragma warning(pop)
         }
         else
         {
-#pragma warning(push)
-#pragma warning(disable : 4296) // '<': expression is always false
             msg = std::format(L"Unable to load the file \"{}\". The error is: {}.\n\n", filename, GetHresultString(result));
-#pragma warning(pop)
         }
 
         if (nullptr != newRoot)
         {
             updateElements = true;
-#pragma warning(push)
-#pragma warning(disable : 4296) // '<': expression is always false
             msg = std::format(L"Unable to completely load the file \"{}\". The error is: {}. Some parts of the file may still be viewed.\n\n",
                 filename, GetHresultString(result));
-#pragma warning(pop)
         }
 
         msg += codeGen.GenerateCode();
@@ -292,7 +283,7 @@ HRESULT CMainFrame::OpenFile(const LPCWSTR filename, bool& updateElements)
     return result;
 }
 
-HRESULT CMainFrame::OpenWildcard(const LPCWSTR search, DWORD& attempted, DWORD& opened, bool& updateElements)
+HRESULT CMainFrame::OpenWildcard(const PCWSTR search, DWORD& attempted, DWORD& opened, bool& updateElements)
 {
     updateElements = false;
     HRESULT hr = S_OK;
@@ -364,7 +355,7 @@ HRESULT CMainFrame::OpenWildcard(const LPCWSTR search, DWORD& attempted, DWORD& 
     return hr;
 }
 
-HRESULT CMainFrame::Load(const LPCWSTR* filenames, const int count)
+HRESULT CMainFrame::Load(const PCWSTR* filenames, const int count)
 {
     HRESULT result = S_OK;
     bool needsUpdate{};
@@ -457,7 +448,7 @@ LRESULT CMainFrame::OnFileOpen(uint16_t, uint16_t, const HWND hParentWnd, BOOL&)
     return 0;
 }
 
-HRESULT CMainFrame::OpenDirectory(const LPCWSTR directory, DWORD& attempted, DWORD& opened)
+HRESULT CMainFrame::OpenDirectory(const PCWSTR directory, DWORD& attempted, DWORD& opened)
 {
     HRESULT hr = S_OK;
     WIN32_FIND_DATA fdata;
@@ -595,7 +586,7 @@ LRESULT CMainFrame::OnTreeViewSelChanged(WPARAM /*wParam*/, const NMHDR* lpNmHdr
     return 0;
 }
 
-LRESULT CMainFrame::OnNMRClick(int, const LPNMHDR pnmh, BOOL&)
+LRESULT CMainFrame::OnNMRClick(int, NMHDR* pnmh, BOOL&)
 {
     // Get the location of the click point in the window
     POINT pt;

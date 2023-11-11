@@ -55,7 +55,7 @@ void CImageTransencoder::Clear() noexcept
     m_numPalettedFrames = 0;
 }
 
-HRESULT CImageTransencoder::Begin(REFGUID containerFormat, const LPCWSTR filename, ICodeGenerator &codeGen)
+HRESULT CImageTransencoder::Begin(REFGUID containerFormat, const PCWSTR filename, ICodeGenerator &codeGen)
 {
     HRESULT result = S_OK;
 
@@ -69,10 +69,7 @@ HRESULT CImageTransencoder::Begin(REFGUID containerFormat, const LPCWSTR filenam
     m_codeGen->CallFunction(L"imagingFactory->CreateStream(&stream);");
     IFC(g_imagingFactory->CreateStream(&m_stream));
 
-#pragma warning(push)
-#pragma warning(disable : 4296) // '<': expression is always false [known problem in MSVC/STL, solved in VS 2022, 17.5, but 17.5 has critical flaw in named modules]
     m_codeGen->CallFunction(std::format(L"stream->InitializeFromFilename(\"{}\", GENERIC_WRITE);", filename));
-#pragma warning(pop)
     IFC(m_stream->InitializeFromFilename(filename, GENERIC_WRITE));
 
     // Create the encoder

@@ -26,7 +26,7 @@ import <std.h>;
 
 
 
-int Run(CAppModule& appModule, const LPCWSTR lpCmdLine, const int nCmdShow)
+int Run(CAppModule& appModule, const PCWSTR lpCmdLine, const int nCmdShow)
 {
     CMessageLoop msgLoop;
     appModule.AddMessageLoop(&msgLoop);
@@ -46,7 +46,7 @@ int Run(CAppModule& appModule, const LPCWSTR lpCmdLine, const int nCmdShow)
 
     // Load the files
     int argc;
-    LPWSTR* argv = CommandLineToArgvW(lpCmdLine, &argc);
+    PWSTR* argv = CommandLineToArgvW(lpCmdLine, &argc);
 
     // If argc == 0, then lpCmdLine is the name of the executable (WICExplorer)
     if (*lpCmdLine != 0)
@@ -68,7 +68,7 @@ int Run(CAppModule& appModule, const LPCWSTR lpCmdLine, const int nCmdShow)
 
 WARNING_SUPPRESS_NEXT_LINE(26461) // The pointer argument 'lpCmdLine' for function 'wWinMain' can be marked as a pointer to const (con.3).
 _Use_decl_annotations_
-int WINAPI wWinMain(const HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, const LPWSTR lpCmdLine, const int nShowCmd)
+int WINAPI wWinMain(const HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, const PWSTR lpCmdLine, const int nShowCmd)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
@@ -95,11 +95,8 @@ int WINAPI wWinMain(const HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, cons
     ATLASSERT(SUCCEEDED(hr));
     if (FAILED(hr))
     {
-#pragma warning(push)
-#pragma warning(disable : 4296) // '<': expression is always false
         MessageBoxW(nullptr, std::format(L"Unable to create ImagingFactory. The error is: {}.", GetHresultString(hr)).c_str(),
             L"Error Creating ImagingFactory", MB_ICONERROR);
-#pragma warning(pop)
     }
 
     // Initialize the RichEdit library

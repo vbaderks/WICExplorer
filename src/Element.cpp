@@ -239,7 +239,7 @@ private:
 
 IWICImagingFactoryPtr g_imagingFactory;
 
-CInfoElement::CInfoElement(const LPCWSTR name)
+CInfoElement::CInfoElement(const PCWSTR name)
     : m_name{name}
 {
 
@@ -335,7 +335,7 @@ void CInfoElement::RemoveChild(CInfoElement* child) noexcept
     delete child;
 }
 
-HRESULT CElementManager::OpenFile(const LPCWSTR filename, ICodeGenerator& codeGen, CInfoElement*& decElem)
+HRESULT CElementManager::OpenFile(const PCWSTR filename, ICodeGenerator& codeGen, CInfoElement*& decElem)
 {
     HRESULT result = E_UNEXPECTED;
 
@@ -474,7 +474,7 @@ HRESULT CBitmapDecoderElement::Load(ICodeGenerator& codeGen)
     return (FAILED(lastFailResult)) ? lastFailResult : result;
 }
 
-HRESULT CElementManager::CreateDecoderAndChildElements(const LPCWSTR filename, ICodeGenerator& codeGen, CInfoElement*& decElem)
+HRESULT CElementManager::CreateDecoderAndChildElements(const PCWSTR filename, ICodeGenerator& codeGen, CInfoElement*& decElem)
 {
     decElem = std::make_unique<CBitmapDecoderElement>(filename).release();
     const HRESULT result = (static_cast<CBitmapDecoderElement*>(decElem)->Load(codeGen));
@@ -674,7 +674,7 @@ CInfoElement* CElementManager::GetRootElement() noexcept
     return &root;
 }
 
-HRESULT CElementManager::SaveElementAsImage(CInfoElement& element, REFGUID containerFormat, WICPixelFormatGUID& format, const LPCWSTR filename, ICodeGenerator& codeGen)
+HRESULT CElementManager::SaveElementAsImage(CInfoElement& element, REFGUID containerFormat, WICPixelFormatGUID& format, const PCWSTR filename, ICodeGenerator& codeGen)
 {
     HRESULT result;
 
@@ -853,24 +853,24 @@ void CBitmapDecoderElement::FillContextMenu(const HMENU context) noexcept
     {
         itemInfo.wID = ID_FILE_SAVE;
         WARNING_SUPPRESS_NEXT_LINE(26465 26492) // Don't use const_cast to cast away const or volatile.
-            itemInfo.dwTypeData = const_cast<LPWSTR>(L"Save As Image...");
+            itemInfo.dwTypeData = const_cast<PWSTR>(L"Save As Image...");
         VERIFY(InsertMenuItem(context, GetMenuItemCount(context), true, &itemInfo));
 
         itemInfo.wID = ID_FILE_UNLOAD;
         WARNING_SUPPRESS_NEXT_LINE(26465 26492) // Don't use const_cast to cast away const or volatile.
-            itemInfo.dwTypeData = const_cast<LPWSTR>(L"Unload");
+            itemInfo.dwTypeData = const_cast<PWSTR>(L"Unload");
     }
     else
     {
         itemInfo.wID = ID_FILE_LOAD;
         WARNING_SUPPRESS_NEXT_LINE(26465 26492) // Don't use const_cast to cast away const or volatile.
-            itemInfo.dwTypeData = const_cast<LPWSTR>(L"Load");
+            itemInfo.dwTypeData = const_cast<PWSTR>(L"Load");
     }
     VERIFY(InsertMenuItem(context, GetMenuItemCount(context), true, &itemInfo));
 
     itemInfo.wID = ID_FILE_CLOSE;
     WARNING_SUPPRESS_NEXT_LINE(26465 26492) // Don't use const_cast to cast away const or volatile.
-        itemInfo.dwTypeData = const_cast<LPWSTR>(L"Close");
+        itemInfo.dwTypeData = const_cast<PWSTR>(L"Close");
     VERIFY(InsertMenuItem(context, GetMenuItemCount(context), true, &itemInfo));
 }
 
@@ -1005,7 +1005,7 @@ void CBitmapDecoderElement::SetCreationTime(const DWORD ms) noexcept
     m_creationTime = ms;
 }
 
-void CBitmapDecoderElement::SetCreationCode(const LPCWSTR code)
+void CBitmapDecoderElement::SetCreationCode(const PCWSTR code)
 {
     m_creationCode = code;
 }
@@ -1197,11 +1197,8 @@ HRESULT CBitmapSourceElement::OutputView(IOutputDevice& output, const InfoElemen
         }
         else
         {
-            const COLORREF oldColor = output.SetTextColor(RGB(255, 0, 0));
-#pragma warning(push)
-#pragma warning(disable : 4296) // '<': expression is always false
+            const COLORREF oldColor{output.SetTextColor(RGB(255, 0, 0))};
             output.AddText(std::format(L"Failed to convert IWICBitmapSource to HBITMAP: {}", GetHresultString(result)).c_str());
-#pragma warning(pop)
             output.SetTextColor(oldColor);
         }
     }

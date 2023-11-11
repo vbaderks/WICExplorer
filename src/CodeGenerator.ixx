@@ -61,11 +61,7 @@ public:
 private:
     void BeginVariable(std::wstring_view varType, std::wstring_view varBaseName, std::wstring_view varInitValue)
     {
-#pragma warning(push)
-#pragma warning(disable : 4296) // '<': expression is always false (known defect in MSVC compiler 2022 17.4 Preview 1.0)
         AddLine(std::format(L"{} {} = {};", varType, varBaseName, varInitValue));
-#pragma warning(pop)
-
         m_lastVarName = varBaseName;
     }
 

@@ -131,7 +131,7 @@ HRESULT CMetadataTranslator::LoadFormat(MSXML2::IXMLDOMNode* formatNodeArg)
                     _bstr_t valueStr{entryValueNode->nodeValue};
 
                 // Finally, we can add this entry
-                m_dictionary.push_back(std::make_pair(Key(formatGuidStr, idStr), static_cast<LPCWSTR>(valueStr)));
+                m_dictionary.push_back(std::make_pair(Key(formatGuidStr, idStr), static_cast<PCWSTR>(valueStr)));
             }
         }
     }
