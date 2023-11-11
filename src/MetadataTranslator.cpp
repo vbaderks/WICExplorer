@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation \ Victor Derks.
+// Copyright (c) Microsoft Corporation \ Victor Derks.
 // SPDX-License-Identifier: MIT
 
 module;
@@ -103,7 +103,7 @@ HRESULT CMetadataTranslator::LoadFormat(MSXML2::IXMLDOMNode* formatNodeArg)
     const MSXML2::IXMLDOMNodePtr formatGuidNode = formatNode->attributes->getNamedItem(L"guid");
     if (formatGuidNode)
     {
-        WARNING_SUPPRESS_NEXT_LINE(33005) // VARIANT '' was provided as an _In_ or _InOut_ parameter but was not initialized(expression '&allotemp.4').
+        WARNING_SUPPRESS_NEXT_LINE(33005) // VARIANT '' was provided as an _In_ or _InOut_ parameter but was not initialized
             formatGuidStr = formatGuidNode->nodeValue;
     }
 
@@ -124,10 +124,10 @@ HRESULT CMetadataTranslator::LoadFormat(MSXML2::IXMLDOMNode* formatNodeArg)
 
             if (entryIdNode && entryValueNode)
             {
-                WARNING_SUPPRESS_NEXT_LINE(33005) // VARIANT '' was provided as an _In_ or _InOut_ parameter but was not initialized(expression '&allotemp.4').
+                WARNING_SUPPRESS_NEXT_LINE(33005) // VARIANT '' was provided as an _In_ or _InOut_ parameter but was not initialized
                     _bstr_t idStr{entryIdNode->nodeValue};
 
-                WARNING_SUPPRESS_NEXT_LINE(33005) // VARIANT '' was provided as an _In_ or _InOut_ parameter but was not initialized(expression '&allotemp.4').
+                WARNING_SUPPRESS_NEXT_LINE(33005) // VARIANT '' was provided as an _In_ or _InOut_ parameter but was not initialized
                     _bstr_t valueStr{entryValueNode->nodeValue};
 
                 // Finally, we can add this entry

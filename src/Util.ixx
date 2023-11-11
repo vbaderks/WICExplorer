@@ -29,9 +29,9 @@ export {
 std::wstring GetHresultString(HRESULT hr);
 
 template<typename WicInterface, typename MemberFunction>
-[[nodiscard]] HRESULT GetWicString(WicInterface& wicIinterface, MemberFunction memberFunction, std::wstring& output) {
+[[nodiscard]] HRESULT GetWicString(WicInterface& wicInterface, MemberFunction memberFunction, std::wstring& output) {
     uint32_t bufferSizeInChars;
-    const HRESULT result{(wicIinterface.*memberFunction)(0, nullptr, &bufferSizeInChars)};
+    const HRESULT result{(wicInterface.*memberFunction)(0, nullptr, &bufferSizeInChars)};
     if (FAILED(result))
         return result;
 
@@ -44,7 +44,7 @@ template<typename WicInterface, typename MemberFunction>
     // std::wstring will also automatically allocate space for the null terminator.
     output.resize(bufferSizeInChars - size_t{1});
 
-    return (wicIinterface.*memberFunction)(bufferSizeInChars, output.data(), &bufferSizeInChars);
+    return (wicInterface.*memberFunction)(bufferSizeInChars, output.data(), &bufferSizeInChars);
 }
 
 }

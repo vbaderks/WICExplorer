@@ -15,14 +15,14 @@ public:
     static CMetadataTranslator &Inst()
     {
         static CMetadataTranslator inst;
-        static bool inited = false;
+        static bool initialized;
 
-        if (!inited)
+        if (!initialized)
         {
             // We do not fail if there was an error loading the dictionary
             inst.LoadTranslations();
 
-            inited = true;
+            initialized = true;
         }
 
         return inst;

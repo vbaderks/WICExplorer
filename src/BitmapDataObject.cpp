@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation \ Victor Derks.
+// Copyright (c) Microsoft Corporation \ Victor Derks.
 // SPDX-License-Identifier: MIT
 
 module;
@@ -45,7 +45,7 @@ HRESULT CBitmapDataObject::InsertDib(HWND /*hWnd*/, IRichEditOle* pRichEditOle, 
         ASSERT(storage);
     }
 
-    // Get the ole object which will be inserted in the richedit control
+    // Get the ole object which will be inserted in the rich edit control
     IOleObject* oleObject{};
     if (SUCCEEDED(result))
     {
@@ -140,16 +140,16 @@ ULONG STDMETHODCALLTYPE CBitmapDataObject::Release() noexcept
     return result;
 }
 
-HRESULT STDMETHODCALLTYPE CBitmapDataObject::GetData(FORMATETC* /*pformatetcIn*/, STGMEDIUM* pmedium) noexcept
+HRESULT STDMETHODCALLTYPE CBitmapDataObject::GetData(FORMATETC* /*formatEtc*/, STGMEDIUM* pmedium) noexcept
 {
     pmedium->tymed = TYMED_HGLOBAL;
-    pmedium->hGlobal = OleDuplicateData(m_stgmed.hGlobal, CF_DIB, GMEM_MOVEABLE | GMEM_SHARE);
+    pmedium->hGlobal = OleDuplicateData(m_storageMedium.hGlobal, CF_DIB, GMEM_MOVEABLE | GMEM_SHARE);
     pmedium->pUnkForRelease = nullptr;
 
     return S_OK;
 }
 
-HRESULT STDMETHODCALLTYPE CBitmapDataObject::GetDataHere(FORMATETC* /*pformatetc*/, STGMEDIUM* /*pmedium*/) noexcept
+HRESULT STDMETHODCALLTYPE CBitmapDataObject::GetDataHere(FORMATETC* /*formatEtc*/, STGMEDIUM* /*medium*/) noexcept
 {
     return E_NOTIMPL;
 }
@@ -167,15 +167,15 @@ HRESULT STDMETHODCALLTYPE CBitmapDataObject::QueryGetData(FORMATETC* pformatetc)
     return result;
 }
 
-HRESULT STDMETHODCALLTYPE CBitmapDataObject::GetCanonicalFormatEtc(FORMATETC* /*pformatectIn*/, FORMATETC* /*pformatetcOut*/) noexcept
+HRESULT STDMETHODCALLTYPE CBitmapDataObject::GetCanonicalFormatEtc(FORMATETC* /*formatEct*/, FORMATETC* /*formatEtc*/) noexcept
 {
     return E_NOTIMPL;
 }
 
-HRESULT STDMETHODCALLTYPE CBitmapDataObject::SetData(FORMATETC* pformatetc, STGMEDIUM* pmedium, BOOL /*fRelease*/) noexcept
+HRESULT STDMETHODCALLTYPE CBitmapDataObject::SetData(FORMATETC* pformatetc, STGMEDIUM* storageMedium, BOOL /*release*/) noexcept
 {
     m_format = *pformatetc;
-    m_stgmed = *pmedium;
+    m_storageMedium = *storageMedium;
 
     return S_OK;
 }
@@ -186,7 +186,7 @@ HRESULT STDMETHODCALLTYPE CBitmapDataObject::EnumFormatEtc(DWORD /*dwDirection*/
     return E_NOTIMPL;
 }
 
-HRESULT STDMETHODCALLTYPE CBitmapDataObject::DAdvise(FORMATETC* /*pformatetc*/, DWORD /*advf*/, IAdviseSink* /*pAdvSink*/, DWORD* /*pdwConnection*/) noexcept
+HRESULT STDMETHODCALLTYPE CBitmapDataObject::DAdvise(FORMATETC* /*formatEtc*/, DWORD /*advf*/, IAdviseSink* /*pAdvSink*/, DWORD* /*connection*/) noexcept
 {
     return OLE_E_ADVISENOTSUPPORTED;
 }
@@ -222,9 +222,9 @@ HRESULT CBitmapDataObject::GetOleObject(IOleClientSite* oleClientSite, IStorage*
 
     oleObject = nullptr;
 
-    ASSERT(m_stgmed.hGlobal);
+    ASSERT(m_storageMedium.hGlobal);
 
-    if (m_stgmed.hGlobal)
+    if (m_storageMedium.hGlobal)
     {
         result = OleCreateStaticFromData(this, IID_IOleObject, OLERENDER_DRAW,
             &m_format, oleClientSite, storage, reinterpret_cast<void**>(&oleObject));

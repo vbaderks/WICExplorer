@@ -1,0 +1,28 @@
+# Copyright (c) Victor Derks.
+# SPDX-License-Identifier: MIT
+
+root = true
+
+[*]
+
+# Spell checker configuration
+spelling_exclusion_path = spelling.dic
+
+[*.{h,cpp}]
+end_of_line = crlf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+indent_style = space
+indent_size = 4
+cpp_space_pointer_reference_alignment = left
+
+[*.props]
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+[*.{vcxproj,wixproj}]
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2

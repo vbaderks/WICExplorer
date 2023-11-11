@@ -1,0 +1,8 @@
+﻿misc
+bugprone
+cppcoreguidelines
+noexcept
+Multiframe
+twips
+bstr
+manifestdependency

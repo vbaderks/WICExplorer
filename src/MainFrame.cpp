@@ -38,7 +38,7 @@ LRESULT CMainFrame::OnCreate(uint32_t, WPARAM, LPARAM, BOOL&)
     m_hWndClient = CreateClient();
 
     m_suppressMessageBox = false;
-    m_viewcontext.bIsAlphaEnable = true;
+    m_viewContext.bIsAlphaEnable = true;
 
     return 0;
 }
@@ -558,7 +558,7 @@ void CMainFrame::DrawElement(CInfoElement& element)
 
     CRichEditDevice view(m_viewEdit);
     view.BeginSection(path.c_str());
-    element.OutputView(view, m_viewcontext);
+    element.OutputView(view, m_viewContext);
     view.EndSection();
 
     m_viewEdit.SetSel(0, 0);
@@ -920,12 +920,12 @@ LRESULT CMainFrame::OnShowAlpha(uint16_t /*code*/, const uint16_t item, HWND /*h
     GetMenuItemInfo(menu, item, false, &currentState);
     if ((currentState.fState & MFS_CHECKED) == MFS_CHECKED)
     {
-        m_viewcontext.bIsAlphaEnable = false;
+        m_viewContext.bIsAlphaEnable = false;
         CheckMenuItem(menu, item, MF_UNCHECKED | MF_BYCOMMAND);
     }
     else
     {
-        m_viewcontext.bIsAlphaEnable = true;
+        m_viewContext.bIsAlphaEnable = true;
         CheckMenuItem(menu, item, MF_CHECKED | MF_BYCOMMAND);
         handled = 1;
     }
@@ -954,12 +954,12 @@ LRESULT CMainFrame::OnNormalizeHistogram(uint16_t /*code*/, uint16_t item, HWND 
     GetMenuItemInfo(menu, item, false, &currentState);
     if ((currentState.fState & MFS_CHECKED) == MFS_CHECKED)
     {
-        m_viewcontext.normalizeHistogram = false;
+        m_viewContext.normalizeHistogram = false;
         CheckMenuItem(menu, item, MF_UNCHECKED | MF_BYCOMMAND);
     }
     else
     {
-        m_viewcontext.normalizeHistogram = true;
+        m_viewContext.normalizeHistogram = true;
         CheckMenuItem(menu, item, MF_CHECKED | MF_BYCOMMAND);
         handled = 1;
     }

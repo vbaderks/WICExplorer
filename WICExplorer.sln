@@ -7,7 +7,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WICExplorer", "src\WICExplo
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EFF3E912-976A-4266-B528-B581BADE34A3}"
 	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
 		.gitignore = .gitignore
+		cpp.hint = cpp.hint
 		default.ruleset = default.ruleset
 		default.ruleset.md = default.ruleset.md
 		description.html = description.html
@@ -15,6 +17,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		LICENSE.md = LICENSE.md
 		.github\workflows\msbuild.yml = .github\workflows\msbuild.yml
 		Readme.md = Readme.md
+		spelling.dic = spelling.dic
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GenerateHeaderUnits", "generate-header-units\GenerateHeaderUnits.vcxproj", "{7B23FCCF-1559-426D-AE55-95D0D6BD352B}"

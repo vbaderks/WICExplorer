@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation \ Victor Derks.
+// Copyright (c) Microsoft Corporation \ Victor Derks.
 // SPDX-License-Identifier: MIT
 
 module;
@@ -131,9 +131,9 @@ public:
 
     ~CProgressiveBitmapSource()
     {
-        WARNING_SUPPRESS_NEXT_LINE(26447) // The function is declared 'noexcept' but calls function 'Release()' which may throw exceptions (f.6).
+        WARNING_SUPPRESS_NEXT_LINE(26447) // The function is declared noexcept but calls function 'Release()' which may throw exceptions (f.6).
             m_source->Release();
-        WARNING_SUPPRESS_NEXT_LINE(26447) // The function is declared 'noexcept' but calls function 'Release()' which may throw exceptions (f.6).
+        WARNING_SUPPRESS_NEXT_LINE(26447) // The function is declared noexcept but calls function 'Release()' which may throw exceptions (f.6).
             m_prog->Release();
     }
 
