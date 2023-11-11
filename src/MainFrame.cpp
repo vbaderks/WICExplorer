@@ -3,8 +3,6 @@
 
 #include "MainFrame.h"
 
-#include <atlstr.h>
-
 #include <atltypes.h>
 #include <atlbase.h>
 #include <atlapp.h>
@@ -27,48 +25,6 @@ import CodeGenerator;
 import <std.h>;
 import <Windows-import.h>;
 
-
-namespace
-{
-    CString GetFullPath(const CString& directory, const CString& file)
-    {
-        wchar_t buffer[MAX_PATH * 2];
-        wchar_t oldDirectory[MAX_PATH];
-
-        // Ideally we'd like to use GetFullPathName to give us an absolute path,
-        // since it's more reliable. Unfortunately, it only works off of the current
-        // directory. That means we'll have to backup the current directory and then
-        // switch it to what's passed.
-
-        GetCurrentDirectory(MAX_PATH, oldDirectory);
-
-        if (!SetCurrentDirectory(directory))
-        {
-            // We can't switch to that directory for some reason.
-            // This is a backup algorithm, but it might fail in very unusual cases.
-            if (file.Left(2).Right(1) == L':' ||
-                file.Left(2) == L"\\\\")
-            {
-                // It's an absolute path.
-                return file;
-            }
-
-            // It's a relative path, so it needs the directory too.
-            if (directory.Right(1) == L'\\')
-                return directory + file;
-
-            return directory + L"\\" + file;
-        }
-        LPWSTR filePart;
-
-        GetFullPathName(file, MAX_PATH * 2, buffer, &filePart);
-
-        SetCurrentDirectory(oldDirectory);
-
-        return buffer;
-    }
-
-}
 
 LRESULT CMainFrame::OnCreate(uint32_t, WPARAM, LPARAM, BOOL&)
 {
@@ -375,7 +331,7 @@ HRESULT CMainFrame::OpenWildcard(const LPCWSTR search, DWORD& attempted, DWORD& 
     {
         if (!m_suppressMessageBox)
         {
-            MessageBox(L"Could not open " + CString(search), L"Error opening expression", MB_OK);
+            MessageBox(std::format(L"Could not open {}", search).c_str(), L"Error opening expression", MB_OK);
         }
         return 0;
     }
@@ -412,12 +368,12 @@ HRESULT CMainFrame::Load(const LPCWSTR* filenames, const int count)
 {
     HRESULT result = S_OK;
     bool needsUpdate{};
-    const CString quiet = "/quiet";
 
-    DWORD attempted = 0, opened = 0;
+    DWORD attempted{};
+    DWORD opened{};
     for (int i = 0; i < count; i++)
     {
-        if (quiet.CompareNoCase(filenames[i]) == 0)
+        if (_wcsicmp(L"/quiet", filenames[i]) == 0)
         {
             m_suppressMessageBox = true;
         }
@@ -436,12 +392,9 @@ HRESULT CMainFrame::Load(const LPCWSTR* filenames, const int count)
 
     if (attempted > 1)
     {
-        wchar_t buffer[60];
-        swprintf_s(buffer, 60, L"Successfully opened %lu out of %lu image files", opened, attempted);
-
         if (!m_suppressMessageBox)
         {
-            MessageBox(buffer, L"Done", MB_OK);
+            MessageBox(std::format(L"Successfully opened {} out of {} image files", opened, attempted).c_str(), L"Done", MB_OK);
         }
     }
 
@@ -460,39 +413,37 @@ LRESULT CMainFrame::OnFileOpen(uint16_t, uint16_t, const HWND hParentWnd, BOOL&)
     fileDlg.m_ofn.nMaxFile = static_cast<DWORD>(filenameBuffer.size());
 
     // Bring up the dialog
-    const INT_PTR res = fileDlg.DoModal();
+    const INT_PTR result{fileDlg.DoModal()};
 
-    if (IDOK == res)
+    if (result == IDOK)
     {
-        bool updateElements = false;
-
-        // Get the path to the files
-        const CString path = fileDlg.m_ofn.lpstrFile;
+        bool updateElements{};
 
         // If m_ofn.lpstrFileTitle is empty, then there are multiple files. Otherwise, there is
         // just one file. We need to handle both cases.
         if (L'\0' != *fileDlg.m_ofn.lpstrFileTitle)
         {
             // Just one file
-            OpenFile(path, updateElements);
+            OpenFile(fileDlg.m_ofn.lpstrFile, updateElements);
         }
         else
         {
+            // Get the root directory to the files
+            const std::filesystem::path rootDirectory{fileDlg.m_ofn.lpstrFile};
+
             // Get each of the files
-            wchar_t* filenamePtr = fileDlg.m_ofn.lpstrFile + path.GetLength() + 1;
+            wchar_t* filenamePtr = fileDlg.m_ofn.lpstrFile + rootDirectory.wstring().length() + 1;
             while (L'\0' != *filenamePtr)
             {
-                CString filename = filenamePtr;
-
                 // Try opening the file
-                bool fileWantsUpdate = false;
+                bool fileWantsUpdate{};
 
-                OpenFile(GetFullPath(path, filename), fileWantsUpdate);
+                OpenFile((rootDirectory / filenamePtr).c_str(), fileWantsUpdate);
 
                 updateElements = updateElements || fileWantsUpdate;
 
                 // Go for the next file
-                filenamePtr = filenamePtr + filename.GetLength() + 1;
+                filenamePtr = filenamePtr + wcslen(filenamePtr) + 1;
             }
         }
 
@@ -510,45 +461,45 @@ HRESULT CMainFrame::OpenDirectory(const LPCWSTR directory, DWORD& attempted, DWO
 {
     HRESULT hr = S_OK;
     WIN32_FIND_DATA fdata;
-    const HANDLE hf = FindFirstFile(CString(directory) + "\\*", &fdata);
+    const HANDLE hf{FindFirstFile((std::filesystem::path(directory) / L"*").c_str(), &fdata)};
 
     if (hf == INVALID_HANDLE_VALUE)
     {
         if (!m_suppressMessageBox)
         {
-            MessageBox(L"Could not open " + CString(directory), L"Error opening directory", MB_OK);
+            MessageBox(std::format(L"Could not open {}", directory).c_str(), L"Error opening directory", MB_OK);
         }
         return 0;
     }
 
     do
     {
-        CString path = CString(directory) + L"\\" + fdata.cFileName;
-        CString extension = CString(fdata.cFileName).Right(4);
+        const auto path = std::filesystem::path(directory) / fdata.cFileName;
+        const auto extension = std::filesystem::path(fdata.cFileName).extension();
         HRESULT temp;
 
         if ((fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY &&
             wcscmp(fdata.cFileName, L".") != 0 &&
             wcscmp(fdata.cFileName, L"..") != 0)
         {
-            if (FAILED(temp = OpenDirectory(path, attempted, opened)))
+            if (FAILED(temp = OpenDirectory(path.c_str(), attempted, opened)))
             {
                 hr = temp;
             }
         }
-        else if (!extension.CompareNoCase(L".jpg") ||
-            !extension.CompareNoCase(L".jpeg") ||
-            !extension.CompareNoCase(L".png") ||
-            !extension.CompareNoCase(L".gif") ||
-            !extension.CompareNoCase(L".bmp") ||
-            !extension.CompareNoCase(L".tif") ||
-            !extension.CompareNoCase(L".tiff") ||
-            !extension.CompareNoCase(L".ico") ||
-            !extension.CompareNoCase(L".icon") ||
-            !extension.CompareNoCase(L".dds"))
+        else if (!_wcsicmp(extension.c_str(), L".jpg") ||
+            !_wcsicmp(extension.c_str(), L".jpeg") ||
+            !_wcsicmp(extension.c_str(), L".png") ||
+            !_wcsicmp(extension.c_str(), L".gif") ||
+            !_wcsicmp(extension.c_str(), L".bmp") ||
+            !_wcsicmp(extension.c_str(), L".tif") ||
+            !_wcsicmp(extension.c_str(), L".tiff") ||
+            !_wcsicmp(extension.c_str(), L".ico") ||
+            !_wcsicmp(extension.c_str(), L".icon") ||
+            !_wcsicmp(extension.c_str(), L".dds"))
         {
             bool updateThis{};
-            if (SUCCEEDED(temp = OpenFile(path, updateThis)))
+            if (SUCCEEDED(temp = OpenFile(path.c_str(), updateThis)))
             {
                 opened++;
             }
@@ -579,7 +530,8 @@ LRESULT CMainFrame::OnFileOpenDir(uint16_t /*code*/, uint16_t /*item*/, const HW
         return 0;
     }
 
-    DWORD attempted = 0, opened = 0;
+    DWORD attempted{};
+    DWORD opened{};
     OpenDirectory(fileDlg.GetFolderPath(), attempted, opened);
 
     UpdateTreeView(true);
@@ -733,7 +685,7 @@ HRESULT CMainFrame::SaveElementAsImage(CInfoElement& element)
     if (ElementCanBeSavedAsImage(element))
     {
         // Let the user choose the type of encoder to use
-        const auto encoderSelection{ GetEncoderSelectionFromUser() };
+        const auto encoderSelection{GetEncoderSelectionFromUser()};
 
         if (encoderSelection.has_value())
         {
@@ -767,7 +719,6 @@ HRESULT CMainFrame::SaveElementAsImage(CInfoElement& element)
                 {
                     // The user cares about the pixel format, and WIC actually used
                     // a different one than what the user picked.
-                    CString msg;
                     wchar_t picked[30];
                     wchar_t actual[30];
                     if (FAILED(GetPixelFormatName(picked, ARRAYSIZE(picked), pixelFormat)))
@@ -778,11 +729,10 @@ HRESULT CMainFrame::SaveElementAsImage(CInfoElement& element)
                     {
                         VERIFY(wcscpy_s(actual, ARRAYSIZE(actual), L"Unknown") == 0);
                     }
-                    msg.Format(L"You specified '%s' as the pixel format and WIC used '%s'", picked, actual);
 
                     if (!m_suppressMessageBox)
                     {
-                        MessageBoxW(msg, L"Different format picked", MB_OK);
+                        MessageBoxW(std::format(L"You specified '{}' as the pixel format and WIC used '{}'", picked, actual).c_str(), L"Different format picked", MB_OK);
                     }
                 }
             }
@@ -794,12 +744,10 @@ HRESULT CMainFrame::SaveElementAsImage(CInfoElement& element)
     }
     else
     {
-        CString msg;
-        msg.Format(L"The selected element '%s' cannot be saved as an Image.", element.Name().c_str());
-
         if (!m_suppressMessageBox)
         {
-            ::MessageBox(nullptr, msg, L"Cannot Save Element", MB_OK | MB_ICONERROR);
+            MessageBox(std::format(L"The selected element '{}' cannot be saved as an Image.", element.Name()).c_str(),
+                L"Cannot Save Element", MB_OK | MB_ICONERROR);
         }
     }
 
@@ -823,130 +771,130 @@ constexpr HRESULT ERROR_BLOCK_READER = MAKE_HRESULT(1, 0x899, 1);
 
 namespace {
 
-    HRESULT GetReaderFromQueryReader(IWICMetadataQueryReader* queryReader, IWICMetadataReader** reader)
+HRESULT GetReaderFromQueryReader(IWICMetadataQueryReader* queryReader, IWICMetadataReader** reader)
+{
+    HRESULT result = S_OK;
+
+    // This will take the query reader and copy it into a CDummyBlockWriter.
+    // Internally, AddWriter will be called with the unabstracted metadata reader.
+    class CDummyBlockWriter final :
+        public IWICMetadataBlockWriter
     {
-        HRESULT result = S_OK;
+    public:
+        IWICMetadataWriterPtr writer;
+        IWICMetadataBlockReaderPtr blockReader;
 
-        // This will take the query reader and copy it into a CDummyBlockWriter.
-        // Internally, AddWriter will be called with the unabstracted metadata reader.
-        class CDummyBlockWriter final :
-            public IWICMetadataBlockWriter
+        ULONG STDMETHODCALLTYPE AddRef() noexcept override
         {
-        public:
-            IWICMetadataWriterPtr writer;
-            IWICMetadataBlockReaderPtr blockReader;
-
-            ULONG STDMETHODCALLTYPE AddRef() noexcept override
-            {
-                return 0;
-            }
-
-            ULONG STDMETHODCALLTYPE Release() noexcept override
-            {
-                return 0;
-            }
-
-            HRESULT __stdcall QueryInterface(const IID& id, void** dest) noexcept override
-            {
-                if (id == IID_IWICMetadataBlockWriter || id == IID_IWICMetadataBlockReader)
-                {
-                    *dest = this;
-                    return S_OK;
-                }
-
-                return E_NOINTERFACE;
-            }
-
-            HRESULT __stdcall InitializeFromBlockReader(IWICMetadataBlockReader* pIMDBlockReader) noexcept override
-            {
-                blockReader = pIMDBlockReader;
-                return S_OK;
-            }
-
-            HRESULT __stdcall GetWriterByIndex(uint32_t /*nIndex*/, IWICMetadataWriter** ppIMetadataWriter) noexcept override
-            {
-                *ppIMetadataWriter = nullptr;
-                return CO_E_NOT_SUPPORTED;
-            }
-
-            HRESULT __stdcall AddWriter(IWICMetadataWriter* pIMetadataWriter) noexcept override
-            {
-                if (writer)
-                {
-                    return CO_E_NOT_SUPPORTED;
-                }
-                writer = pIMetadataWriter;
-                return S_OK;
-            }
-
-            HRESULT __stdcall SetWriterByIndex(uint32_t /*nIndex*/, IWICMetadataWriter* /*pIMetadataWriter*/) noexcept override
-            {
-                return CO_E_NOT_SUPPORTED;
-            }
-
-            HRESULT __stdcall RemoveWriterByIndex(uint32_t /*nIndex*/) noexcept override
-            {
-                return CO_E_NOT_SUPPORTED;
-            }
-
-            HRESULT __stdcall GetContainerFormat(GUID* /*pguidContainerFormat*/) noexcept override
-            {
-                return CO_E_NOT_SUPPORTED;
-            }
-
-            HRESULT __stdcall GetCount(uint32_t* pcCount) noexcept override
-            {
-                *pcCount = 0;
-                return CO_E_NOT_SUPPORTED;
-            }
-
-            HRESULT __stdcall GetReaderByIndex(uint32_t /*nIndex*/, IWICMetadataReader** ppIMetadataReader) noexcept override
-            {
-                *ppIMetadataReader = nullptr;
-                return CO_E_NOT_SUPPORTED;
-            }
-
-            HRESULT __stdcall GetEnumerator(IEnumUnknown** ppIEnumMetadata) noexcept override
-            {
-                *ppIEnumMetadata = nullptr;
-                return CO_E_NOT_SUPPORTED;
-            }
-        } dummyWriter;
-
-        // These lower level metadata data functions will require the component factory.
-        IWICComponentFactoryPtr componentFactory;
-        IFC(g_imagingFactory->QueryInterface(IID_PPV_ARGS(&componentFactory)));
-
-        // This takes the IWICMetadataBlockWriter and wraps it as a IWICMetadataQueryWriter.
-        // This is necessary because only query writer to query writer copying is supported.
-        IWICMetadataQueryWriterPtr writerWrapper;
-        IFC(componentFactory->CreateQueryWriterFromBlockWriter(&dummyWriter, &writerWrapper));
-
-        // Prepare the propvariant for copying the query reader.
-        PROPVARIANT propValue;
-        PropVariantInit(&propValue);
-        propValue.vt = VT_UNKNOWN;
-        propValue.punkVal = queryReader;
-        propValue.punkVal->AddRef();
-
-        // Writing to "/" performs the special operation of copying from another query writer.
-        IFC(writerWrapper->SetMetadataByName(L"/", &propValue));
-        PropVariantClear(&propValue);
-
-        // At this point, dummyWriter.writer should be set to the unabstracted query reader.
-        if (dummyWriter.writer == 0)
-        {
-            if (dummyWriter.blockReader)
-            {
-                return ERROR_BLOCK_READER;
-            }
-            return E_FAIL;
+            return 0;
         }
 
-        IFC(dummyWriter.writer->QueryInterface(IID_PPV_ARGS(reader)));
+        ULONG STDMETHODCALLTYPE Release() noexcept override
+        {
+            return 0;
+        }
 
-        return result;
+        HRESULT __stdcall QueryInterface(const IID& id, void** dest) noexcept override
+        {
+            if (id == IID_IWICMetadataBlockWriter || id == IID_IWICMetadataBlockReader)
+            {
+                *dest = this;
+                return S_OK;
+            }
+
+            return E_NOINTERFACE;
+        }
+
+        HRESULT __stdcall InitializeFromBlockReader(IWICMetadataBlockReader* pIMDBlockReader) noexcept override
+        {
+            blockReader = pIMDBlockReader;
+            return S_OK;
+        }
+
+        HRESULT __stdcall GetWriterByIndex(uint32_t /*nIndex*/, IWICMetadataWriter** ppIMetadataWriter) noexcept override
+        {
+            *ppIMetadataWriter = nullptr;
+            return CO_E_NOT_SUPPORTED;
+        }
+
+        HRESULT __stdcall AddWriter(IWICMetadataWriter* pIMetadataWriter) noexcept override
+        {
+            if (writer)
+            {
+                return CO_E_NOT_SUPPORTED;
+            }
+            writer = pIMetadataWriter;
+            return S_OK;
+        }
+
+        HRESULT __stdcall SetWriterByIndex(uint32_t /*nIndex*/, IWICMetadataWriter* /*pIMetadataWriter*/) noexcept override
+        {
+            return CO_E_NOT_SUPPORTED;
+        }
+
+        HRESULT __stdcall RemoveWriterByIndex(uint32_t /*nIndex*/) noexcept override
+        {
+            return CO_E_NOT_SUPPORTED;
+        }
+
+        HRESULT __stdcall GetContainerFormat(GUID* /*pguidContainerFormat*/) noexcept override
+        {
+            return CO_E_NOT_SUPPORTED;
+        }
+
+        HRESULT __stdcall GetCount(uint32_t* pcCount) noexcept override
+        {
+            *pcCount = 0;
+            return CO_E_NOT_SUPPORTED;
+        }
+
+        HRESULT __stdcall GetReaderByIndex(uint32_t /*nIndex*/, IWICMetadataReader** ppIMetadataReader) noexcept override
+        {
+            *ppIMetadataReader = nullptr;
+            return CO_E_NOT_SUPPORTED;
+        }
+
+        HRESULT __stdcall GetEnumerator(IEnumUnknown** ppIEnumMetadata) noexcept override
+        {
+            *ppIEnumMetadata = nullptr;
+            return CO_E_NOT_SUPPORTED;
+        }
+    } dummyWriter;
+
+    // These lower level metadata data functions will require the component factory.
+    IWICComponentFactoryPtr componentFactory;
+    IFC(g_imagingFactory->QueryInterface(IID_PPV_ARGS(&componentFactory)));
+
+    // This takes the IWICMetadataBlockWriter and wraps it as a IWICMetadataQueryWriter.
+    // This is necessary because only query writer to query writer copying is supported.
+    IWICMetadataQueryWriterPtr writerWrapper;
+    IFC(componentFactory->CreateQueryWriterFromBlockWriter(&dummyWriter, &writerWrapper));
+
+    // Prepare the propvariant for copying the query reader.
+    PROPVARIANT propValue;
+    PropVariantInit(&propValue);
+    propValue.vt = VT_UNKNOWN;
+    propValue.punkVal = queryReader;
+    propValue.punkVal->AddRef();
+
+    // Writing to "/" performs the special operation of copying from another query writer.
+    IFC(writerWrapper->SetMetadataByName(L"/", &propValue));
+    PropVariantClear(&propValue);
+
+    // At this point, dummyWriter.writer should be set to the unabstracted query reader.
+    if (dummyWriter.writer == 0)
+    {
+        if (dummyWriter.blockReader)
+        {
+            return ERROR_BLOCK_READER;
+        }
+        return E_FAIL;
     }
+
+    IFC(dummyWriter.writer->QueryInterface(IID_PPV_ARGS(reader)));
+
+    return result;
+}
 }
 
 LRESULT CMainFrame::OnShowViewPane(uint16_t /*code*/, const uint16_t item, HWND /*hSender*/, BOOL& handled)
@@ -1060,10 +1008,7 @@ LRESULT CMainFrame::OnContextClick(const uint16_t /*code*/, const uint16_t item,
         {
             if (!m_suppressMessageBox)
             {
-#pragma warning(push)
-#pragma warning(disable : 4296) // '<': expression is always false
                 MessageBoxW(std::format(L"Unable find metadata. The error is: {}", GetHresultString(result)).c_str(), L"Error Finding Metadata", MB_OK | MB_ICONWARNING);
-#pragma warning(pop)
             }
         }
     }
@@ -1084,20 +1029,34 @@ HRESULT CMainFrame::QueryMetadata(CInfoElement* elem)
     class CQLPath final : public CDialogImpl<CQLPath>
     {
     public:
-        CAtlString m_path;
+        std::wstring m_path;
         enum { IDD = IDD_QLPATH };
 
         WARNING_SUPPRESS_NEXT_LINE(26433) //  Function 'ProcessWindowMessage' should be marked with 'override' (c.128).
-        BEGIN_MSG_MAP(CAboutDlg) // TODO: CAboutDlg doesn't seem right.
+        BEGIN_MSG_MAP(CQLPath)
             COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
             COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
         END_MSG_MAP()
 
         LRESULT OnCloseCmd(uint16_t /*wNotifyCode*/, const uint16_t wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
         {
-            GetDlgItemText(IDC_QLPATH, m_path);
+            m_path = GetDlgItemText(IDC_QLPATH);
             EndDialog(wID);
             return 0;
+        }
+
+        std::wstring GetDlgItemText(const int nID) const
+        {
+            std::wstring strText;
+
+            const int nLength{::GetWindowTextLength(GetDlgItem(nID))};
+            if (nLength > 0)
+            {
+                strText.resize(static_cast<size_t>(nLength) + 1);
+                CDialogImpl<CQLPath>::GetDlgItemText(nID, strText.data(), nLength + 1);
+            }
+
+            return strText;
         }
     } qlpath;
 
@@ -1111,7 +1070,7 @@ HRESULT CMainFrame::QueryMetadata(CInfoElement* elem)
 
     bool inbraces{};
     int lastSlash = -1;
-    for (int pos = 0; pos < qlpath.m_path.GetLength(); pos++)
+    for (size_t pos{}; pos < qlpath.m_path.length(); pos++)
     {
         switch (qlpath.m_path[pos])
         {
@@ -1129,7 +1088,7 @@ HRESULT CMainFrame::QueryMetadata(CInfoElement* elem)
             // braces escape forward slashes, e.g. /ifd/xmp/{wstr=string with /s}
             if (!inbraces)
             {
-                lastSlash = pos;
+                lastSlash = static_cast<int>(pos);
             }
             break;
         default:
@@ -1138,7 +1097,8 @@ HRESULT CMainFrame::QueryMetadata(CInfoElement* elem)
     }
 
     // Now let's get the query reader for everything upto the last slash
-    CString parentPath, childPath;
+    std::wstring parentPath;
+    std::wstring childPath;
     if (lastSlash == -1 || lastSlash == 0)
     {
         if (dynamic_cast<CBitmapFrameDecodeElement*>(elem))
@@ -1154,8 +1114,8 @@ HRESULT CMainFrame::QueryMetadata(CInfoElement* elem)
     }
     else
     {
-        parentPath = qlpath.m_path.Mid(0, lastSlash);
-        childPath = qlpath.m_path.Mid(lastSlash);
+        parentPath = qlpath.m_path.substr(lastSlash);
+        childPath = qlpath.m_path.substr(lastSlash);
     }
 
     IWICMetadataQueryReaderPtr parentQueryReader;
@@ -1165,10 +1125,10 @@ HRESULT CMainFrame::QueryMetadata(CInfoElement* elem)
 
     if (parentPath != L"")
     {
-        if (FAILED(rootQueryReader->GetMetadataByName(parentPath, &value)))
+        if (FAILED(rootQueryReader->GetMetadataByName(parentPath.c_str(), &value)))
         {
             parentPath = qlpath.m_path;
-            IFC(rootQueryReader->GetMetadataByName(parentPath, &value));
+            IFC(rootQueryReader->GetMetadataByName(parentPath.c_str(), &value));
         }
         if (value.vt == VT_UNKNOWN)
         {
@@ -1208,18 +1168,18 @@ HRESULT CMainFrame::QueryMetadata(CInfoElement* elem)
         // read its value. Otherwise, use the parent's path
         if (childPath != L"")
         {
-            parentQueryReader->GetMetadataByName(childPath, &value);
+            parentQueryReader->GetMetadataByName(childPath.c_str(), &value);
         }
         else
         {
-            rootQueryReader->GetMetadataByName(parentPath, &value);
+            rootQueryReader->GetMetadataByName(parentPath.c_str(), &value);
         }
         std::wstring v;
         result = PropVariantToString(&value, PVTSOPTION_IncludeType, v);
         PropVariantClear(&value);
         IFC(result);
 
-        parentElem->m_queryValue = v.c_str();
+        parentElem->m_queryValue = v;
         if (elem == parentElem)
         {
             // Redraw the output view with the new query string
