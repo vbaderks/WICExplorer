@@ -20,7 +20,7 @@ class CMainFrame final : public CFrameWindowImpl<CMainFrame>
 {
 public:
     WARNING_SUPPRESS_NEXT_LINE(26440) // Function 'CMainFrame::GetWndClassInfo' can be declared 'noexcept' (f.6).
-    DECLARE_FRAME_WND_CLASS(nullptr, IDR_MAINFRAME)
+        DECLARE_FRAME_WND_CLASS(nullptr, IDR_MAINFRAME)
 
     WARNING_SUPPRESS_NEXT_LINE(26433) // Function 'CMainFrame::ProcessWindowMessage' should be marked with 'override' (c.128).
     BEGIN_MSG_MAP(CMainFrame)
@@ -50,34 +50,32 @@ public:
         CHAIN_MSG_MAP(CFrameWindowImpl<CMainFrame>)
     END_MSG_MAP()
 
-    HRESULT Load(const PCWSTR *filenames, int count);
+    HRESULT Load(const PCWSTR* filenames, int count);
 
 private:
-    InfoElementViewContext m_viewcontext{false, true};
-
     HWND CreateClient();
-    static int GetElementTreeImage(const CInfoElement *elem) noexcept;
+    static int GetElementTreeImage(const CInfoElement* elem) noexcept;
     // Opens a single file
-    HRESULT OpenFile(PCWSTR filename, bool &updateElements);
+    HRESULT OpenFile(PCWSTR filename, bool& updateElements);
     // Opens files based on a wildcard expression (not recursive)
-    HRESULT OpenWildcard(PCWSTR search, DWORD &attempted, DWORD &opened, bool &updateElements);
+    HRESULT OpenWildcard(PCWSTR search, DWORD& attempted, DWORD& opened, bool& updateElements);
     // Opens images recursively in a directory
-    HRESULT OpenDirectory(PCWSTR directory, DWORD &attempted, DWORD &opened);
+    HRESULT OpenDirectory(PCWSTR directory, DWORD& attempted, DWORD& opened);
     void UpdateTreeView(bool selectLastRoot);
-    HTREEITEM BuildTree(const CInfoElement *elem, HTREEITEM hParent);
-    static BOOL DoElementContextMenu(HWND hWnd, CInfoElement &element, POINT point) noexcept;
-    static HMENU CreateElementContextMenu(CInfoElement &element) noexcept;
-    CInfoElement *GetElementFromTreeItem(HTREEITEM hItem) const;
-    HTREEITEM GetTreeItemFromElement(CInfoElement *element) const;
-    HTREEITEM FindTreeItem(HTREEITEM start, CInfoElement *element) const;
-    static bool ElementCanBeSavedAsImage(const CInfoElement &element) noexcept;
-    HRESULT SaveElementAsImage(CInfoElement &element);
-    void DrawElement(CInfoElement &element);
+    HTREEITEM BuildTree(const CInfoElement* elem, HTREEITEM hParent);
+    static BOOL DoElementContextMenu(HWND hWnd, CInfoElement& element, POINT point) noexcept;
+    static HMENU CreateElementContextMenu(CInfoElement& element) noexcept;
+    CInfoElement* GetElementFromTreeItem(HTREEITEM hItem) const;
+    HTREEITEM GetTreeItemFromElement(CInfoElement* element) const;
+    HTREEITEM FindTreeItem(HTREEITEM start, CInfoElement* element) const;
+    static bool ElementCanBeSavedAsImage(const CInfoElement& element) noexcept;
+    HRESULT SaveElementAsImage(CInfoElement& element);
+    void DrawElement(CInfoElement& element);
     HRESULT QueryMetadata(CInfoElement* elem);
 
     LRESULT OnCreate(uint32_t, WPARAM, LPARAM, BOOL&);
-    LRESULT OnNMRClick(int , NMHDR* pnmh, BOOL&);
-    LRESULT OnTreeViewSelChanged(WPARAM wParam, const NMHDR* lpNmHdr, BOOL &bHandled);
+    LRESULT OnNMRClick(int, NMHDR* pnmh, BOOL&);
+    LRESULT OnTreeViewSelChanged(WPARAM wParam, const NMHDR* lpNmHdr, BOOL& bHandled);
     LRESULT OnPaneClose(uint16_t, uint16_t, HWND hWndCtl, BOOL&) const;
     LRESULT OnFileOpen(uint16_t, uint16_t, HWND, BOOL&);
     LRESULT OnFileOpenDir(uint16_t code, uint16_t item, HWND hSender, BOOL& handled);
@@ -90,6 +88,7 @@ private:
     LRESULT OnNormalizeHistogram(uint16_t code, uint16_t item, HWND hSender, BOOL& handled) noexcept;
     LRESULT OnContextClick(uint16_t code, uint16_t item, HWND hSender, BOOL& handled);
 
+    InfoElementViewContext m_viewContext{false, true};
     CSplitterWindow m_mainSplit;
     CHorSplitterWindow m_infoSplit;
 

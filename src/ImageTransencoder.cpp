@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation \ Victor Derks.
+// Copyright (c) Microsoft Corporation \ Victor Derks.
 // SPDX-License-Identifier: MIT
 
 module;
@@ -84,7 +84,7 @@ HRESULT CImageTransencoder::Begin(REFGUID containerFormat, const PCWSTR filename
         m_codeGen->CallFunction(L"encoder->Initialize(stream, WICBitmapEncoderCacheInMemory);");
         IFC(m_encoder->Initialize(m_stream, WICBitmapEncoderNoCache));
 
-        // This transencoder is now ready to encode
+        // This trans-encoder is now ready to encode
         m_encoding = true;
     }
 

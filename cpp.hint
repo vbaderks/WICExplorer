@@ -1,0 +1,14 @@
+// Copyright (c) Victor Derks.
+// SPDX-License-Identifier: MIT
+
+//
+// cpp.hint: What is this thing?
+//
+// This file is used solely to aid Visual Studio Intellisense while editing.
+// It is not used as part of any build. See Microsoft docs for more info about this file.
+//
+
+#define BEGIN_MSG_MAP_OVERRIDE
+#define VERIFY(expression) static_cast<void>(expression)
+#define WARNING_SUPPRESS_NEXT_LINE(x)
+#define DECLARE_FRAME_WND_CLASS(WndClassName, uCommonResourceID)

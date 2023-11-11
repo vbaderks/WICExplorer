@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation \ Victor Derks.
+// Copyright (c) Microsoft Corporation \ Victor Derks.
 // SPDX-License-Identifier: MIT
 
 module;
@@ -562,19 +562,19 @@ HRESULT PropVariantToString(PROPVARIANT* pv, const unsigned options, std::wstrin
         case VT_DATE:
             // date A 64-bit floating point number representing the number of days (not seconds) since December 31, 1899. For example, January 1, 1900, is 2.0, January 2, 1900, is 3.0, and so on). This is stored in the same representation as VT_R8.
         case VT_FILETIME:
-            // filetime 64-bit FILETIME structure as defined by Win32. It is recommended that all times be stored in Universal Coordinate Time (UTC).
+            // file time 64-bit FILETIME structure as defined by Win32. It is recommended that all times be stored in Universal Coordinate Time (UTC).
             break;
         case VT_CLSID:
             WriteValue(*pv->puuid, out);
             break;
         case VT_CF:
-            // pclipdata Pointer to a CLIPDATA structure, described above.
+            // clip data Pointer to a CLIPDATA structure, described above.
             break;
         case VT_BSTR:
             WriteValue(pv->bstrVal, out);
             break;
         case VT_BSTR_BLOB:
-            // bstrblobVal For system use only.
+            // bstr blob value For system use only.
             break;
         case VT_BLOB:
             WriteValue(pv->blob, out);

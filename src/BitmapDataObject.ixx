@@ -14,7 +14,7 @@ public:
 
     ~CBitmapDataObject()
     {
-        ReleaseStgMedium(&m_stgmed);
+        ReleaseStgMedium(&m_storageMedium);
     }
 
     CBitmapDataObject(const CBitmapDataObject&) = delete;
@@ -44,6 +44,6 @@ private:
 
     ULONG m_numReferences{};
 
-    STGMEDIUM m_stgmed{};
+    STGMEDIUM m_storageMedium{};
     FORMATETC m_format{};
 };
