@@ -3,7 +3,6 @@
 
 module;
 
-#include <atlstr.h>
 #include "Macros.h"
 #include <cassert>
 
@@ -13,6 +12,32 @@ import <std.h>;
 import <Windows-import.h>;
 
 namespace {
+
+std::wstring MultiToWide(const PCSTR str, const uint32_t codePage = CP_THREAD_ACP)
+{
+    if (strlen(str) == 0)
+    {
+        return std::wstring();
+    }
+
+    const int required{MultiByteToWideChar(codePage, 0, str, -1, nullptr, 0)};
+    if (required == 0)
+    {
+        return std::wstring();
+    }
+
+    std::wstring converted;
+    converted.resize(required);
+
+    if (const int converted_size{MultiByteToWideChar(codePage, 0, str, -1, converted.data(), static_cast<int>(converted.capacity()))};
+        converted_size == 0)
+    {
+        return std::wstring();
+    }
+
+    return converted;
+}
+
 
 template<class T> static void WriteValue(const T& /*val*/, std::wstring& out)
 {
@@ -209,7 +234,7 @@ template<> PCWSTR GetTypeName<BLOB>() noexcept
 
 template<> void WriteValue<PSTR>(const PSTR& val, std::wstring& out)
 {
-    out = L"\"" + CString(val) + L"\"";
+    out = L"\"" + MultiToWide(val) + L"\"";
 }
 
 template<> PCWSTR GetTypeName<PSTR>() noexcept

@@ -1,11 +1,9 @@
-﻿// Copyright (c) Microsoft Corporation \ Victor Derks.
+// Copyright (c) Microsoft Corporation \ Victor Derks.
 // SPDX-License-Identifier: MIT
 
 #include "Macros.h"
 #include "ComSmartPointers.h"
 #include "MainFrame.h"
-
-#include <atlstr.h>
 
 #include <atlbase.h>
 #include <atlapp.h>
