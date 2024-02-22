@@ -1509,13 +1509,13 @@ HRESULT CMetadataReaderElement::OutputView(IOutputDevice& output, const InfoElem
             std::wstring k;
             std::wstring v;
 
-            IFC(TranslateValueID(&id, PVTSOPTION_IncludeType, k));
-            IFC(PropVariantToString(&value, PVTSOPTION_IncludeType, v));
+            IFC(TranslateValueID(&id, pvtsoption_include_type, k));
+            IFC(PropVariantToString(&value, pvtsoption_include_type, v));
 
             if (schema.vt != VT_EMPTY)
             {
                 std::wstring s;
-                IFC(PropVariantToString(&schema, PVTSOPTION_IncludeType, s));
+                IFC(PropVariantToString(&schema, pvtsoption_include_type, s));
                 output.AddKeyValue((k + L" [" + s.c_str() + L"]").c_str(), v.c_str());
             }
             else

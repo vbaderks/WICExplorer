@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation \ Victor Derks.
+// Copyright (c) Microsoft Corporation \ Victor Derks.
 // SPDX-License-Identifier: MIT
 
 module;
@@ -129,9 +129,7 @@ void CRichEditDevice::AddVerbatimText(const PCWSTR name)
 
 void CRichEditDevice::AddDib(const HGLOBAL hBitmap)
 {
-    IRichEditOle* oleInterface{m_richEditCtrl.GetOleInterface()};
-
-    if (oleInterface)
+    if (IRichEditOle* oleInterface{m_richEditCtrl.GetOleInterface()})
     {
         const HRESULT result = CBitmapDataObject::InsertDib(m_richEditCtrl.m_hWnd, oleInterface, hBitmap);
 

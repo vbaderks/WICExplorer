@@ -17,20 +17,20 @@ public:
         CallFunction(L"CoCreateInstance(CLSID_WICImagingFactory, nullptr, CLSCTX_INPROC_SERVER, IID_IWICImagingFactory, (LPVOID*) &imagingFactory);");
     }
 
-    void BeginVariableScope(std::wstring_view varType, std::wstring_view varBaseName, std::wstring_view varInitValue) override
+    void BeginVariableScope(const std::wstring_view varType, const std::wstring_view varBaseName, const std::wstring_view varInitValue) override
     {
         AddLine(L"{");
 
-        m_indent += INDENT_SPACES;
+        m_indent += indent_spaces;
 
         BeginVariable(varType, varBaseName, varInitValue);
     }
 
     void EndVariableScope() override
     {
-        if (m_indent >= INDENT_SPACES)
+        if (m_indent >= indent_spaces)
         {
-            m_indent -= INDENT_SPACES;
+            m_indent -= indent_spaces;
 
             AddLine(L"}");
         }
@@ -70,7 +70,7 @@ private:
         m_lines.push_back(std::wstring(m_indent, L' ') + line);
     }
 
-    static constexpr size_t INDENT_SPACES{4};
+    static constexpr size_t indent_spaces{4};
 
     std::vector<std::wstring> m_lines;
     std::wstring m_lastVarName;

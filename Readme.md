@@ -6,7 +6,7 @@ WIC Explorer is a tool that uses the Windows Imaging Component API to enumerate 
 
 ## Modifications
 
-This Microsoft sample application has been modified to compile with Visual Studio 2022 17.7 or newer and WTL 10 (included as git submodule).
+This Microsoft sample application has been modified to compile with Visual Studio 2022 17.9 or newer and WTL 10 (included as git submodule).
 
 ## How to build
 

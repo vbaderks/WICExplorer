@@ -1,6 +1,7 @@
 # GIT ignore file
 
 .vs/
+.idea/
 build/
 
 *.user
