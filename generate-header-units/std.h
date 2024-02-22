@@ -1,4 +1,7 @@
-﻿#pragma once
+// Copyright (c) Victor Derks.
+// SPDX-License-Identifier: MIT
+
+#pragma once
 
 #include <memory>
 #include <vector>

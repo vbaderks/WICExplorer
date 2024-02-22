@@ -1,5 +1,9 @@
-﻿// Copyright (c) Microsoft Corporation \ Victor Derks.
+// Copyright (c) Microsoft Corporation \ Victor Derks.
 // SPDX-License-Identifier: MIT
+
+module;
+
+#include "Macros.h"
 
 module Util;
 
@@ -82,9 +86,9 @@ std::wstring GetHresultString(HRESULT hr)
     }
 
     // Try to have windows give a nice message, otherwise just format the HRESULT into a string.
-    const DWORD len = FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr,
-        static_cast<DWORD>(hr), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), msg, MAX_MsgLength, nullptr);
-    if (len != 0)
+    if (const DWORD len = FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr,
+                                         static_cast<DWORD>(hr), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), msg, MAX_MsgLength, nullptr);
+        len != 0)
     {
         // remove the trailing newline
         if (L'\r' == msg[len - 2])

@@ -1,4 +1,4 @@
-﻿// Copyright (c) Victor Derks.
+// Copyright (c) Victor Derks.
 // SPDX-License-Identifier: MIT
 
 module;
@@ -19,7 +19,7 @@ import Element;
 
 import <std.h>;
 
-class CViewInstalledCodecsDlg final : public CDialogImpl<CViewInstalledCodecsDlg>
+class CViewInstalledCodecsDlg final : public ATL::CDialogImpl<CViewInstalledCodecsDlg>
 {
 public:
     enum { IDD = IDD_VIEW_INSTALLED_CODECS };

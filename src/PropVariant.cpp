@@ -267,7 +267,7 @@ template<typename T> void WriteValues(const ULONG count, T* vals, const VARTYPE 
     constexpr ULONG MAX_VALUES = 10;
     std::wstring b;
 
-    if (options & PVTSOPTION_IncludeType)
+    if (options & pvtsoption_include_type)
     {
         VariantTypeToString(type, b);
         out = std::format(L"{}[{}] = {{ ", b, count);
@@ -447,7 +447,7 @@ static HRESULT AddTypeToString(const VARTYPE vt, std::wstring& out)
 
 HRESULT PropVariantToString(PROPVARIANT* pv, const unsigned options, std::wstring& out)
 {
-    if (options & PVTSOPTION_IncludeType)
+    if (options & pvtsoption_include_type)
     {
         out = std::format(L"<UnknownType: 0x{:X}>", static_cast<unsigned>(pv->vt));
     }
@@ -641,7 +641,7 @@ HRESULT PropVariantToString(PROPVARIANT* pv, const unsigned options, std::wstrin
             break;
         }
 
-        if (options & PVTSOPTION_IncludeType)
+        if (options & pvtsoption_include_type)
         {
             AddTypeToString(pv->vt, out);
         }

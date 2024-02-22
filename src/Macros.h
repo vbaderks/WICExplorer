@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation \ Victor Derks.
+// Copyright (c) Microsoft Corporation \ Victor Derks.
 // SPDX-License-Identifier: MIT
 
 #pragma once
@@ -42,3 +42,16 @@ public: \
         switch(dwMsgMapID) \
         { \
         case 0:
+
+// Include additional headers as workaround that IntelliSense in VS 2020 17.9 fails to parse #import <win.h>
+#ifdef __INTELLISENSE__
+#define _AMD64_
+#include <cassert>
+#include <combaseapi.h>
+#include <libloaderapi.h>
+#include <sal.h>
+#include <winreg.h>
+#include <winerror.h>
+#include <winnt.h>
+#include <wincodec.h>
+#endif

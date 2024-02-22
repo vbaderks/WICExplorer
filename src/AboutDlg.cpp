@@ -11,7 +11,7 @@ module;
 
 module AboutDlg;
 
-class CAboutDlg final : public CDialogImpl<CAboutDlg>
+class CAboutDlg final : public ATL::CDialogImpl<CAboutDlg>
 {
 public:
     enum { IDD = IDD_ABOUTBOX };

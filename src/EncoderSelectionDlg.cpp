@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation \ Victor Derks.
+// Copyright (c) Microsoft Corporation \ Victor Derks.
 // SPDX-License-Identifier: MIT
 
 module;
@@ -19,7 +19,7 @@ import Element;
 import Util;
 
 
-class CEncoderSelectionDlg final : public CDialogImpl<CEncoderSelectionDlg>
+class CEncoderSelectionDlg final : public ATL::CDialogImpl<CEncoderSelectionDlg>
 {
 public:
     enum { IDD = IDD_ENCODER_SELECTION };

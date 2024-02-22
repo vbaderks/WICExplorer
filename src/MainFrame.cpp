@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation \ Victor Derks.
+// Copyright (c) Microsoft Corporation \ Victor Derks.
 // SPDX-License-Identifier: MIT
 
 #include "MainFrame.h"
@@ -114,7 +114,7 @@ LRESULT CMainFrame::OnPaneClose(uint16_t, uint16_t, const HWND hWndCtl, BOOL&) c
 
     // take the container that was Closed out of the splitter.
     // Use SetSplitterPane(nPane, nullptr) if you want to stay in
-    // multipane mode instead of changing to single pane mode
+    // multi pane mode instead of changing to single pane mode
     constexpr int nCount{pWnd->m_nPanesCount};
     for (int nPane = 0; nPane < nCount; nPane++)
     {
@@ -292,7 +292,7 @@ HRESULT CMainFrame::OpenWildcard(const PCWSTR search, DWORD& attempted, DWORD& o
 
     // fdata.cFileName does not store the directory, nor is the directory
     // stored anywhere else inside of fdata. The directory needs to be copied
-    // from the search string, and then cFileName has to be concatonated to the
+    // from the search string, and then cFileName has to be concatenated to the
     // directory.
     wchar_t directoryPrefix[MAX_PATH * 2] = {0};
     const auto* lastSlash = wcsrchr(search, L'\\');
@@ -332,7 +332,7 @@ HRESULT CMainFrame::OpenWildcard(const PCWSTR search, DWORD& attempted, DWORD& o
         HRESULT temp;
         bool updateThis{};
 
-        // Concat the filename onto the directory.
+        // Concatenate the filename onto the directory.
         VERIFY(wcscpy_s(directoryPrefix + directorySize,
             ARRAYSIZE(directoryPrefix) - directorySize,
             fdata.cFileName) == 0);
@@ -526,12 +526,10 @@ LRESULT CMainFrame::OnFileOpenDir(uint16_t /*code*/, uint16_t /*item*/, const HW
     OpenDirectory(fileDlg.GetFolderPath(), attempted, opened);
 
     UpdateTreeView(true);
-
-    wchar_t buffer[60];
-    swprintf_s(buffer, 60, L"Successfully opened %lu out of %lu image files", opened, attempted);
-
     if (!m_suppressMessageBox)
     {
+        wchar_t buffer[60];
+        swprintf_s(buffer, 60, L"Successfully opened %lu out of %lu image files", opened, attempted);
         MessageBox(buffer, L"Done", MB_OK);
     }
 
@@ -664,8 +662,10 @@ LRESULT CMainFrame::OnFileSave(uint16_t, uint16_t, HWND, BOOL&)
 
 bool CMainFrame::ElementCanBeSavedAsImage(const CInfoElement& element) noexcept
 {
-    return ((nullptr != dynamic_cast<const CBitmapDecoderElement*>(&element)) ||
-        (nullptr != dynamic_cast<const CBitmapSourceElement*>(&element)));
+    const CInfoElement* infoElement{&element};
+
+    return ((nullptr != dynamic_cast<const CBitmapDecoderElement*>(infoElement)) ||
+        (nullptr != dynamic_cast<const CBitmapSourceElement*>(infoElement)));
 }
 
 
@@ -762,130 +762,130 @@ constexpr HRESULT ERROR_BLOCK_READER = MAKE_HRESULT(1, 0x899, 1);
 
 namespace {
 
-HRESULT GetReaderFromQueryReader(IWICMetadataQueryReader* queryReader, IWICMetadataReader** reader)
-{
-    HRESULT result = S_OK;
-
-    // This will take the query reader and copy it into a CDummyBlockWriter.
-    // Internally, AddWriter will be called with the unabstracted metadata reader.
-    class CDummyBlockWriter final :
-        public IWICMetadataBlockWriter
+    HRESULT GetReaderFromQueryReader(IWICMetadataQueryReader* queryReader, IWICMetadataReader** reader)
     {
-    public:
-        IWICMetadataWriterPtr writer;
-        IWICMetadataBlockReaderPtr blockReader;
+        HRESULT result = S_OK;
 
-        ULONG STDMETHODCALLTYPE AddRef() noexcept override
+        // This will take the query reader and copy it into a CDummyBlockWriter.
+        // Internally, AddWriter will be called with the unabstracted metadata reader.
+        class CDummyBlockWriter final :
+            public IWICMetadataBlockWriter
         {
-            return 0;
-        }
+        public:
+            IWICMetadataWriterPtr writer;
+            IWICMetadataBlockReaderPtr blockReader;
 
-        ULONG STDMETHODCALLTYPE Release() noexcept override
-        {
-            return 0;
-        }
-
-        HRESULT __stdcall QueryInterface(const IID& id, void** dest) noexcept override
-        {
-            if (id == IID_IWICMetadataBlockWriter || id == IID_IWICMetadataBlockReader)
+            ULONG STDMETHODCALLTYPE AddRef() noexcept override
             {
-                *dest = this;
+                return 0;
+            }
+
+            ULONG STDMETHODCALLTYPE Release() noexcept override
+            {
+                return 0;
+            }
+
+            HRESULT __stdcall QueryInterface(const IID& id, void** dest) noexcept override
+            {
+                if (id == IID_IWICMetadataBlockWriter || id == IID_IWICMetadataBlockReader)
+                {
+                    *dest = this;
+                    return S_OK;
+                }
+
+                return E_NOINTERFACE;
+            }
+
+            HRESULT __stdcall InitializeFromBlockReader(IWICMetadataBlockReader* pIMDBlockReader) noexcept override
+            {
+                blockReader = pIMDBlockReader;
                 return S_OK;
             }
 
-            return E_NOINTERFACE;
-        }
+            HRESULT __stdcall GetWriterByIndex(uint32_t /*nIndex*/, IWICMetadataWriter** ppIMetadataWriter) noexcept override
+            {
+                *ppIMetadataWriter = nullptr;
+                return CO_E_NOT_SUPPORTED;
+            }
 
-        HRESULT __stdcall InitializeFromBlockReader(IWICMetadataBlockReader* pIMDBlockReader) noexcept override
-        {
-            blockReader = pIMDBlockReader;
-            return S_OK;
-        }
+            HRESULT __stdcall AddWriter(IWICMetadataWriter* pIMetadataWriter) noexcept override
+            {
+                if (writer)
+                {
+                    return CO_E_NOT_SUPPORTED;
+                }
+                writer = pIMetadataWriter;
+                return S_OK;
+            }
 
-        HRESULT __stdcall GetWriterByIndex(uint32_t /*nIndex*/, IWICMetadataWriter** ppIMetadataWriter) noexcept override
-        {
-            *ppIMetadataWriter = nullptr;
-            return CO_E_NOT_SUPPORTED;
-        }
-
-        HRESULT __stdcall AddWriter(IWICMetadataWriter* pIMetadataWriter) noexcept override
-        {
-            if (writer)
+            HRESULT __stdcall SetWriterByIndex(uint32_t /*nIndex*/, IWICMetadataWriter* /*pIMetadataWriter*/) noexcept override
             {
                 return CO_E_NOT_SUPPORTED;
             }
-            writer = pIMetadataWriter;
-            return S_OK;
-        }
 
-        HRESULT __stdcall SetWriterByIndex(uint32_t /*nIndex*/, IWICMetadataWriter* /*pIMetadataWriter*/) noexcept override
+            HRESULT __stdcall RemoveWriterByIndex(uint32_t /*nIndex*/) noexcept override
+            {
+                return CO_E_NOT_SUPPORTED;
+            }
+
+            HRESULT __stdcall GetContainerFormat(GUID* /*pguidContainerFormat*/) noexcept override
+            {
+                return CO_E_NOT_SUPPORTED;
+            }
+
+            HRESULT __stdcall GetCount(uint32_t* pcCount) noexcept override
+            {
+                *pcCount = 0;
+                return CO_E_NOT_SUPPORTED;
+            }
+
+            HRESULT __stdcall GetReaderByIndex(uint32_t /*nIndex*/, IWICMetadataReader** ppIMetadataReader) noexcept override
+            {
+                *ppIMetadataReader = nullptr;
+                return CO_E_NOT_SUPPORTED;
+            }
+
+            HRESULT __stdcall GetEnumerator(IEnumUnknown** ppIEnumMetadata) noexcept override
+            {
+                *ppIEnumMetadata = nullptr;
+                return CO_E_NOT_SUPPORTED;
+            }
+        } dummyWriter;
+
+        // These lower level metadata data functions will require the component factory.
+        IWICComponentFactoryPtr componentFactory;
+        IFC(g_imagingFactory->QueryInterface(IID_PPV_ARGS(&componentFactory)));
+
+        // This takes the IWICMetadataBlockWriter and wraps it as a IWICMetadataQueryWriter.
+        // This is necessary because only query writer to query writer copying is supported.
+        IWICMetadataQueryWriterPtr writerWrapper;
+        IFC(componentFactory->CreateQueryWriterFromBlockWriter(&dummyWriter, &writerWrapper));
+
+        // Prepare the propvariant for copying the query reader.
+        PROPVARIANT propValue;
+        PropVariantInit(&propValue);
+        propValue.vt = VT_UNKNOWN;
+        propValue.punkVal = queryReader;
+        propValue.punkVal->AddRef();
+
+        // Writing to "/" performs the special operation of copying from another query writer.
+        IFC(writerWrapper->SetMetadataByName(L"/", &propValue));
+        PropVariantClear(&propValue);
+
+        // At this point, dummyWriter.writer should be set to the unabstracted query reader.
+        if (dummyWriter.writer == 0)
         {
-            return CO_E_NOT_SUPPORTED;
+            if (dummyWriter.blockReader)
+            {
+                return ERROR_BLOCK_READER;
+            }
+            return E_FAIL;
         }
 
-        HRESULT __stdcall RemoveWriterByIndex(uint32_t /*nIndex*/) noexcept override
-        {
-            return CO_E_NOT_SUPPORTED;
-        }
+        IFC(dummyWriter.writer->QueryInterface(IID_PPV_ARGS(reader)));
 
-        HRESULT __stdcall GetContainerFormat(GUID* /*pguidContainerFormat*/) noexcept override
-        {
-            return CO_E_NOT_SUPPORTED;
-        }
-
-        HRESULT __stdcall GetCount(uint32_t* pcCount) noexcept override
-        {
-            *pcCount = 0;
-            return CO_E_NOT_SUPPORTED;
-        }
-
-        HRESULT __stdcall GetReaderByIndex(uint32_t /*nIndex*/, IWICMetadataReader** ppIMetadataReader) noexcept override
-        {
-            *ppIMetadataReader = nullptr;
-            return CO_E_NOT_SUPPORTED;
-        }
-
-        HRESULT __stdcall GetEnumerator(IEnumUnknown** ppIEnumMetadata) noexcept override
-        {
-            *ppIEnumMetadata = nullptr;
-            return CO_E_NOT_SUPPORTED;
-        }
-    } dummyWriter;
-
-    // These lower level metadata data functions will require the component factory.
-    IWICComponentFactoryPtr componentFactory;
-    IFC(g_imagingFactory->QueryInterface(IID_PPV_ARGS(&componentFactory)));
-
-    // This takes the IWICMetadataBlockWriter and wraps it as a IWICMetadataQueryWriter.
-    // This is necessary because only query writer to query writer copying is supported.
-    IWICMetadataQueryWriterPtr writerWrapper;
-    IFC(componentFactory->CreateQueryWriterFromBlockWriter(&dummyWriter, &writerWrapper));
-
-    // Prepare the propvariant for copying the query reader.
-    PROPVARIANT propValue;
-    PropVariantInit(&propValue);
-    propValue.vt = VT_UNKNOWN;
-    propValue.punkVal = queryReader;
-    propValue.punkVal->AddRef();
-
-    // Writing to "/" performs the special operation of copying from another query writer.
-    IFC(writerWrapper->SetMetadataByName(L"/", &propValue));
-    PropVariantClear(&propValue);
-
-    // At this point, dummyWriter.writer should be set to the unabstracted query reader.
-    if (dummyWriter.writer == 0)
-    {
-        if (dummyWriter.blockReader)
-        {
-            return ERROR_BLOCK_READER;
-        }
-        return E_FAIL;
+        return result;
     }
-
-    IFC(dummyWriter.writer->QueryInterface(IID_PPV_ARGS(reader)));
-
-    return result;
-}
 }
 
 LRESULT CMainFrame::OnShowViewPane(uint16_t /*code*/, const uint16_t item, HWND /*hSender*/, BOOL& handled)
@@ -1017,7 +1017,7 @@ HRESULT CMainFrame::QueryMetadata(CInfoElement* elem)
 {
     HRESULT result = S_OK;
 
-    class CQLPath final : public CDialogImpl<CQLPath>
+    class CQLPath final : public ATL::CDialogImpl<CQLPath>
     {
     public:
         std::wstring m_path;
@@ -1166,7 +1166,7 @@ HRESULT CMainFrame::QueryMetadata(CInfoElement* elem)
             rootQueryReader->GetMetadataByName(parentPath.c_str(), &value);
         }
         std::wstring v;
-        result = PropVariantToString(&value, PVTSOPTION_IncludeType, v);
+        result = PropVariantToString(&value, pvtsoption_include_type, v);
         PropVariantClear(&value);
         IFC(result);
 
