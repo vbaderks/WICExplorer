@@ -15,7 +15,7 @@ CMetadataTranslator::Key::Key(const PCWSTR guidStr, const PCWSTR idStr) noexcept
     VERIFY(SUCCEEDED(CLSIDFromString(guidStr, &m_format)));
 }
 
-HRESULT CMetadataTranslator::ReadPropVariantInteger(PROPVARIANT* pv, int& out) noexcept
+HRESULT CMetadataTranslator::ReadPropVariantInteger(const PROPVARIANT* pv, int& out) noexcept
 {
     HRESULT result{E_INVALIDARG};
 
@@ -65,7 +65,7 @@ HRESULT CMetadataTranslator::ReadPropVariantInteger(PROPVARIANT* pv, int& out) n
     return result;
 }
 
-HRESULT CMetadataTranslator::Translate(const GUID& format, PROPVARIANT* pv, std::wstring& out) const
+HRESULT CMetadataTranslator::Translate(const GUID& format, const PROPVARIANT* pv, std::wstring& out) const
 {
     HRESULT result;
 

@@ -177,5 +177,5 @@ std::optional<std::pair<GUID, GUID>> GetEncoderSelectionFromUser()
     if (dialog.DoModal() != IDOK)
         return {};
 
-    return std::make_pair(dialog.GetPixelFormat(), dialog.GetContainerFormat());
+    return std::make_pair(dialog.GetContainerFormat(), dialog.GetPixelFormat());
 }

@@ -1117,23 +1117,7 @@ HRESULT CBitmapSourceElement::OutputView(IOutputDevice& output, const InfoElemen
 
                     if (SUCCEEDED(result))
                     {
-                        wchar_t wzFilename[_MAX_PATH + 1];
-                        DWORD cbFilename = sizeof(wzFilename);
-
-                        if (GetColorDirectoryW(nullptr, wzFilename, &cbFilename))
-                        {
-                            filename = wzFilename;
-                            filename += L"\\sRGB Color Space Profile.icm";
-                        }
-                        else
-                        {
-                            result = E_UNEXPECTED;
-                        }
-
-                        if (SUCCEEDED(result))
-                        {
-                            result = colorContextDst->InitializeFromFilename(filename.c_str());
-                        }
+                        result = colorContextDst->InitializeFromExifColorSpace(1);
                     }
 
                     if (SUCCEEDED(result))

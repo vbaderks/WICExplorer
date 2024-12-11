@@ -196,8 +196,8 @@ public:
         : CComponentInfoElement(filename)
         , m_filename(filename)
     {
-        const size_t pathDelim{m_name.rfind(L'\\')};
-        if (pathDelim != std::wstring::npos)
+        if (const size_t pathDelim{m_name.rfind(L'\\')};
+            pathDelim != std::wstring::npos)
         {
             m_name = m_name.substr(pathDelim + 1);
         }
@@ -266,7 +266,7 @@ public:
         , m_frameDecode(frameDecode)
     {
         WARNING_SUPPRESS_NEXT_LINE(4296) // '<': expression is always false
-        m_name = std::format(L"Frame #{}", index);
+            m_name = std::format(L"Frame #{}", index);
     }
 
     HRESULT SaveAsImage(CImageTransencoder& trans, ICodeGenerator& codeGen) noexcept(false) override;

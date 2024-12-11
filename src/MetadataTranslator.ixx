@@ -28,7 +28,7 @@ public:
         return inst;
     }
 
-    HRESULT Translate(const GUID &format, PROPVARIANT *pv, std::wstring &out) const;
+    HRESULT Translate(const GUID &format, const PROPVARIANT *pv, std::wstring &out) const;
 
 private:
     struct Key final
@@ -47,7 +47,7 @@ private:
 
     CMetadataTranslator() noexcept = default;
 
-    static HRESULT ReadPropVariantInteger(PROPVARIANT *pv, int &out) noexcept;
+    static HRESULT ReadPropVariantInteger(const PROPVARIANT *pv, int &out) noexcept;
     HRESULT LoadFormat(MSXML2::IXMLDOMNode* formatNodeArg);
     HRESULT LoadTranslations();
 

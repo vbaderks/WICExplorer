@@ -3,9 +3,7 @@
   <PropertyGroup>
     <!-- Build to a folder outside the source folders, making it easier to clean. -->
     <OutDir>$(MSBuildThisFileDirectory)build\bin\$(Platform)\$(Configuration)\</OutDir>
-
-    <!-- C++ temp files can be redirected. -->
-    <IntDir>$(MSBuildThisFileDirectory)build\intermediate\$(MSBuildProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(MSBuildThisFileDirectory)build\intermediate\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
 
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
 
