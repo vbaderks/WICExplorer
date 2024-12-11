@@ -14,7 +14,7 @@ jobs:
     runs-on: windows-2022
     strategy:
       matrix:
-        buildPlatform: [x64, x86]
+        buildPlatform: [x64, x86, ARM64]
         buildConfiguration: [Release, Debug]
 
     steps:
@@ -24,8 +24,8 @@ jobs:
         submodules: true
 
     - name: Add MSBuild to PATH
-      uses: microsoft/setup-msbuild@v1.1.3
+      uses: microsoft/setup-msbuild@v2
 
     - name: Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: msbuild /v:m /m /p:Configuration=${{matrix.buildConfiguration}} /p:Platform=${{matrix.buildPlatform}} ${{env.SOLUTION_FILE_PATH}} /p:VCToolsVersion=14.37.32822
+      run: msbuild /v:m /m /p:Configuration=${{matrix.buildConfiguration}} /p:Platform=${{matrix.buildPlatform}} ${{env.SOLUTION_FILE_PATH}}

@@ -210,13 +210,11 @@ template<> PCWSTR GetTypeName<CLSID>() noexcept
 template<> void WriteValue<BLOB>(const BLOB& val, std::wstring& out)
 {
     constexpr ULONG MAX_BYTES = 10;
-    std::wstring b;
 
     out = std::format(L"{} bytes = {{ ", val.cbSize);
     for (uint32_t i = 0; i < std::min(MAX_BYTES, val.cbSize); i++)
     {
-        b = std::format(L"{:#X} ", val.pBlobData[i]);
-        out += b;
+        out += std::format(L"{:#X} ", val.pBlobData[i]);
     }
 
     if (MAX_BYTES < val.cbSize)

@@ -48,14 +48,14 @@ CImageTransencoder::~CImageTransencoder() noexcept(false)
 
 void CImageTransencoder::Clear() noexcept
 {
-    m_codeGen           = nullptr;
-    m_stream            = nullptr;
-    m_encoder           = nullptr;
-    m_encoding          = false;
+    m_codeGen = nullptr;
+    m_stream = nullptr;
+    m_encoder = nullptr;
+    m_encoding = false;
     m_numPalettedFrames = 0;
 }
 
-HRESULT CImageTransencoder::Begin(REFGUID containerFormat, const PCWSTR filename, ICodeGenerator &codeGen)
+HRESULT CImageTransencoder::Begin(REFGUID containerFormat, const PCWSTR filename, ICodeGenerator& codeGen)
 {
     HRESULT result = S_OK;
 
@@ -110,8 +110,7 @@ HRESULT CImageTransencoder::AddFrame(IWICBitmapSource* bitmapSource)
     }
 
     // Perform different operations if this is a frame vs. just a boring BitmapSource
-    const IWICBitmapFrameDecodePtr frame{bitmapSource};
-    if (frame)
+    if (const IWICBitmapFrameDecodePtr frame{bitmapSource})
     {
         m_codeGen->BeginVariableScope(L"IWICBitmapFrameDecode*", L"source", L"...");
         IFC(AddBitmapFrameDecode(frame));
@@ -172,7 +171,7 @@ HRESULT CImageTransencoder::End()
         m_codeGen->EndVariableScope();
     }
 
-    if ( m_stream)
+    if (m_stream)
     {
         m_codeGen->EndVariableScope();
     }
@@ -183,7 +182,7 @@ HRESULT CImageTransencoder::End()
 }
 
 
-HRESULT CImageTransencoder::CreateFrameEncode(IWICBitmapSource* bitmapSource, IWICBitmapFrameEncodePtr &frameEncode)
+HRESULT CImageTransencoder::CreateFrameEncode(IWICBitmapSource* bitmapSource, IWICBitmapFrameEncodePtr& frameEncode)
 {
     HRESULT result = S_OK;
 
@@ -223,7 +222,7 @@ HRESULT CImageTransencoder::CreateFrameEncode(IWICBitmapSource* bitmapSource, IW
     IFC(bitmapSource->GetPixelFormat(&desiredPixelFormat));
 
     m_codeGen->CallFunction(L"supportedPixelFormat = desiredPixelFormat;");
-    if(m_format == GUID_WICPixelFormatDontCare)
+    if (m_format == GUID_WICPixelFormatDontCare)
     {
         supportedPixelFormat = desiredPixelFormat;
     }
@@ -239,8 +238,8 @@ HRESULT CImageTransencoder::CreateFrameEncode(IWICBitmapSource* bitmapSource, IW
     // If the format that we will encode to requires a palette, then we need to
     // retrieve one. First we will try the palette of the BitmapSource itself.
     // If that fails, we will generate a palette from the BitmapSource.
-    const uint32_t numPaletteColors = NumPaletteColorsRequiredByFormat(supportedPixelFormat);
-    if (numPaletteColors > 0)
+    if (const uint32_t numPaletteColors = NumPaletteColorsRequiredByFormat(supportedPixelFormat);
+        numPaletteColors > 0)
     {
         // Create the palette
         m_codeGen->BeginVariableScope(L"IWICPalette*", L"palette", L"nullptr");
@@ -295,14 +294,14 @@ HRESULT CImageTransencoder::CreateFrameEncode(IWICBitmapSource* bitmapSource, IW
 
         IFC(frame->GetColorContexts(colorContextCount, contexts.data(), &colorContextCount));
 
-        if(FAILED(frameEncode->SetColorContexts(colorContextCount, contexts.data())))
+        if (FAILED(frameEncode->SetColorContexts(colorContextCount, contexts.data())))
         {
             ::MessageBox(nullptr, L"Unable to copy color contexts", L"Warning", MB_OK);
         }
 
         for (size_t i{}; i < contexts.size(); ++i)
         {
-            if(contexts[i] != nullptr)
+            if (contexts[i] != nullptr)
             {
                 contexts[i]->Release();
             }
