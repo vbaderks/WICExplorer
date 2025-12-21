@@ -12,7 +12,7 @@ export module OutputDevice;
 
 import IOutputDevice;
 
-import <std.h>;
+import std;
 
 export class CRichEditDevice final : public IOutputDevice
 {

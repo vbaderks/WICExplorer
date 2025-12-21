@@ -3,7 +3,7 @@
 
 export module ICodeGenerator;
 
-import <std.h>;
+import std;
 
 export struct ICodeGenerator
 {

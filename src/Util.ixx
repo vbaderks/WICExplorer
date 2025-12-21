@@ -8,7 +8,7 @@ module;
 
 export module Util;
 
-import <std.h>;
+import std;
 import <Windows-import.h>;
 
 export {
@@ -30,7 +30,7 @@ std::wstring GetHresultString(HRESULT hr);
 
 template<typename WicInterface, typename MemberFunction>
 [[nodiscard]] HRESULT GetWicString(WicInterface& wicInterface, MemberFunction memberFunction, std::wstring& output) {
-    uint32_t bufferSizeInChars;
+    std::uint32_t bufferSizeInChars;
     const HRESULT result{(wicInterface.*memberFunction)(0, nullptr, &bufferSizeInChars)};
     if (FAILED(result))
         return result;

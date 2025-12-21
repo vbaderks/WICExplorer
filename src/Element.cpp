@@ -18,7 +18,7 @@ import Stopwatch;
 import Util;
 import PropVariant;
 
-import <std.h>;
+import std;
 
 
 namespace {

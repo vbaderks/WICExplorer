@@ -12,7 +12,7 @@ import ImageTransencoder;
 import IOutputDevice;
 import ICodeGenerator;
 
-import <std.h>;
+import std;
 
 export HRESULT GetPixelFormatName(wchar_t* dest, uint32_t chars, WICPixelFormatGUID guid);
 

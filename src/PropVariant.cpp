@@ -8,12 +8,12 @@ module;
 
 module PropVariant;
 
-import <std.h>;
+import std;
 import <Windows-import.h>;
 
 namespace {
 
-std::wstring MultiToWide(const PCSTR str, const uint32_t codePage = CP_THREAD_ACP)
+std::wstring MultiToWide(const PCSTR str, const std::uint32_t codePage = CP_THREAD_ACP)
 {
     if (strlen(str) == 0)
     {
