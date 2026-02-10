@@ -5,7 +5,7 @@ export module CodeGenerator;
 
 import ICodeGenerator;
 
-import <std.h>;
+import std;
 
 
 export class CSimpleCodeGenerator final : public ICodeGenerator

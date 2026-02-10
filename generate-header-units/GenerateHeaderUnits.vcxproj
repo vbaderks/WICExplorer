@@ -79,7 +79,6 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" />
   <ItemGroup>
-    <ClInclude Include="std.h" />
     <ClInclude Include="Windows-import.h" />
   </ItemGroup>
   <ItemGroup>

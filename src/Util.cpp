@@ -7,7 +7,7 @@ module;
 
 module Util;
 
-import <std.h>;
+import std;
 import <Windows-import.h>;
 
 using std::array;

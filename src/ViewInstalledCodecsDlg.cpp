@@ -17,7 +17,7 @@ module ViewInstalledCodecsDlg;
 import Util;
 import Element;
 
-import <std.h>;
+import std;
 
 class CViewInstalledCodecsDlg final : public ATL::CDialogImpl<CViewInstalledCodecsDlg>
 {

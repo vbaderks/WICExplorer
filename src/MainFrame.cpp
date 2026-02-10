@@ -22,7 +22,7 @@ import ViewInstalledCodecsDlg;
 import Util;
 import CodeGenerator;
 
-import <std.h>;
+import std;
 import <Windows-import.h>;
 
 

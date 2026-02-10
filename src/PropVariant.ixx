@@ -3,7 +3,7 @@
 
 export module PropVariant;
 
-import <std.h>;
+import std;
 import <Windows-import.h>;
 
 export

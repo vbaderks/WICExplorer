@@ -1,0 +1,22 @@
+<Solution>
+  <Configurations>
+    <Platform Name="ARM64" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".github/workflows/msbuild.yml" />
+    <File Path=".gitignore" />
+    <File Path="cpp.hint" />
+    <File Path="default.ruleset" />
+    <File Path="default.ruleset.md" />
+    <File Path="description.html" />
+    <File Path="Directory.Build.props" />
+    <File Path="LICENSE.md" />
+    <File Path="Readme.md" />
+    <File Path="spelling.dic" />
+  </Folder>
+  <Project Path="generate-header-units/GenerateHeaderUnits.vcxproj" Id="7b23fccf-1559-426d-ae55-95d0d6bd352b" />
+  <Project Path="src/WICExplorer.vcxproj" Id="68ed6fae-290e-483a-8d90-6e59bafbc3c9" />
+</Solution>

@@ -16,9 +16,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="std.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Windows-import.h">
       <Filter>Header Files</Filter>
     </ClInclude>

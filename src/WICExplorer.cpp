@@ -12,7 +12,7 @@
 import Util;
 import Element;
 
-import <std.h>;
+import std;
 
 
 #ifndef _UNICODE

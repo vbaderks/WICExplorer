@@ -8,7 +8,7 @@ module;
 
 module BitmapDataObject;
 
-import <std.h>;
+import std;
 import <Windows-import.h>;
 
 

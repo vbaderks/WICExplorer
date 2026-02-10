@@ -7,7 +7,7 @@ module;
 
 export module MetadataTranslator;
 
-import <std.h>;
+import std;
 
 export class CMetadataTranslator final
 {
@@ -20,7 +20,7 @@ public:
         if (!initialized)
         {
             // We do not fail if there was an error loading the dictionary
-            inst.LoadTranslations();
+            std::ignore = inst.LoadTranslations();
 
             initialized = true;
         }
