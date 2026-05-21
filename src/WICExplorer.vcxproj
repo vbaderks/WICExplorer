@@ -27,7 +27,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <VCProjectVersion>16.0</VCProjectVersion>
+    <VCProjectVersion>18.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{68ED6FAE-290E-483A-8D90-6E59BAFBC3C9}</ProjectGuid>
     <RootNamespace>WICExplorer</RootNamespace>
@@ -177,6 +177,7 @@
   <ItemGroup>
     <ClInclude Include="ComSmartPointers.h" />
     <ClInclude Include="ImportMsXml2.h" />
+    <ClInclude Include="IntelliSense.h" />
     <ClInclude Include="Macros.h" />
     <ClInclude Include="MainFrame.h" />
     <ClInclude Include="resource.h" />

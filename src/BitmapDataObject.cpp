@@ -4,6 +4,7 @@
 module;
 
 #include "Macros.h"
+#include "IntelliSense.h"
 #include <cassert>
 
 module BitmapDataObject;

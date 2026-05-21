@@ -45,21 +45,21 @@ LRESULT CViewInstalledCodecsDlg::OnInitDialog(uint32_t /*uMsg*/, WPARAM /*wParam
 
     {
         IEnumUnknownPtr e;
-        const HRESULT result{g_imagingFactory->CreateComponentEnumerator(WICEncoder, WICComponentEnumerateRefresh, &e)};
-        if (SUCCEEDED(result))
+        if (const HRESULT result{ g_imagingFactory->CreateComponentEnumerator(WICEncoder, WICComponentEnumerateRefresh, &e) };
+            SUCCEEDED(result))
         {
             ULONG num;
             IUnknownPtr unk;
 
             while (S_OK == e->Next(1, &unk, &num) && 1 == num)
             {
-                IWICBitmapCodecInfoPtr encoderInfo{unk};
+                IWICBitmapCodecInfoPtr encoderInfo{ unk };
 
                 // Get the name of the container
                 std::wstring friendlyName;
                 VERIFY(SUCCEEDED(GetWicString(*encoderInfo, &(IWICBitmapCodecInfo::GetFriendlyName), friendlyName)));
 
-                const int id{codecListView.InsertItem(0, friendlyName.c_str())};
+                const int id{ codecListView.InsertItem(0, friendlyName.c_str()) };
 
                 GUID classId;
                 encoderInfo->GetCLSID(&classId);
@@ -70,7 +70,7 @@ LRESULT CViewInstalledCodecsDlg::OnInitDialog(uint32_t /*uMsg*/, WPARAM /*wParam
 
     {
         IEnumUnknownPtr e;
-        const HRESULT result{g_imagingFactory->CreateComponentEnumerator(WICDecoder, WICComponentEnumerateRefresh, &e)};
+        const HRESULT result{ g_imagingFactory->CreateComponentEnumerator(WICDecoder, WICComponentEnumerateRefresh, &e) };
         if (SUCCEEDED(result))
         {
             ULONG num;
@@ -78,13 +78,13 @@ LRESULT CViewInstalledCodecsDlg::OnInitDialog(uint32_t /*uMsg*/, WPARAM /*wParam
 
             while (S_OK == e->Next(1, &unk, &num) && 1 == num)
             {
-                IWICBitmapCodecInfoPtr encoderInfo{unk};
+                IWICBitmapCodecInfoPtr encoderInfo{ unk };
 
                 // Get the name of the container
                 std::wstring friendlyName;
                 VERIFY(SUCCEEDED(GetWicString(*encoderInfo, &(IWICBitmapCodecInfo::GetFriendlyName), friendlyName)));
 
-                const int id{codecListView.InsertItem(0, friendlyName.c_str())};
+                const int id{ codecListView.InsertItem(0, friendlyName.c_str()) };
 
                 GUID classId;
                 encoderInfo->GetCLSID(&classId);

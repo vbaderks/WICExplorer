@@ -79,7 +79,7 @@ int WINAPI wWinMain(const HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, cons
     }
 
     // Initialize the Common Controls
-    const INITCOMMONCONTROLSEX iccx{.dwSize = sizeof iccx, .dwICC = ICC_COOL_CLASSES | ICC_BAR_CLASSES | ICC_WIN95_CLASSES};
+    constexpr INITCOMMONCONTROLSEX iccx{.dwSize = sizeof iccx, .dwICC = ICC_COOL_CLASSES | ICC_BAR_CLASSES | ICC_WIN95_CLASSES};
     const bool initCCRes = InitCommonControlsEx(&iccx);
     ATLASSERT(initCCRes);
     if (!initCCRes)

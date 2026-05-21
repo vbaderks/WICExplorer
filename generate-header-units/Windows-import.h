@@ -11,3 +11,7 @@
 #include <objidl.h>
 #include <Richedit.h>
 #include <RichOle.h>
+
+#include <comip.h>
+#include <comdef.h>
+#include <comdefsp.h>

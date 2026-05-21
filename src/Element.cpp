@@ -278,8 +278,7 @@ void CInfoElement::AddSibling(CInfoElement* element) noexcept
 
 void CInfoElement::AddChild(CInfoElement* element)  noexcept
 {
-    CInfoElement* firstChild = FirstChild();
-    if (!firstChild)
+    if (CInfoElement* firstChild = FirstChild(); !firstChild)
     {
         element->Unlink();
         m_firstChild = element;
@@ -297,7 +296,7 @@ void CInfoElement::AddChild(CInfoElement* element)  noexcept
     }
 }
 
-void CInfoElement::RemoveChildren() noexcept
+void CInfoElement::RemoveChildren() const noexcept
 {
     //First unlink the children from the tree, then delete them
     while (m_firstChild)
@@ -325,7 +324,7 @@ void CInfoElement::Unlink() noexcept
     m_parent = nullptr;
 }
 
-void CInfoElement::RemoveChild(CInfoElement* child) noexcept
+void CInfoElement::RemoveChild(CInfoElement* child) const noexcept
 {
     if (child->m_parent != this)
     {
@@ -1283,7 +1282,7 @@ HRESULT CBitmapSourceElement::CreateDibFromBitmapSource(IWICBitmapSource* source
             return E_OUTOFMEMORY;
         }
 
-        BYTE* dibPixels2 = dibBytes + sizeof(BITMAPINFOHEADER);
+        const BYTE* dibPixels2 = dibBytes + sizeof(BITMAPINFOHEADER);
 
         BYTE* dibAlphaBytes = static_cast<BYTE*>(GlobalLock(*phAlpha));
 
@@ -1348,7 +1347,7 @@ void CBitmapFrameDecodeElement::FillContextMenu(const HMENU context) noexcept
 {
     CBitmapSourceElement::FillContextMenu(context);
 
-    const MENUITEMINFO itemInfo =
+    constexpr MENUITEMINFO itemInfo =
     {
         .cbSize = sizeof itemInfo,
         .fMask = MIIM_FTYPE | MIIM_ID | MIIM_STATE | MIIM_STRING,
@@ -1395,7 +1394,7 @@ HRESULT CBitmapFrameDecodeElement::OutputInfo(IOutputDevice& /*output*/) noexcep
 // METADATA READER ELEMENT
 //----------------------------------------------------------------------------------------
 
-CMetadataReaderElement::CMetadataReaderElement(CInfoElement* parent, const uint32_t idx, IWICMetadataReader* reader)
+CMetadataReaderElement::CMetadataReaderElement(const CInfoElement* parent, const uint32_t idx, IWICMetadataReader* reader)
     : CComponentInfoElement(L"")
     , m_reader(reader)
 {

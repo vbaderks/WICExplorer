@@ -6,13 +6,13 @@ WIC Explorer is a tool that uses the Windows Imaging Component API to enumerate 
 
 ## Modifications
 
-This Microsoft sample application has been modified to compile with Visual Studio 2026 18.1.1 or newer and WTL 10 (included as git submodule).
+This Microsoft sample application has been modified to compile with Visual Studio 2026 18.6.1 or newer and WTL 10 (included as git submodule).
 
 ## How to build
 
 - `git clone --recurse-submodules https://github.com/vbaderks/WICExplorer.git`
 - cd WICExplorer
-- Open WICExplorer.sln in Visual Studio.  
+- Open WICExplorer.slnx in Visual Studio.  
   Select the platform (x86, x64, or ARM64) and configuration (Debug or Release) and build the solution.
 
 ## How to use
