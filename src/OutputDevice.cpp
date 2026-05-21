@@ -14,16 +14,16 @@ import Util;
 
 namespace {
 
-PCWSTR NormalFontName = L"Verdana";
-PCWSTR VerbatimFontName = L"Lucida Console";
+    PCWSTR NormalFontName = L"Verdana";
+    PCWSTR VerbatimFontName = L"Lucida Console";
 
-constexpr auto TEXT_SIZE{10};
+    constexpr auto TEXT_SIZE{ 10 };
 
 }
 
 
-CRichEditDevice::CRichEditDevice(CRichEditCtrl &richEditCtrl)
-: m_richEditCtrl(richEditCtrl)
+CRichEditDevice::CRichEditDevice(CRichEditCtrl& richEditCtrl)
+    : m_richEditCtrl(richEditCtrl)
 {
     SetFontName(NormalFontName);
     SetFontSize(TEXT_SIZE);
@@ -39,7 +39,7 @@ void CRichEditDevice::SetBackgroundColor(const COLORREF color)
 
 COLORREF CRichEditDevice::SetTextColor(const COLORREF color)
 {
-    CHARFORMAT2 cf{{.cbSize = sizeof cf}};
+    CHARFORMAT2 cf{ {.cbSize = sizeof cf} };
     m_richEditCtrl.GetSelectionCharFormat(cf);
     cf.dwEffects = 0;
 
@@ -56,13 +56,13 @@ COLORREF CRichEditDevice::SetTextColor(const COLORREF color)
 
 void CRichEditDevice::SetHighlightColor(const COLORREF color) noexcept(false)
 {
-    CHARFORMAT2 cf{{.cbSize = sizeof cf, .dwMask = CFM_BACKCOLOR}, 0, 0, color};
+    CHARFORMAT2 cf{ {.cbSize = sizeof cf, .dwMask = CFM_BACKCOLOR}, 0, 0, color };
     m_richEditCtrl.SendMessage(EM_SETCHARFORMAT, SCF_SELECTION | SCF_WORD, reinterpret_cast<LPARAM>(&cf));
 }
 
 void CRichEditDevice::SetFontName(const PCWSTR name) noexcept(false)
 {
-    CHARFORMAT2 cf{{.cbSize = sizeof cf}, FW_NORMAL};
+    CHARFORMAT2 cf{ {.cbSize = sizeof cf}, FW_NORMAL };
 
     const int len = static_cast<int>(wcslen(name));
     for (int i = 0; i < len; i++)
@@ -77,7 +77,7 @@ void CRichEditDevice::SetFontName(const PCWSTR name) noexcept(false)
 
 int CRichEditDevice::SetFontSize(const int pointSize)
 {
-    CHARFORMAT2 cf{{.cbSize = sizeof cf}};
+    CHARFORMAT2 cf{ {.cbSize = sizeof cf} };
     m_richEditCtrl.GetSelectionCharFormat(cf);
     cf.dwEffects = 0;
 
@@ -85,7 +85,7 @@ int CRichEditDevice::SetFontSize(const int pointSize)
 
     cf.wWeight = FW_NORMAL;
     cf.yHeight = 20 * pointSize; // Convert to twips
-    cf.dwMask  = CFM_SIZE | CFM_WEIGHT;
+    cf.dwMask = CFM_SIZE | CFM_WEIGHT;
 
     m_richEditCtrl.SetSelectionCharFormat(cf);
 
@@ -95,14 +95,14 @@ int CRichEditDevice::SetFontSize(const int pointSize)
 void CRichEditDevice::BeginSection(const PCWSTR name)
 {
     // Add this new level to the output stack
-    m_sections.push_back(std::wstring{name});
+    m_sections.push_back(std::wstring{ name });
 
     // Actually write the section heading
     if ((nullptr != name) && (L'\0' != *name))
     {
         AddText(L"\n");
 
-        const size_t headingSize = TEXT_SIZE + ((m_sections.size() <= 4) ? (4 - m_sections.size())*TEXT_SIZE/4 : 0);
+        const size_t headingSize = TEXT_SIZE + ((m_sections.size() <= 4) ? (4 - m_sections.size()) * TEXT_SIZE / 4 : 0);
         const int oldSize = SetFontSize(static_cast<int>(headingSize));
         const COLORREF oldColor = SetTextColor(RGB(192, 0, 0));
 
@@ -129,13 +129,11 @@ void CRichEditDevice::AddVerbatimText(const PCWSTR name)
 
 void CRichEditDevice::AddDib(const HGLOBAL hBitmap)
 {
-    if (IRichEditOle* oleInterface{m_richEditCtrl.GetOleInterface()})
+    if (IRichEditOle * oleInterface{ m_richEditCtrl.GetOleInterface() })
     {
-        const HRESULT result = CBitmapDataObject::InsertDib(m_richEditCtrl.m_hWnd, oleInterface, hBitmap);
-
-        if (FAILED(result))
+        if (const HRESULT result = CBitmapDataObject::InsertDib(m_richEditCtrl.m_hWnd, oleInterface, hBitmap); FAILED(result))
         {
-            const COLORREF oldColor{SetTextColor(RGB(255, 0, 0))};
+            const COLORREF oldColor{ SetTextColor(RGB(255, 0, 0)) };
             AddText(std::format(L"Failed to render bitmap: {}\n", GetHresultString(result)).c_str());
             SetTextColor(oldColor);
         }

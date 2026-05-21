@@ -14,7 +14,7 @@ module AboutDlg;
 class CAboutDlg final : public ATL::CDialogImpl<CAboutDlg>
 {
 public:
-    enum { IDD = IDD_ABOUTBOX };
+    enum { IDD = IDD_ABOUT_BOX };
 
     BEGIN_MSG_MAP_OVERRIDE()
         MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)

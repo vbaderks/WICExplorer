@@ -1,13 +1,11 @@
-﻿// Copyright (c) Microsoft Corporation \ Victor Derks.
+// Copyright (c) Microsoft Corporation \ Victor Derks.
 // SPDX-License-Identifier: MIT
 
 #pragma once
 
-#include <wincodecsdk.h>
+import <Windows-import.h>;
 
-#include <comip.h>
-#include <comdef.h>
-#include <comdefsp.h>
+#include "IntelliSense.h"
 
 _COM_SMARTPTR_TYPEDEF(IWICImagingFactory, __uuidof(IWICImagingFactory));
 _COM_SMARTPTR_TYPEDEF(IWICBitmapDecoder, __uuidof(IWICBitmapDecoder));

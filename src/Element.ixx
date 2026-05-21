@@ -105,8 +105,8 @@ public:
     // Adds element as the last child
     void AddChild(CInfoElement* element) noexcept;
 
-    void RemoveChild(CInfoElement* child) noexcept;
-    void RemoveChildren() noexcept;
+    void RemoveChild(CInfoElement* child) const noexcept;
+    void RemoveChildren() const noexcept;
 
     virtual void FillContextMenu(HMENU /*context*/) noexcept
     {
@@ -286,7 +286,7 @@ private:
 export class CMetadataReaderElement final : public CComponentInfoElement
 {
 public:
-    CMetadataReaderElement(CInfoElement* parent, uint32_t idx, IWICMetadataReader* reader);
+    CMetadataReaderElement(const CInfoElement* parent, uint32_t idx, IWICMetadataReader* reader);
 
     HRESULT OutputView(IOutputDevice& output, const InfoElementViewContext& context) override;
     HRESULT OutputInfo(IOutputDevice& output)  noexcept(false) override;

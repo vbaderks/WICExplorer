@@ -96,10 +96,11 @@
         _CA_SHOULD_CHECK_RETURN = Expand PreFast attribute _Check_return_opt_ into _Check_return_
         _CA_SHOULD_CHECK_RETURN_WER = Expand PreFast attribute _Check_return_wat_ into _Check_return_
         __STDC_WANT_SECURE_LIB__=1 = Enable the secure CRT functions by default.
+        _CRT_MEMCPY_S_INLINE=inline = Correct the definition of memcpy_s and memmove_s in UCRT header.
       -->
       <PreprocessorDefinitions>
         WIN32;_WINDOWS;WIN32_LEAN_AND_MEAN;NOMINMAX;_ATL_ALL_WARNINGS;_ATL_ENABLE_PTM_WARNING;_ATL_NO_AUTOMATIC_NAMESPACE;_ATL_MODULES;
-        _ATL_CSTRING_EXPLICIT_CONSTRUCTORS;_CA_SHOULD_CHECK_RETURN;_CA_SHOULD_CHECK_RETURN_WER;__STDC_WANT_SECURE_LIB__=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+        _ATL_CSTRING_EXPLICIT_CONSTRUCTORS;_CA_SHOULD_CHECK_RETURN;_CA_SHOULD_CHECK_RETURN_WER;__STDC_WANT_SECURE_LIB__=1;_CRT_MEMCPY_S_INLINE=inline;%(PreprocessorDefinitions)</PreprocessorDefinitions>
 
       <!-- Mark the application compatible with Control-flow Enforcement Technology (CET) Shadow Stack (for x86 and x64)-->
       <CETCompat Condition="'$(Platform)'!='ARM64'">true</CETCompat>
@@ -115,6 +116,10 @@
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)wtl\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
+
+    <Manifest>
+      <EnableSegmentHeap>true</EnableSegmentHeap>
+    </Manifest>
   </ItemDefinitionGroup>
 
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">

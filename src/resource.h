@@ -2,7 +2,7 @@
 // Microsoft Visual C++ generated include file.
 // Used by WICExplorer.rc
 //
-#define IDD_ABOUTBOX                    100
+#define IDD_ABOUT_BOX                   100
 #define IDR_MAINFRAME                   128
 #define IDB_MAINTREE                    202
 #define IDD_ENCODER_SELECTION           203
@@ -25,7 +25,7 @@
 #define ID_VIEW_NORMALIZE_HISTOGRAM     32779
 
 // Next default values for new objects
-// 
+//
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        207
